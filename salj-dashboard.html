@@ -8,18 +8,18 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&display=swap');
 
 :root{
-  --bg:#0E0F0D;
-  --card:#161714;
-  --border:#2A2B27;
-  --text:#F0EEE8;
-  --muted:#6B6960;
-  --dm:#A8C5FF;
-  --ho:#7DDDB8;
-  --by:#F5C06A;
-  --offert:#E89BFF;
-  --meet:#FF9B6A;
-  --pos:#7DDDB8;
-  --neg:#FF7070;
+  --bg:#f5f4f0;
+  --card:#ffffff;
+  --border:#e0ddd6;
+  --text:#1a1a1a;
+  --muted:#888;
+  --dm:#185FA5;
+  --ho:#0F6E56;
+  --by:#854F0B;
+  --offert:#6B3FA0;
+  --meet:#C45000;
+  --pos:#27500A;
+  --neg:#A32D2D;
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
@@ -31,7 +31,7 @@ body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--text);min-
 .brand-sub{font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
 .sync-info{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
 .sync-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;font-size:11px;font-family:'DM Mono',monospace;border:1px solid var(--border);border-radius:6px;background:none;color:var(--muted);cursor:pointer;transition:all .2s;letter-spacing:.5px}
-.sync-btn:hover{border-color:var(--ho);color:var(--ho)}
+.sync-btn:hover{border-color:var(--text);color:var(--text)}
 .sync-status{font-size:10px;color:var(--muted);letter-spacing:.5px}
 .sync-status.ok{color:var(--pos)}
 
@@ -76,13 +76,13 @@ body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--text);min-
 .seller-bar{height:100%;border-radius:2px;transition:width .4s}
 
 .offert-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto}
-.offert-item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(232,155,255,0.06);border:1px solid rgba(232,155,255,0.15);border-radius:6px}
+.offert-item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(107,63,160,0.05);border:1px solid rgba(107,63,160,0.15);border-radius:6px}
 .offert-kund{font-size:12px;color:var(--text)}
 .offert-meta{font-size:10px;color:var(--muted);margin-top:2px}
 .offert-belopp{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--offert)}
 
 .meet-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto}
-.meet-item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(255,155,106,0.06);border:1px solid rgba(255,155,106,0.15);border-radius:6px}
+.meet-item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(196,80,0,0.05);border:1px solid rgba(196,80,0,0.15);border-radius:6px}
 .meet-kund{font-size:12px;color:var(--text)}
 .meet-meta{font-size:10px;color:var(--muted);margin-top:2px}
 .meet-who{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--meet)}
@@ -260,7 +260,6 @@ const fmtK = n => Math.round(n/1000) + 'k';
 function render(m){
   cur = m;
   updateTabs();
-  const BE = 150000;
   const md = monthData[m] || {salj:{a:0,b:0,mk:0,tot:0},dm:0,ho:0,by:0,offerts:[],meets:[],li_dm:0,li_ho:0};
 
   document.getElementById('kTot').textContent = fmt(md.salj.tot);
@@ -373,7 +372,7 @@ function updateCharts(){
     },
     options:{
       responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{ position:'bottom', labels:{ color:'#6B6960', font:{size:11,family:'DM Mono'}, boxWidth:10, padding:16 } } },
+      plugins:{ legend:{ position:'bottom', labels:{ color:'#888', font:{size:11,family:'DM Mono'}, boxWidth:10, padding:16 } } },
       cutout:'65%'
     }
   });
@@ -387,7 +386,7 @@ function updateCharts(){
       labels: MONTHS,
       datasets:[{
         data: saljs,
-        backgroundColor: MONTHS.map((_,i) => i===cur ? '#A8C5FF' : '#2A2B27'),
+        backgroundColor: MONTHS.map((_,i) => i===cur ? '#185FA5' : '#e0ddd6'),
         borderRadius: 3
       }]
     },
@@ -395,8 +394,8 @@ function updateCharts(){
       responsive:true, maintainAspectRatio:false,
       plugins:{ legend:{ display:false } },
       scales:{
-        x:{ ticks:{font:{size:10,family:'DM Mono'},color:'#6B6960'}, grid:{display:false} },
-        y:{ ticks:{font:{size:10,family:'DM Mono'},color:'#6B6960',callback:v=>fmtK(v)}, grid:{color:'rgba(255,255,255,0.04)'} }
+        x:{ ticks:{font:{size:10,family:'DM Mono'},color:'#888'}, grid:{display:false} },
+        y:{ ticks:{font:{size:10,family:'DM Mono'},color:'#888',callback:v=>fmtK(v)}, grid:{color:'rgba(0,0,0,0.06)'} }
       }
     }
   });
@@ -410,16 +409,16 @@ function updateCharts(){
     data: {
       labels: MONTHS,
       datasets:[
-        { label:'Offerter', data:offSums, backgroundColor:'rgba(232,155,255,0.5)', borderRadius:3 },
-        { label:'Försäljning', data:saljSums, backgroundColor:'rgba(125,221,184,0.5)', borderRadius:3 }
+        { label:'Offerter', data:offSums, backgroundColor:'rgba(107,63,160,0.3)', borderRadius:3 },
+        { label:'Försäljning', data:saljSums, backgroundColor:'rgba(15,110,86,0.3)', borderRadius:3 }
       ]
     },
     options:{
       responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{ labels:{ color:'#6B6960', font:{size:10,family:'DM Mono'}, boxWidth:10, padding:12 } } },
+      plugins:{ legend:{ labels:{ color:'#888', font:{size:10,family:'DM Mono'}, boxWidth:10, padding:12 } } },
       scales:{
-        x:{ ticks:{font:{size:10,family:'DM Mono'},color:'#6B6960'}, grid:{display:false} },
-        y:{ ticks:{font:{size:10,family:'DM Mono'},color:'#6B6960',callback:v=>fmtK(v)}, grid:{color:'rgba(255,255,255,0.04)'} }
+        x:{ ticks:{font:{size:10,family:'DM Mono'},color:'#888'}, grid:{display:false} },
+        y:{ ticks:{font:{size:10,family:'DM Mono'},color:'#888',callback:v=>fmtK(v)}, grid:{color:'rgba(0,0,0,0.06)'} }
       }
     }
   });

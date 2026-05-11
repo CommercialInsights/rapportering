@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CI · Säljöversikt</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&display=swap');
+
+:root{
+  --bg:#0E0F0D;
+  --card:#161714;
+  --border:#2A2B27;
+  --text:#F0EEE8;
+  --muted:#6B6960;
+  --dm:#A8C5FF;
+  --ho:#7DDDB8;
+  --by:#F5C06A;
+  --offert:#E89BFF;
+  --meet:#FF9B6A;
+  --pos:#7DDDB8;
+  --neg:#FF7070;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--text);min-height:100vh;padding:24px}
+
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;flex-wrap:wrap;gap:12px}
+.brand{display:flex;flex-direction:column;gap:4px}
+.brand-name{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;letter-spacing:-0.5px;color:var(--text)}
+.brand-sub{font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
+.sync-info{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.sync-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;font-size:11px;font-family:'DM Mono',monospace;border:1px solid var(--border);border-radius:6px;background:none;color:var(--muted);cursor:pointer;transition:all .2s;letter-spacing:.5px}
+.sync-btn:hover{border-color:var(--ho);color:var(--ho)}
+.sync-status{font-size:10px;color:var(--muted);letter-spacing:.5px}
+.sync-status.ok{color:var(--pos)}
+
+.month-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:24px}
+.mtab{padding:5px 12px;font-size:11px;font-family:'DM Mono',monospace;border:1px solid var(--border);border-radius:100px;cursor:pointer;background:none;color:var(--muted);transition:all .15s;letter-spacing:.5px}
+.mtab:hover{border-color:var(--text);color:var(--text)}
+.mtab.active{background:var(--text);color:var(--bg);border-color:var(--text)}
+.mtab.has{border-color:var(--ho);color:var(--ho)}
+.mtab.has.active{background:var(--ho);color:var(--bg);border-color:var(--ho)}
+
+.section-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:24px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 18px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi.dm::before{background:var(--dm)}
+.kpi.ho::before{background:var(--ho)}
+.kpi.by::before{background:var(--by)}
+.kpi.total::before{background:linear-gradient(90deg,var(--dm),var(--ho),var(--by))}
+.kpi.offert::before{background:var(--offert)}
+.kpi.meet::before{background:var(--meet)}
+.kpi-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.kpi-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--text)}
+.kpi-val.dm{color:var(--dm)}
+.kpi-val.ho{color:var(--ho)}
+.kpi-val.by{color:var(--by)}
+.kpi-val.offert{color:var(--offert)}
+.kpi-val.meet{color:var(--meet)}
+.kpi-sub{font-size:10px;color:var(--muted);margin-top:4px}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:24px}
+
+.panel{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px}
+.panel-title{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+
+.seller-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.seller-row:last-child{border-bottom:none}
+.seller-name{font-size:12px;color:var(--text)}
+.seller-val{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text)}
+.seller-bar-wrap{height:3px;background:var(--border);border-radius:2px;margin-top:5px;overflow:hidden}
+.seller-bar{height:100%;border-radius:2px;transition:width .4s}
+
+.offert-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto}
+.offert-item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(232,155,255,0.06);border:1px solid rgba(232,155,255,0.15);border-radius:6px}
+.offert-kund{font-size:12px;color:var(--text)}
+.offert-meta{font-size:10px;color:var(--muted);margin-top:2px}
+.offert-belopp{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--offert)}
+
+.meet-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto}
+.meet-item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(255,155,106,0.06);border:1px solid rgba(255,155,106,0.15);border-radius:6px}
+.meet-kund{font-size:12px;color:var(--text)}
+.meet-meta{font-size:10px;color:var(--muted);margin-top:2px}
+.meet-who{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--meet)}
+
+.chart-wrap{position:relative;height:200px;margin-top:8px}
+.chart-wrap.tall{height:260px}
+
+.yr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:24px}
+.yr-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.yr-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.yr-val{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--text)}
+.yr-sub{font-size:10px;color:var(--muted);margin-top:3px}
+
+.empty{font-size:12px;color:var(--muted);text-align:center;padding:20px;font-style:italic}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+@media(max-width:700px){
+  .kpi-grid{grid-template-columns:1fr 1fr}
+  .two-col,.three-col,.yr-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-name">Commercial Insights</div>
+    <div class="brand-sub">Säljöversikt · 2026</div>
+  </div>
+  <div class="sync-info">
+    <button class="sync-btn" onclick="fetchData()">↻ Synka</button>
+    <div class="sync-status" id="syncStatus">Hämtar data…</div>
+  </div>
+</div>
+
+<div class="month-tabs" id="tabs"></div>
+
+<div class="section-label">Denna månad</div>
+<div class="kpi-grid">
+  <div class="kpi total"><div class="kpi-label">Total försäljning</div><div class="kpi-val" id="kTot">—</div><div class="kpi-sub" id="kTotSub"></div></div>
+  <div class="kpi dm"><div class="kpi-label">DM</div><div class="kpi-val dm" id="kDM">—</div></div>
+  <div class="kpi ho"><div class="kpi-label">HO</div><div class="kpi-val ho" id="kHO">—</div></div>
+  <div class="kpi by"><div class="kpi-label">Byrå</div><div class="kpi-val by" id="kBy">—</div></div>
+  <div class="kpi offert"><div class="kpi-label">Offerter skickade</div><div class="kpi-val offert" id="kOffAnt">—</div><div class="kpi-sub" id="kOffSum"></div></div>
+  <div class="kpi meet"><div class="kpi-label">Möten bokade</div><div class="kpi-val meet" id="kMeet">—</div></div>
+  <div class="kpi total" id="kResCard"><div class="kpi-label">Resultat denna månad</div><div class="kpi-val" id="kRes">—</div><div class="kpi-sub">Breakeven: 150 000 kr</div></div>
+  <div class="kpi dm"><div class="kpi-label">LinkedIn DM</div><div class="kpi-val dm" id="kLIDM">—</div></div>
+  <div class="kpi ho"><div class="kpi-label">LinkedIn HO</div><div class="kpi-val ho" id="kLIHO">—</div></div>
+</div>
+
+<div style="margin-bottom:24px">
+  <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:5px;letter-spacing:.5px">
+    <span>0 kr</span><span id="beLabel">Breakeven: 150 000 kr</span>
+  </div>
+  <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+    <div id="beBar" style="height:100%;border-radius:3px;transition:width .4s,background .4s;width:0%"></div>
+  </div>
+</div>
+<div class="section-label">Helår 2026</div>
+<div class="yr-grid">
+  <div class="yr-card"><div class="yr-label">Total försäljning</div><div class="yr-val" id="yrTot">—</div><div class="yr-sub" id="yrAvg"></div></div>
+  <div class="yr-card"><div class="yr-label">Offerter (belopp)</div><div class="yr-val" style="color:var(--offert)" id="yrOff">—</div><div class="yr-sub" id="yrOffAnt"></div></div>
+  <div class="yr-card"><div class="yr-label">Möten totalt</div><div class="yr-val" style="color:var(--meet)" id="yrMeet">—</div></div>
+  <div class="yr-card"><div class="yr-label">Helår resultat</div><div class="yr-val" id="yrRes">—</div><div class="yr-sub" id="yrResSub"></div></div>
+</div>
+
+<div class="two-col">
+  <div class="panel">
+    <div class="panel-title">Försäljning per säljare</div>
+    <div id="sellerList"></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Försäljning per kategori</div>
+    <div class="chart-wrap"><canvas id="cCat"></canvas></div>
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="panel">
+    <div class="panel-title">Offerter denna månad</div>
+    <div class="offert-list" id="offertList"></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Bokade möten denna månad</div>
+    <div class="meet-list" id="meetList"></div>
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="panel">
+    <div class="panel-title">Försäljning per månad</div>
+    <div class="chart-wrap tall"><canvas id="cMonth"></canvas></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Offerter vs försäljning</div>
+    <div class="chart-wrap tall"><canvas id="cOffVsSalj"></canvas></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3i8YPlRoxvYeuRdlKW91BDjH-a4HohAHJIYnY_-tt8pj4QaGCXwj0r7i2OpdnIZmU/exec';
+const MONTHS = ['Jan','Feb','Mars','Apr','Maj','Jun','Jul','Aug','Sep','Okt','Nov','Dec'];
+
+function prodToCat(p){
+  if(!p)return 'dm';
+  const s=p.toLowerCase();
+  if(s.startsWith('ho'))return 'ho';
+  if(s.startsWith('byr'))return 'by';
+  return 'dm';
+}
+
+// monthData[i] = {salj:{a,b,m,tot}, dm, ho, by, offerts:[{kund,belopp,datum,saljare}], meets:[{kund,saljare,datum,antal}], li_dm, li_ho}
+let monthData = {};
+let cur = new Date().getMonth();
+
+async function fetchData(){
+  const el = document.getElementById('syncStatus');
+  el.textContent = 'Hämtar…';
+  el.className = 'sync-status';
+  try {
+    const resp = await fetch(APPS_SCRIPT_URL + '?t=' + Date.now());
+    const data = await resp.json();
+    monthData = {};
+    if(data.rows && data.rows.length > 1){
+      data.rows.slice(1).forEach(row => {
+        const datum = row[2];
+        const typ = row[3];
+        const produkt = row[4]||'';
+        const belopp = parseFloat(row[5])||0;
+        const moten = parseInt(row[7])||0;
+        const li_dm = parseInt(row[8])||0;
+        const li_ho = parseInt(row[9])||0;
+        const moteskontakt = row[10]||'';
+        const offertBelopp = parseFloat(row[11])||0;
+        const offertKund = row[12]||'';
+        const saljare = row[1]||'';
+        if(!datum) return;
+        const m = new Date(datum).getMonth();
+        if(!monthData[m]) monthData[m] = {salj:{a:0,b:0,mk:0,tot:0},dm:0,ho:0,by:0,offerts:[],meets:[],li_dm:0,li_ho:0};
+        const md = monthData[m];
+        if(typ==='Affär'){
+          const cat = prodToCat(produkt);
+          md[cat] += belopp;
+          md.salj.tot += belopp;
+          if(saljare==='Andreas') md.salj.a += belopp;
+          else if(saljare==='Bernardo') md.salj.b += belopp;
+          else md.salj.mk += belopp;
+        } else if(typ==='Möte' && (moteskontakt||moten>0)){
+          md.meets.push({kund:moteskontakt||'—', saljare, datum, antal:moten});
+        } else if(typ==='LinkedIn'){
+          if(li_dm>0) md.li_dm = li_dm;
+          if(li_ho>0) md.li_ho = li_ho;
+        } else if(typ==='Offert' && offertBelopp>0){
+          md.offerts.push({kund:offertKund||'—', belopp:offertBelopp, datum, saljare});
+        }
+      });
+    }
+    el.textContent = '✓ Synkad ' + new Date().toLocaleTimeString('sv-SE');
+    el.className = 'sync-status ok';
+    updateTabs();
+    render(cur);
+  } catch(err) {
+    el.textContent = 'Kunde inte nå Sheets';
+    el.className = 'sync-status';
+  }
+}
+
+const fmt = n => Math.round(n).toLocaleString('sv-SE') + ' kr';
+const fmtK = n => Math.round(n/1000) + 'k';
+
+function render(m){
+  cur = m;
+  updateTabs();
+  const BE = 150000;
+  const md = monthData[m] || {salj:{a:0,b:0,mk:0,tot:0},dm:0,ho:0,by:0,offerts:[],meets:[],li_dm:0,li_ho:0};
+
+  document.getElementById('kTot').textContent = fmt(md.salj.tot);
+  document.getElementById('kDM').textContent = fmt(md.dm);
+  document.getElementById('kHO').textContent = fmt(md.ho);
+  document.getElementById('kBy').textContent = fmt(md.by);
+  document.getElementById('kOffAnt').textContent = md.offerts.length + ' st';
+  document.getElementById('kOffSum').textContent = fmt(md.offerts.reduce((s,o)=>s+o.belopp,0));
+  const meetTot = md.meets.reduce((s,mt)=>s+mt.antal,0);
+  document.getElementById('kMeet').textContent = meetTot + ' st';
+  document.getElementById('kLIDM').textContent = md.li_dm ? md.li_dm.toLocaleString('sv-SE') : '—';
+  document.getElementById('kLIHO').textContent = md.li_ho ? md.li_ho.toLocaleString('sv-SE') : '—';
+
+  // Resultat vs breakeven
+  const BE = 150000;
+  const res = md.salj.tot - BE;
+  const resEl = document.getElementById('kRes');
+  resEl.textContent = fmt(res);
+  resEl.style.color = res >= 0 ? 'var(--pos)' : 'var(--neg)';
+  document.getElementById('kResCard').style.borderColor = res >= 0 ? 'rgba(125,221,184,0.3)' : 'rgba(255,112,112,0.3)';
+  const pct = Math.min(120, Math.round(md.salj.tot / BE * 100));
+  const bar = document.getElementById('beBar');
+  bar.style.width = Math.min(100, pct) + '%';
+  bar.style.background = pct >= 100 ? '#7DDDB8' : pct >= 70 ? '#F5C06A' : '#FF7070';
+
+  // Yearly
+  let yrTot=0, yrOff=0, yrOffAnt=0, yrMeet=0, yrN=0;
+  for(let i=0;i<12;i++){
+    const d = monthData[i];
+    if(!d) continue;
+    yrTot += d.salj.tot;
+    yrOff += d.offerts.reduce((s,o)=>s+o.belopp,0);
+    yrOffAnt += d.offerts.length;
+    yrMeet += d.meets.reduce((s,mt)=>s+mt.antal,0);
+    if(d.salj.tot>0) yrN++;
+  }
+  document.getElementById('yrTot').textContent = fmt(yrTot);
+  document.getElementById('yrAvg').textContent = yrN ? 'Snitt ' + fmt(yrTot/yrN) + '/mån' : '';
+  document.getElementById('yrOff').textContent = fmt(yrOff);
+  document.getElementById('yrOffAnt').textContent = yrOffAnt + ' offerter';
+  document.getElementById('yrMeet').textContent = yrMeet + ' st';
+  const yrResult = yrTot - (BE * yrN);
+  const yrResEl = document.getElementById('yrRes');
+  yrResEl.textContent = fmt(yrResult);
+  yrResEl.style.color = yrResult >= 0 ? 'var(--pos)' : 'var(--neg)';
+  document.getElementById('yrResSub').textContent = yrN ? yrN + ' aktiva månader' : '';
+
+  // Sellers
+  const maxSalj = Math.max(md.salj.a, md.salj.b, md.salj.mk, 1);
+  const sellers = [
+    {name:'Andreas', val:md.salj.a, color:'#AFA9EC'},
+    {name:'Bernardo', val:md.salj.b, color:'#F5C06A'},
+    {name:'Mikael', val:md.salj.mk, color:'#7DDDB8'},
+  ];
+  document.getElementById('sellerList').innerHTML = sellers.map(s => `
+    <div class="seller-row">
+      <div>
+        <div class="seller-name">${s.name}</div>
+        <div class="seller-bar-wrap"><div class="seller-bar" style="width:${Math.round(s.val/maxSalj*100)}%;background:${s.color}"></div></div>
+      </div>
+      <div class="seller-val" style="color:${s.color}">${fmt(s.val)}</div>
+    </div>`).join('');
+
+  // Offerts
+  const offEl = document.getElementById('offertList');
+  if(md.offerts.length === 0){
+    offEl.innerHTML = '<div class="empty">Inga offerter denna månad</div>';
+  } else {
+    offEl.innerHTML = md.offerts.map(o => `
+      <div class="offert-item">
+        <div><div class="offert-kund">${o.kund}</div><div class="offert-meta">${o.saljare} · ${o.datum}</div></div>
+        <div class="offert-belopp">${fmt(o.belopp)}</div>
+      </div>`).join('');
+  }
+
+  // Meets
+  const meetEl = document.getElementById('meetList');
+  if(md.meets.length === 0){
+    meetEl.innerHTML = '<div class="empty">Inga möten denna månad</div>';
+  } else {
+    meetEl.innerHTML = md.meets.map(mt => `
+      <div class="meet-item">
+        <div><div class="meet-kund">${mt.kund}</div><div class="meet-meta">${mt.datum}</div></div>
+        <div class="meet-who">${mt.saljare}</div>
+      </div>`).join('');
+  }
+
+  updateCharts();
+}
+
+function updateTabs(){
+  document.querySelectorAll('.mtab').forEach((t,i) => {
+    const has = monthData[i] && monthData[i].salj.tot > 0;
+    t.className = 'mtab' + (has?' has':'') + (i===cur?' active':'');
+  });
+}
+
+let cCat, cMonth, cOffVsSalj;
+
+function updateCharts(){
+  const md = monthData[cur] || {dm:0,ho:0,by:0};
+
+  // Cat donut
+  if(cCat) cCat.destroy();
+  cCat = new Chart(document.getElementById('cCat'), {
+    type: 'doughnut',
+    data: {
+      labels: ['DM','HO','Byrå'],
+      datasets:[{ data:[md.dm,md.ho,md.by], backgroundColor:['#A8C5FF','#7DDDB8','#F5C06A'], borderWidth:0, hoverOffset:4 }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'bottom', labels:{ color:'#6B6960', font:{size:11,family:'DM Mono'}, boxWidth:10, padding:16 } } },
+      cutout:'65%'
+    }
+  });
+
+  // Monthly bar
+  if(cMonth) cMonth.destroy();
+  const saljs = MONTHS.map((_,i) => monthData[i]?.salj.tot || null);
+  cMonth = new Chart(document.getElementById('cMonth'), {
+    type: 'bar',
+    data: {
+      labels: MONTHS,
+      datasets:[{
+        data: saljs,
+        backgroundColor: MONTHS.map((_,i) => i===cur ? '#A8C5FF' : '#2A2B27'),
+        borderRadius: 3
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ display:false } },
+      scales:{
+        x:{ ticks:{font:{size:10,family:'DM Mono'},color:'#6B6960'}, grid:{display:false} },
+        y:{ ticks:{font:{size:10,family:'DM Mono'},color:'#6B6960',callback:v=>fmtK(v)}, grid:{color:'rgba(255,255,255,0.04)'} }
+      }
+    }
+  });
+
+  // Offert vs salj
+  if(cOffVsSalj) cOffVsSalj.destroy();
+  const offSums = MONTHS.map((_,i) => monthData[i]?.offerts.reduce((s,o)=>s+o.belopp,0) || null);
+  const saljSums = MONTHS.map((_,i) => monthData[i]?.salj.tot || null);
+  cOffVsSalj = new Chart(document.getElementById('cOffVsSalj'), {
+    type: 'bar',
+    data: {
+      labels: MONTHS,
+      datasets:[
+        { label:'Offerter', data:offSums, backgroundColor:'rgba(232,155,255,0.5)', borderRadius:3 },
+        { label:'Försäljning', data:saljSums, backgroundColor:'rgba(125,221,184,0.5)', borderRadius:3 }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ labels:{ color:'#6B6960', font:{size:10,family:'DM Mono'}, boxWidth:10, padding:12 } } },
+      scales:{
+        x:{ ticks:{font:{size:10,family:'DM Mono'},color:'#6B6960'}, grid:{display:false} },
+        y:{ ticks:{font:{size:10,family:'DM Mono'},color:'#6B6960',callback:v=>fmtK(v)}, grid:{color:'rgba(255,255,255,0.04)'} }
+      }
+    }
+  });
+}
+
+// Build tabs
+const tabsEl = document.getElementById('tabs');
+MONTHS.forEach((m,i) => {
+  const btn = document.createElement('button');
+  btn.className = 'mtab';
+  btn.textContent = m;
+  btn.onclick = () => render(i);
+  tabsEl.appendChild(btn);
+});
+
+fetchData();
+</script>
+</body>
+</html>

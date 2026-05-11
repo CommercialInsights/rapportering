@@ -16,7 +16,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .field label{display:block;font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px}
 .field input,.field select{width:100%;padding:10px 12px;font-size:14px;border:1px solid #ddd;border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-family:inherit;transition:border .15s,background .15s;-webkit-appearance:none;appearance:none}
 .field input:focus,.field select:focus{outline:none;border-color:#1a1a2e;background:white}
-.radio-group{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.radio-group{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
 .radio-option{position:relative}
 .radio-option input[type=radio]{position:absolute;opacity:0;width:0;height:0}
 .radio-option label{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border:1.5px solid #ddd;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;color:#555;background:#f5f4f0;transition:all .15s;text-align:center}
@@ -69,6 +69,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="radio-option">
         <input type="radio" name="typ" id="typLinkedIn" value="LinkedIn" onchange="toggleSections()">
         <label for="typLinkedIn"><span class="icon">📊</span> LinkedIn</label>
+      </div>
+      <div class="radio-option">
+        <input type="radio" name="typ" id="typOffert" value="Offert" onchange="toggleSections()">
+        <label for="typOffert"><span class="icon">📋</span> Offert</label>
       </div>
     </div>
     <div class="error-msg" id="err-typ">Välj typ</div>
@@ -132,6 +136,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
+  <!-- Offert-sektion -->
+  <div class="section" id="sectionOffert">
+    <div class="section-title">Offertdetaljer</div>
+    <div class="field">
+      <label>Kund/företag</label>
+      <input type="text" id="offertKund" placeholder="t.ex. Volvo AB, Anna Svensson…">
+      <div class="error-msg" id="err-offertKund">Fyll i kundnamn</div>
+    </div>
+    <div class="field">
+      <label>Offertbelopp (kr)</label>
+      <input type="number" id="offertBelopp" placeholder="0" min="0">
+      <div class="error-msg" id="err-offertBelopp">Fyll i belopp</div>
+    </div>
+  </div>
   <button class="submit-btn" id="submitBtn" onclick="submitForm()">
     <span id="btnText">Skicka rapport</span>
     <div class="spinner" id="spinner"></div>
@@ -156,7 +174,9 @@ function toggleSections() {
   const typ = document.querySelector('input[name="typ"]:checked')?.value;
   document.getElementById('sectionAffar').classList.toggle('visible', typ === 'Affär');
   document.getElementById('sectionMote').classList.toggle('visible', typ === 'Möte');
+  document.getElementById('sectionOffert').classList.toggle('visible', typ === 'Offert');
   document.getElementById('sectionLinkedIn').classList.toggle('visible', typ === 'LinkedIn');
+  document.getElementById('sectionOffert').classList.toggle('visible', typ === 'Offert');
 }
 
 function clearErrors() {
@@ -177,6 +197,10 @@ function validate() {
   if (typ === 'Affär') {
     if (!document.getElementById('produkt').value) { showError('err-produkt'); ok = false; }
     if (!document.getElementById('belopp').value) { showError('err-belopp'); ok = false; }
+  }
+  if (typ === 'Offert') {
+    if (!document.getElementById('offertKund').value) { showError('err-offertKund'); ok = false; }
+    if (!document.getElementById('offertBelopp').value) { showError('err-offertBelopp'); ok = false; }
   }
   if (typ === 'Möte') {
     if (!document.getElementById('moten').value || document.getElementById('moten').value < 1) {
@@ -203,6 +227,8 @@ async function submitForm() {
     belopp: typ === 'Affär' ? Number(document.getElementById('belopp').value) : 0,
     grafiska: 0,
     moten: typ === 'Möte' ? Number(document.getElementById('moten').value) : 0,
+    offertBelopp: typ === 'Offert' ? Number(document.getElementById('offertBelopp').value) : 0,
+    offertKund: typ === 'Offert' ? document.getElementById('offertKund').value : '',
     moteskontakt: typ === 'Möte' ? document.getElementById('moteskontakt').value : '',
     li_dm: typ === 'LinkedIn' ? Number(document.getElementById('li_dm').value || 0) : 0,
     li_ho: typ === 'LinkedIn' ? Number(document.getElementById('li_ho').value || 0) : 0,
@@ -246,6 +272,9 @@ function resetForm() {
   document.getElementById('spinner').style.display = 'none';
   document.querySelectorAll('input[type=number]').forEach(i => i.value = '');
   document.getElementById('moteskontakt').value = '';
+  document.getElementById('offertKund').value = '';
+  document.getElementById('offertBelopp').value = '';
+  document.getElementById('sectionOffert').classList.remove('visible');
   document.querySelectorAll('input[type=radio]').forEach(i => i.checked = false);
   document.getElementById('produkt').value = '';
   document.getElementById('sectionAffar').classList.remove('visible');

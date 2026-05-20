@@ -11,12 +11,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .header{margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #e0ddd6}
 .header h1{font-size:18px;font-weight:700;color:#1a1a2e;margin-bottom:2px}
 .header p{font-size:12px;color:#888}
-.name-badge{display:inline-block;font-size:11px;font-weight:600;background:#E1F5EE;color:#085041;padding:2px 10px;border-radius:100px;margin-bottom:8px}
+.name-badge{display:inline-block;font-size:11px;font-weight:600;background:#E6F1FB;color:#0C447C;padding:2px 10px;border-radius:100px;margin-bottom:8px}
 .field{margin-bottom:14px}
 .field label{display:block;font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px}
 .field input,.field select{width:100%;padding:10px 12px;font-size:14px;border:1px solid #ddd;border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-family:inherit;transition:border .15s,background .15s;-webkit-appearance:none;appearance:none}
 .field input:focus,.field select:focus{outline:none;border-color:#1a1a2e;background:white}
-.radio-group{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
+.radio-group{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .radio-option{position:relative}
 .radio-option input[type=radio]{position:absolute;opacity:0;width:0;height:0}
 .radio-option label{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border:1.5px solid #ddd;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;color:#555;background:#f5f4f0;transition:all .15s;text-align:center}
@@ -27,7 +27,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .section-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:#888;margin-bottom:10px}
 .select-wrap{position:relative}
 .select-wrap::after{content:'▾';position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;color:#888;pointer-events:none}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .submit-btn{width:100%;padding:13px;font-size:14px;font-weight:600;background:#1a1a2e;color:white;border:none;border-radius:10px;cursor:pointer;font-family:inherit;transition:background .15s;margin-top:4px}
 .submit-btn:hover{background:#2d2d4a}
 .submit-btn:active{background:#111122}
@@ -37,6 +36,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .success p{font-size:13px;color:#888;margin-bottom:20px}
 .success button{padding:10px 24px;font-size:13px;font-weight:600;background:#f5f4f0;color:#1a1a2e;border:1px solid #ddd;border-radius:8px;cursor:pointer;font-family:inherit}
 .error-msg{font-size:11px;color:#A32D2D;margin-top:4px;display:none}
+.sending{opacity:.6;pointer-events:none}
 .spinner{display:none;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
@@ -45,14 +45,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div class="card" id="formCard">
   <div class="header">
     <div class="name-badge">Mikael</div>
-    <h1>Rapportera</h1>
-    <p>Affärer, möten, LinkedIn-följare och övriga nyckeltal.</p>
+    <h1>Rapportera affär eller möte</h1>
+    <p>Fyll i direkt när affären är klar eller mötet är bokat.</p>
   </div>
 
   <div class="field">
     <label>Datum</label>
     <input type="date" id="datum">
     <div class="error-msg" id="err-datum">Fyll i datum</div>
+  </div>
+
+  <div class="field" id="kundField" style="display:none">
+    <label>Kund / Företag</label>
+    <input type="text" id="kund" placeholder="Företagsnamn AB">
   </div>
 
   <div class="field">
@@ -66,14 +71,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <input type="radio" name="typ" id="typMote" value="Möte" onchange="toggleSections()">
         <label for="typMote"><span class="icon">📅</span> Möte</label>
       </div>
-      <div class="radio-option">
-        <input type="radio" name="typ" id="typLinkedIn" value="LinkedIn" onchange="toggleSections()">
-        <label for="typLinkedIn"><span class="icon">📊</span> LinkedIn</label>
-      </div>
-      <div class="radio-option">
-        <input type="radio" name="typ" id="typOffert" value="Offert" onchange="toggleSections()">
-        <label for="typOffert"><span class="icon">📋</span> Offert</label>
-      </div>
     </div>
     <div class="error-msg" id="err-typ">Välj typ</div>
   </div>
@@ -86,13 +83,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="select-wrap">
         <select id="produkt">
           <option value="">Välj produkt…</option>
+          <option value="DM Mediapaket">DM – Mediapaket</option>
           <option value="DM Intervju">DM – Intervju (14 900 kr)</option>
           <option value="DM Podd">DM – Poddavsnitt (49 000 kr)</option>
           <option value="DM Partnership">DM – Partnership (29 990 kr)</option>
           <option value="DM Grafisk annons">DM – Grafisk annons</option>
-          <option value="HO Helårspaketet">HO – Helårspaketet (69 000 kr)</option>
-          <option value="HO Utgåva">HO – Utgåva (29 000 kr)</option>
-          <option value="HO Grafisk annons">HO – Grafisk annons</option>
+          <option value="HO Redaktionell artikel">HO – Redaktionell artikel</option>
+          <option value="HO Grafisk helsida">HO – Grafisk helsida</option>
+          <option value="HO Grafisk halvsida">HO – Grafisk halvsida</option>
+          <option value="HO Digitalt paket">HO – Digitalt paket (19 900 kr)</option>
+          <option value="HO Specialpaket">HO – Specialpaket</option>
           <option value="Byrå">Byrå</option>
           <option value="Övrigt">Övrigt</option>
         </select>
@@ -104,6 +104,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <input type="number" id="belopp" placeholder="0" min="0">
       <div class="error-msg" id="err-belopp">Fyll i belopp</div>
     </div>
+    <div class="field" id="grafiskField" style="display:none">
+      <label>Antal grafiska annonser</label>
+      <input type="number" id="grafiska" placeholder="0" min="0">
+    </div>
   </div>
 
   <!-- Möte-sektion -->
@@ -114,42 +118,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <input type="number" id="moten" placeholder="0" min="1">
       <div class="error-msg" id="err-moten">Fyll i antal möten</div>
     </div>
-    <div class="field">
-      <label>Bokat med (företag/person)</label>
-      <input type="text" id="moteskontakt" placeholder="t.ex. Volvo, Anna Svensson…">
-    </div>
   </div>
 
-  <!-- LinkedIn-sektion -->
-  <div class="section" id="sectionLinkedIn">
-    <div class="section-title">LinkedIn-följare denna månad</div>
-    <div class="two-col">
-      <div class="field">
-        <label>DM – Följare</label>
-        <input type="number" id="li_dm" placeholder="0" min="0">
-        <div class="error-msg" id="err-li">Fyll i minst ett fält</div>
-      </div>
-      <div class="field">
-        <label>HO – Följare</label>
-        <input type="number" id="li_ho" placeholder="0" min="0">
-      </div>
-    </div>
-  </div>
-
-  <!-- Offert-sektion -->
-  <div class="section" id="sectionOffert">
-    <div class="section-title">Offertdetaljer</div>
-    <div class="field">
-      <label>Kund/företag</label>
-      <input type="text" id="offertKund" placeholder="t.ex. Volvo AB, Anna Svensson…">
-      <div class="error-msg" id="err-offertKund">Fyll i kundnamn</div>
-    </div>
-    <div class="field">
-      <label>Offertbelopp (kr)</label>
-      <input type="number" id="offertBelopp" placeholder="0" min="0">
-      <div class="error-msg" id="err-offertBelopp">Fyll i belopp</div>
-    </div>
-  </div>
   <button class="submit-btn" id="submitBtn" onclick="submitForm()">
     <span id="btnText">Skicka rapport</span>
     <div class="spinner" id="spinner"></div>
@@ -160,24 +130,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div class="card success" id="successCard">
   <div class="check">✅</div>
   <h2>Rapporten är skickad!</h2>
-  <p id="successMsg">Din rapport har registrerats.</p>
+  <p id="successMsg">Tack Mikael, din rapport har registrerats.</p>
   <button onclick="resetForm()">Rapportera igen</button>
 </div>
 
 <script>
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3i8YPlRoxvYeuRdlKW91BDjH-a4HohAHJIYnY_-tt8pj4QaGCXwj0r7i2OpdnIZmU/exec';
+// ── KONFIGURATION ──────────────────────────────────────────────
+// Klistra in din Google Apps Script webb-app URL här:
+const APPS_SCRIPT_URL = 'KLISTRA_IN_DIN_URL_HÄR';
 const SÄLJARE = 'Mikael';
+// ──────────────────────────────────────────────────────────────
 
+// Sätt dagens datum som default
 document.getElementById('datum').valueAsDate = new Date();
 
 function toggleSections() {
   const typ = document.querySelector('input[name="typ"]:checked')?.value;
   document.getElementById('sectionAffar').classList.toggle('visible', typ === 'Affär');
   document.getElementById('sectionMote').classList.toggle('visible', typ === 'Möte');
-  document.getElementById('sectionOffert').classList.toggle('visible', typ === 'Offert');
-  document.getElementById('sectionLinkedIn').classList.toggle('visible', typ === 'LinkedIn');
-  document.getElementById('sectionOffert').classList.toggle('visible', typ === 'Offert');
+  document.getElementById('kundField').style.display = typ === 'Affär' ? 'block' : 'none';
 }
+
+document.getElementById('produkt')?.addEventListener('change', function() {
+  const grafisk = this.value.includes('Grafisk');
+  document.getElementById('grafiskField').style.display = grafisk ? 'block' : 'none';
+  if (!grafisk) document.getElementById('grafiska').value = '';
+});
 
 function clearErrors() {
   document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
@@ -198,19 +176,10 @@ function validate() {
     if (!document.getElementById('produkt').value) { showError('err-produkt'); ok = false; }
     if (!document.getElementById('belopp').value) { showError('err-belopp'); ok = false; }
   }
-  if (typ === 'Offert') {
-    if (!document.getElementById('offertKund').value) { showError('err-offertKund'); ok = false; }
-    if (!document.getElementById('offertBelopp').value) { showError('err-offertBelopp'); ok = false; }
-  }
   if (typ === 'Möte') {
     if (!document.getElementById('moten').value || document.getElementById('moten').value < 1) {
       showError('err-moten'); ok = false;
     }
-  }
-  if (typ === 'LinkedIn') {
-    const dm = document.getElementById('li_dm').value;
-    const ho = document.getElementById('li_ho').value;
-    if (!dm && !ho) { showError('err-li'); ok = false; }
   }
   return ok;
 }
@@ -223,20 +192,25 @@ async function submitForm() {
     säljare: SÄLJARE,
     datum: document.getElementById('datum').value,
     typ: typ,
+    kund: typ === 'Affär' ? document.getElementById('kund').value : '',
     produkt: typ === 'Affär' ? document.getElementById('produkt').value : '',
     belopp: typ === 'Affär' ? Number(document.getElementById('belopp').value) : 0,
-    grafiska: 0,
+    grafiska: typ === 'Affär' ? Number(document.getElementById('grafiska').value || 0) : 0,
     moten: typ === 'Möte' ? Number(document.getElementById('moten').value) : 0,
-    offertBelopp: typ === 'Offert' ? Number(document.getElementById('offertBelopp').value) : 0,
-    offertKund: typ === 'Offert' ? document.getElementById('offertKund').value : '',
-    moteskontakt: typ === 'Möte' ? document.getElementById('moteskontakt').value : '',
-    li_dm: typ === 'LinkedIn' ? Number(document.getElementById('li_dm').value || 0) : 0,
-    li_ho: typ === 'LinkedIn' ? Number(document.getElementById('li_ho').value || 0) : 0,
   };
 
+  // Sätt knapp i laddningsläge
   document.getElementById('btnText').style.display = 'none';
   document.getElementById('spinner').style.display = 'block';
   document.getElementById('submitBtn').disabled = true;
+
+  // Om ingen URL är satt, simulera för test
+  if (APPS_SCRIPT_URL === 'KLISTRA_IN_DIN_URL_HÄR') {
+    await new Promise(r => setTimeout(r, 800));
+    console.log('TEST-läge, data som skulle skickas:', payload);
+    showSuccess(typ, payload);
+    return;
+  }
 
   try {
     await fetch(APPS_SCRIPT_URL, {
@@ -257,10 +231,9 @@ async function submitForm() {
 function showSuccess(typ, payload) {
   document.getElementById('formCard').style.display = 'none';
   document.getElementById('successCard').style.display = 'block';
-  let msg = '';
-  if (typ === 'Affär') msg = `${payload.produkt} – ${payload.belopp.toLocaleString('sv-SE')} kr registrerat.`;
-  else if (typ === 'Möte') msg = `${payload.moten} möte(n) med ${payload.moteskontakt||'–'} registrerat.`;
-  else msg = `LinkedIn DM: ${payload.li_dm} / HO: ${payload.li_ho} registrerat.`;
+  const msg = typ === 'Affär'
+    ? `${payload.produkt} – ${payload.belopp.toLocaleString('sv-SE')} kr registrerat.`
+    : `${payload.moten} möte(n) registrerat.`;
   document.getElementById('successMsg').textContent = msg;
 }
 
@@ -271,15 +244,13 @@ function resetForm() {
   document.getElementById('btnText').style.display = 'block';
   document.getElementById('spinner').style.display = 'none';
   document.querySelectorAll('input[type=number]').forEach(i => i.value = '');
-  document.getElementById('moteskontakt').value = '';
-  document.getElementById('offertKund').value = '';
-  document.getElementById('offertBelopp').value = '';
-  document.getElementById('sectionOffert').classList.remove('visible');
   document.querySelectorAll('input[type=radio]').forEach(i => i.checked = false);
   document.getElementById('produkt').value = '';
   document.getElementById('sectionAffar').classList.remove('visible');
   document.getElementById('sectionMote').classList.remove('visible');
-  document.getElementById('sectionLinkedIn').classList.remove('visible');
+  document.getElementById('grafiskField').style.display = 'none';
+  document.getElementById('kundField').style.display = 'none';
+  document.getElementById('kund').value = '';
   document.getElementById('datum').valueAsDate = new Date();
   clearErrors();
 }

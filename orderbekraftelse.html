@@ -165,11 +165,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <input type="number" id="avtalat_pris" placeholder="t.ex. 29000">
         <div class="hint">Skriv in det pris du kommit överens om med kunden.</div>
       </div>
+      <div class="field">
+        <label>Rabatt (%)</label>
+        <input type="number" id="rabatt_pct" value="32" min="1" max="70" placeholder="32">
+        <div class="hint">Listpriset räknas ut automatiskt. Standard är 32%.</div>
+      </div>
     </div>
 
     <!-- Digitalt paket -->
     <div id="section-digitalt" style="display:none">
       <div class="price-display visible">Fast pris: 19 900 kr exkl. moms</div>
+      <div class="field" style="margin-top:10px">
+        <label>Rabatt (%)</label>
+        <input type="number" id="rabatt_pct_digitalt" value="32" min="1" max="70" placeholder="32">
+      </div>
     </div>
 
     <!-- Dagens Medarbetare -->
@@ -178,6 +187,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <label>Avtalat pris (kr exkl. moms)</label>
         <input type="number" id="dm_pris" placeholder="t.ex. 14900">
         <div class="hint">Skriv in det pris du kommit överens om med kunden.</div>
+      </div>
+      <div class="field">
+        <label>Rabatt (%)</label>
+        <input type="number" id="rabatt_pct_dm" value="32" min="1" max="70" placeholder="32">
       </div>
     </div>
 
@@ -308,8 +321,9 @@ function formatKr(n) {
 
 // Listpris = avtalat pris ÷ 0.68 → ger ~47% rabatt (ser ut som minst 30%+)
 // Vi rundar uppåt till närmaste 500
-function calcListpris(pris) {
-  const raw = pris / 0.68;
+function calcListpris(pris, rabatt) {
+  const factor = 1 - ((rabatt || 32) / 100);
+  const raw = pris / factor;
   return Math.ceil(raw / 500) * 500;
 }
 
@@ -344,18 +358,21 @@ function generateOrder() {
   const PROD_LABELS = {redaktionell:'Redaktionell artikel', helsida:'Grafisk helsida', halvsida:'Grafisk halvsida'};
   if (p === 'digitalt') {
     pris = 19900;
-    listpris = calcListpris(pris);
+    const rabattD = parseInt(document.getElementById('rabatt_pct_digitalt').value) || 32;
+    listpris = calcListpris(pris, rabattD);
     produktNamn = 'Digitalt paket Hållbar Omställning';
     rows = buildRow(produktNamn, listpris, pris);
   } else if (p === 'dm') {
     pris = parseInt(document.getElementById('dm_pris').value) || 0;
-    listpris = calcListpris(pris);
+    const rabattDM = parseInt(document.getElementById('rabatt_pct_dm').value) || 32;
+    listpris = calcListpris(pris, rabattDM);
     produktNamn = 'Dagens Medarbetare – Mediapaket';
     rows = buildRow(produktNamn, listpris, pris);
   } else {
     const num = document.getElementById('antal_nummer').value.trim() || '–';
     pris = parseInt(document.getElementById('avtalat_pris').value) || 0;
-    listpris = calcListpris(pris);
+    const rabattHO = parseInt(document.getElementById('rabatt_pct').value) || 32;
+    listpris = calcListpris(pris, rabattHO);
     produktNamn = 'Hållbar Omställning – ' + (PROD_LABELS[p] || p) + ', ' + num;
     rows = buildRow(produktNamn, listpris, pris);
   }

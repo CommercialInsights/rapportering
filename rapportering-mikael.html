@@ -71,6 +71,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <input type="radio" name="typ" id="typMote" value="Möte" onchange="toggleSections()">
         <label for="typMote"><span class="icon">📅</span> Möte</label>
       </div>
+      <div class="radio-option">
+        <input type="radio" name="typ" id="typOffert" value="Offert" onchange="toggleSections()">
+        <label for="typOffert"><span class="icon">📋</span> Offert</label>
+      </div>
     </div>
     <div class="error-msg" id="err-typ">Välj typ</div>
   </div>
@@ -120,6 +124,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
+  <!-- Offert-sektion -->
+  <div class="section" id="sectionOffert">
+    <div class="section-title">Offertdetaljer</div>
+    <div class="field">
+      <label>Kund / Företag</label>
+      <input type="text" id="offertKund" placeholder="Företagsnamn AB">
+    </div>
+    <div class="field">
+      <label>Offertbelopp (kr)</label>
+      <input type="number" id="offertBelopp" placeholder="0" min="0">
+      <div class="error-msg" id="err-offertBelopp">Fyll i offertbelopp</div>
+    </div>
+  </div>
+
   <button class="submit-btn" id="submitBtn" onclick="submitForm()">
     <span id="btnText">Skicka rapport</span>
     <div class="spinner" id="spinner"></div>
@@ -148,6 +166,7 @@ function toggleSections() {
   const typ = document.querySelector('input[name="typ"]:checked')?.value;
   document.getElementById('sectionAffar').classList.toggle('visible', typ === 'Affär');
   document.getElementById('sectionMote').classList.toggle('visible', typ === 'Möte');
+  document.getElementById('sectionOffert').classList.toggle('visible', typ === 'Offert');
   document.getElementById('kundField').style.display = typ === 'Affär' ? 'block' : 'none';
 }
 
@@ -181,6 +200,9 @@ function validate() {
       showError('err-moten'); ok = false;
     }
   }
+  if (typ === 'Offert') {
+    if (!document.getElementById('offertBelopp').value) { showError('err-offertBelopp'); ok = false; }
+  }
   return ok;
 }
 
@@ -195,6 +217,8 @@ async function submitForm() {
     kund: typ === 'Affär' ? document.getElementById('kund').value : '',
     produkt: typ === 'Affär' ? document.getElementById('produkt').value : '',
     belopp: typ === 'Affär' ? Number(document.getElementById('belopp').value) : 0,
+    offertKund: typ === 'Offert' ? document.getElementById('offertKund').value : '',
+    offertBelopp: typ === 'Offert' ? Number(document.getElementById('offertBelopp').value) : 0,
     grafiska: typ === 'Affär' ? Number(document.getElementById('grafiska').value || 0) : 0,
     moten: typ === 'Möte' ? Number(document.getElementById('moten').value) : 0,
   };
@@ -233,6 +257,8 @@ function showSuccess(typ, payload) {
   document.getElementById('successCard').style.display = 'block';
   const msg = typ === 'Affär'
     ? `${payload.produkt} – ${payload.belopp.toLocaleString('sv-SE')} kr registrerat.`
+    : typ === 'Offert'
+    ? `Offert till ${payload.offertKund||'kund'} – ${payload.offertBelopp.toLocaleString('sv-SE')} kr registrerad.`
     : `${payload.moten} möte(n) registrerat.`;
   document.getElementById('successMsg').textContent = msg;
 }
@@ -251,6 +277,9 @@ function resetForm() {
   document.getElementById('grafiskField').style.display = 'none';
   document.getElementById('kundField').style.display = 'none';
   document.getElementById('kund').value = '';
+  document.getElementById('sectionOffert').classList.remove('visible');
+  document.getElementById('offertKund').value = '';
+  document.getElementById('offertBelopp').value = '';
   document.getElementById('datum').valueAsDate = new Date();
   clearErrors();
 }

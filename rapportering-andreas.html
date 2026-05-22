@@ -55,11 +55,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="error-msg" id="err-datum">Fyll i datum</div>
   </div>
 
-  <div class="field" id="kundField" style="display:none">
-    <label>Kund / Företag</label>
-    <input type="text" id="kund" placeholder="Företagsnamn AB">
-  </div>
-
   <div class="field">
     <label>Vad rapporterar du?</label>
     <div class="radio-group">
@@ -70,10 +65,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="radio-option">
         <input type="radio" name="typ" id="typMote" value="Möte" onchange="toggleSections()">
         <label for="typMote"><span class="icon">📅</span> Möte</label>
-      </div>
-      <div class="radio-option">
-        <input type="radio" name="typ" id="typOffert" value="Offert" onchange="toggleSections()">
-        <label for="typOffert"><span class="icon">📋</span> Offert</label>
       </div>
     </div>
     <div class="error-msg" id="err-typ">Välj typ</div>
@@ -87,16 +78,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="select-wrap">
         <select id="produkt">
           <option value="">Välj produkt…</option>
-          <option value="DM Mediapaket">DM – Mediapaket</option>
           <option value="DM Intervju">DM – Intervju (14 900 kr)</option>
           <option value="DM Podd">DM – Poddavsnitt (49 000 kr)</option>
           <option value="DM Partnership">DM – Partnership (29 990 kr)</option>
           <option value="DM Grafisk annons">DM – Grafisk annons</option>
-          <option value="HO Redaktionell artikel">HO – Redaktionell artikel</option>
-          <option value="HO Grafisk helsida">HO – Grafisk helsida</option>
-          <option value="HO Grafisk halvsida">HO – Grafisk halvsida</option>
-          <option value="HO Digitalt paket">HO – Digitalt paket (19 900 kr)</option>
-          <option value="HO Specialpaket">HO – Specialpaket</option>
+          <option value="HO Helårspaketet">HO – Helårspaketet (69 000 kr)</option>
+          <option value="HO Utgåva">HO – Utgåva (29 000 kr)</option>
+          <option value="HO Grafisk annons">HO – Grafisk annons</option>
+          <option value="HO Redaktionell annons">HO – Redaktionell annons</option>
           <option value="Byrå">Byrå</option>
           <option value="Övrigt">Övrigt</option>
         </select>
@@ -124,20 +113,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
-  <!-- Offert-sektion -->
-  <div class="section" id="sectionOffert">
-    <div class="section-title">Offertdetaljer</div>
-    <div class="field">
-      <label>Kund / Företag</label>
-      <input type="text" id="offertKund" placeholder="Företagsnamn AB">
-    </div>
-    <div class="field">
-      <label>Offertbelopp (kr)</label>
-      <input type="number" id="offertBelopp" placeholder="0" min="0">
-      <div class="error-msg" id="err-offertBelopp">Fyll i offertbelopp</div>
-    </div>
-  </div>
-
   <button class="submit-btn" id="submitBtn" onclick="submitForm()">
     <span id="btnText">Skicka rapport</span>
     <div class="spinner" id="spinner"></div>
@@ -155,7 +130,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <script>
 // ── KONFIGURATION ──────────────────────────────────────────────
 // Klistra in din Google Apps Script webb-app URL här:
-const APPS_SCRIPT_URL = 'KLISTRA_IN_DIN_URL_HÄR';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3i8YPlRoxvYeuRdlKW91BDjH-a4HohAHJIYnY_-tt8pj4QaGCXwj0r7i2OpdnIZmU/exec';
 const SÄLJARE = 'Andreas';
 // ──────────────────────────────────────────────────────────────
 
@@ -166,8 +141,6 @@ function toggleSections() {
   const typ = document.querySelector('input[name="typ"]:checked')?.value;
   document.getElementById('sectionAffar').classList.toggle('visible', typ === 'Affär');
   document.getElementById('sectionMote').classList.toggle('visible', typ === 'Möte');
-  document.getElementById('sectionOffert').classList.toggle('visible', typ === 'Offert');
-  document.getElementById('kundField').style.display = typ === 'Affär' ? 'block' : 'none';
 }
 
 document.getElementById('produkt')?.addEventListener('change', function() {
@@ -200,9 +173,6 @@ function validate() {
       showError('err-moten'); ok = false;
     }
   }
-  if (typ === 'Offert') {
-    if (!document.getElementById('offertBelopp').value) { showError('err-offertBelopp'); ok = false; }
-  }
   return ok;
 }
 
@@ -214,11 +184,8 @@ async function submitForm() {
     säljare: SÄLJARE,
     datum: document.getElementById('datum').value,
     typ: typ,
-    kund: typ === 'Affär' ? document.getElementById('kund').value : '',
     produkt: typ === 'Affär' ? document.getElementById('produkt').value : '',
     belopp: typ === 'Affär' ? Number(document.getElementById('belopp').value) : 0,
-    offertKund: typ === 'Offert' ? document.getElementById('offertKund').value : '',
-    offertBelopp: typ === 'Offert' ? Number(document.getElementById('offertBelopp').value) : 0,
     grafiska: typ === 'Affär' ? Number(document.getElementById('grafiska').value || 0) : 0,
     moten: typ === 'Möte' ? Number(document.getElementById('moten').value) : 0,
   };
@@ -257,8 +224,6 @@ function showSuccess(typ, payload) {
   document.getElementById('successCard').style.display = 'block';
   const msg = typ === 'Affär'
     ? `${payload.produkt} – ${payload.belopp.toLocaleString('sv-SE')} kr registrerat.`
-    : typ === 'Offert'
-    ? `Offert till ${payload.offertKund||'kund'} – ${payload.offertBelopp.toLocaleString('sv-SE')} kr registrerad.`
     : `${payload.moten} möte(n) registrerat.`;
   document.getElementById('successMsg').textContent = msg;
 }
@@ -275,11 +240,6 @@ function resetForm() {
   document.getElementById('sectionAffar').classList.remove('visible');
   document.getElementById('sectionMote').classList.remove('visible');
   document.getElementById('grafiskField').style.display = 'none';
-  document.getElementById('kundField').style.display = 'none';
-  document.getElementById('kund').value = '';
-  document.getElementById('sectionOffert').classList.remove('visible');
-  document.getElementById('offertKund').value = '';
-  document.getElementById('offertBelopp').value = '';
   document.getElementById('datum').valueAsDate = new Date();
   clearErrors();
 }

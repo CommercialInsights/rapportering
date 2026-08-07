@@ -413,11 +413,32 @@ function buildChartData() {
   const labels = [], values = [], rawDates = [];
   let running = start;
 
-  for (let i = 0; i <= days; i++) {
+  // Sortera poster per datum + intäkter före utgifter samma dag
+  const sortedPosts = [...state.posts].sort((a, b) => {
+    if (a.date !== b.date) return a.date.localeCompare(b.date);
+    // Samma datum: intäkter (in) före utgifter (ut)
+    if (a.type === 'in' && b.type !== 'in') return -1;
+    if (a.type !== 'in' && b.type === 'in') return 1;
+    return 0;
+  });
+
+  // Bygg en map datum -> netto för snabb lookup
+  const dayMap = {};
+  sortedPosts.forEach(p => {
+    if (!dayMap[p.date]) dayMap[p.date] = 0;
+    dayMap[p.date] += p.type === 'in' ? p.amount : -p.amount;
+  });
+
+  // Starta med dagens saldo, applicera poster dag för dag
+  labels.push(fmtDate(today));
+  values.push(running);
+  rawDates.push(today);
+
+  for (let i = 1; i <= days; i++) {
     const date = addDaysStr(today, i);
-    state.posts.filter(p => p.date === date).forEach(p => {
-      running += p.type === "in" ? p.amount : -p.amount;
-    });
+    if (dayMap[date] !== undefined) {
+      running += dayMap[date];
+    }
     labels.push(fmtDate(date));
     values.push(running);
     rawDates.push(date);

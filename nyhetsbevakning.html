@@ -413,14 +413,14 @@
     <div class="report-panel">
       <div class="report-title">Rapportera en nyhet</div>
       <div class="form-row">
-        <div class="form-group">
+        <div class="form-group full">
           <label>Kund</label>
           <select id="a-kund"></select>
         </div>
-        <div class="form-group">
-          <label>Artikel-URL</label>
-          <input type="url" id="a-url" placeholder="https://...">
-        </div>
+      </div>
+      <div class="form-group full" style="margin-bottom:12px">
+        <label>URL:er &mdash; en per rad (klistra in flera om du hittat flera nyheter)</label>
+        <textarea id="a-url" placeholder="https://foretag.se/nyhet-1&#10;https://foretag.se/nyhet-2" style="min-height:100px"></textarea>
       </div>
       <div class="form-group full">
         <label>Kort kommentar (valfritt)</label>
@@ -459,14 +459,14 @@
     <div class="report-panel">
       <div class="report-title">Rapportera en nyhet</div>
       <div class="form-row">
-        <div class="form-group">
+        <div class="form-group full">
           <label>Kund</label>
           <select id="b-kund"></select>
         </div>
-        <div class="form-group">
-          <label>Artikel-URL</label>
-          <input type="url" id="b-url" placeholder="https://...">
-        </div>
+      </div>
+      <div class="form-group full" style="margin-bottom:12px">
+        <label>URL:er &mdash; en per rad (klistra in flera om du hittat flera nyheter)</label>
+        <textarea id="b-url" placeholder="https://foretag.se/nyhet-1&#10;https://foretag.se/nyhet-2" style="min-height:100px"></textarea>
       </div>
       <div class="form-group full">
         <label>Kort kommentar (valfritt)</label>
@@ -645,18 +645,22 @@ function closeModal() {
 function sendReport(user) {
   const prefix = user === 'andreas' ? 'a' : 'b';
   const kund = document.getElementById(prefix + '-kund').value;
-  const url = document.getElementById(prefix + '-url').value.trim();
+  const urlRaw = document.getElementById(prefix + '-url').value.trim();
   const kommentar = document.getElementById(prefix + '-kommentar').value.trim();
   const saljare = user === 'andreas' ? 'Andreas' : 'Bernardo';
 
-  if (!kund || !url) {
-    alert('Välj kund och klistra in en URL.');
+  if (!kund || !urlRaw) {
+    alert('Välj kund och klistra in minst en URL.');
     return;
   }
 
-  const subject = encodeURIComponent(`Ny nyhet: ${kund}`);
+  const urls = urlRaw.split('\n').map(u => u.trim()).filter(u => u.length > 0);
+  const urlList = urls.map((u, i) => `${i + 1}. ${u}`).join('\n');
+  const antal = urls.length;
+
+  const subject = encodeURIComponent(`${antal > 1 ? antal + ' nyheter' : 'Ny nyhet'}: ${kund}`);
   const body = encodeURIComponent(
-    `Hej Mikael!\n\n${saljare} har hittat en nyhet från ${kund}.\n\nURL: ${url}${kommentar ? '\n\nKommentar: ' + kommentar : ''}\n\nMvh\n${saljare}`
+    `Hej Mikael!\n\n${saljare} har hittat ${antal > 1 ? antal + ' nyheter' : 'en nyhet'} från ${kund}.\n\n${urlList}${kommentar ? '\n\nKommentar: ' + kommentar : ''}\n\nMvh\n${saljare}`
   );
 
   window.location.href = `mailto:${MIKAEL_EMAIL}?subject=${subject}&body=${body}`;

@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nyhetsbevakning — Commercial Insights</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --border: #e0ddd6;
+    --ink: #1a1a18;
+    --ink-soft: #555550;
+    --ink-faint: #999890;
+    --green: #2d6a4f;
+    --green-light: #e8f4ee;
+    --andreas: #1a3a4a;
+    --andreas-light: #e6f1fb;
+    --bernardo: #4a1a3a;
+    --bernardo-light: #f5e6f1;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+  }
+
+  .tab-nav {
+    display: flex;
+    gap: 4px;
+  }
+
+  .tab-btn {
+    padding: 7px 16px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    background: transparent;
+    color: var(--ink-soft);
+    transition: all 0.15s;
+  }
+
+  .tab-btn.active-andreas {
+    background: var(--andreas-light);
+    color: var(--andreas);
+    border-color: #b8d4e8;
+  }
+
+  .tab-btn.active-bernardo {
+    background: var(--bernardo-light);
+    color: var(--bernardo);
+    border-color: #e8b8d4;
+  }
+
+  .tab-btn:not(.active-andreas):not(.active-bernardo):hover {
+    background: var(--bg);
+    border-color: var(--border);
+  }
+
+  .main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 28px 24px;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .section-sub {
+    font-size: 12px;
+    color: var(--ink-faint);
+  }
+
+  .customer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 8px;
+    margin-bottom: 32px;
+  }
+
+  .customer-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .customer-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .customer-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .btn-visit {
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--ink-soft);
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.1s;
+  }
+
+  .btn-visit:hover {
+    border-color: var(--green);
+    color: var(--green);
+    background: var(--green-light);
+  }
+
+  .btn-report {
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: none;
+    background: var(--ink);
+    color: white;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.1s;
+  }
+
+  .btn-report:hover { background: #333; }
+
+  .btn-edit-customer {
+    font-size: 12px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--ink-faint);
+    cursor: pointer;
+    transition: all 0.1s;
+  }
+
+  .btn-edit-customer:hover {
+    border-color: var(--ink-soft);
+    color: var(--ink);
+  }
+
+  /* Report form */
+  .report-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 32px;
+  }
+
+  .report-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--ink);
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .form-group.full { grid-column: 1 / -1; }
+
+  label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-faint);
+    letter-spacing: 0.05em;
+  }
+
+  input, select, textarea {
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    font-size: 14px;
+    color: var(--ink);
+    font-family: inherit;
+    transition: border 0.15s, background 0.15s;
+    width: 100%;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--ink);
+    background: white;
+  }
+
+  textarea { resize: vertical; min-height: 72px; }
+
+  .btn-send {
+    width: 100%;
+    padding: 11px;
+    margin-top: 4px;
+    border: none;
+    border-radius: 8px;
+    background: var(--ink);
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.1s;
+  }
+
+  .btn-send:hover { background: #333; }
+
+  .success-msg {
+    display: none;
+    background: var(--green-light);
+    border: 1px solid #a8d5b8;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--green);
+    margin-top: 12px;
+    text-align: center;
+  }
+
+  /* Add customer */
+  .add-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
+
+  .add-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+  }
+
+  .add-row .form-group { flex: 1; }
+
+  .btn-add {
+    padding: 9px 18px;
+    border: none;
+    border-radius: 8px;
+    background: var(--green);
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .btn-add:hover { background: #235c42; }
+
+  /* Edit modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: white;
+    border-radius: 14px;
+    padding: 24px;
+    width: 100%;
+    max-width: 400px;
+    margin: 16px;
+  }
+
+  .modal h3 { font-size: 15px; margin-bottom: 16px; }
+
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .btn-save {
+    flex: 1;
+    padding: 9px;
+    border: none;
+    border-radius: 8px;
+    background: var(--ink);
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .btn-delete {
+    padding: 9px 16px;
+    border: 1px solid #e0ddd6;
+    border-radius: 8px;
+    background: transparent;
+    color: #c0392b;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .btn-cancel {
+    padding: 9px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--ink-soft);
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .user-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+
+  .badge-andreas { background: var(--andreas-light); color: var(--andreas); }
+  .badge-bernardo { background: var(--bernardo-light); color: var(--bernardo); }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">Commercial Insights — Nyhetsbevakning</span>
+  <div class="tab-nav">
+    <button class="tab-btn active-andreas" onclick="switchTab('andreas')">Andreas</button>
+    <button class="tab-btn" onclick="switchTab('bernardo')">Bernardo</button>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- Andreas -->
+  <div class="tab-content active" id="tab-andreas">
+    <div class="section-head">
+      <div>
+        <div class="section-title">Dina kunder <span class="user-badge badge-andreas">Andreas</span></div>
+        <div class="section-sub">Klicka på Besök för att kolla om det kommit något nytt — rapportera om du hittar en nyhet.</div>
+      </div>
+    </div>
+    <div class="customer-grid" id="grid-andreas"></div>
+
+    <div class="report-panel">
+      <div class="report-title">Rapportera en nyhet</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Kund</label>
+          <select id="a-kund"></select>
+        </div>
+        <div class="form-group">
+          <label>Artikel-URL</label>
+          <input type="url" id="a-url" placeholder="https://...">
+        </div>
+      </div>
+      <div class="form-group full">
+        <label>Kort kommentar (valfritt)</label>
+        <textarea id="a-kommentar" placeholder="Vad handlar artikeln om?"></textarea>
+      </div>
+      <button class="btn-send" onclick="sendReport('andreas')">Skicka till Mikael</button>
+      <div class="success-msg" id="a-success">✓ Skickat! Mikael får ett mejl nu.</div>
+    </div>
+
+    <div class="add-section">
+      <div class="section-title" style="margin-bottom:14px">Lägg till kund</div>
+      <div class="add-row">
+        <div class="form-group">
+          <label>Företagsnamn</label>
+          <input type="text" id="a-add-name" placeholder="Företag AB">
+        </div>
+        <div class="form-group">
+          <label>Nyhetssida (URL)</label>
+          <input type="url" id="a-add-url" placeholder="https://foretag.se/nyheter">
+        </div>
+        <button class="btn-add" onclick="addCustomer('andreas')">Lägg till</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bernardo -->
+  <div class="tab-content" id="tab-bernardo">
+    <div class="section-head">
+      <div>
+        <div class="section-title">Dina kunder <span class="user-badge badge-bernardo">Bernardo</span></div>
+        <div class="section-sub">Klicka på Besök för att kolla om det kommit något nytt — rapportera om du hittar en nyhet.</div>
+      </div>
+    </div>
+    <div class="customer-grid" id="grid-bernardo"></div>
+
+    <div class="report-panel">
+      <div class="report-title">Rapportera en nyhet</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Kund</label>
+          <select id="b-kund"></select>
+        </div>
+        <div class="form-group">
+          <label>Artikel-URL</label>
+          <input type="url" id="b-url" placeholder="https://...">
+        </div>
+      </div>
+      <div class="form-group full">
+        <label>Kort kommentar (valfritt)</label>
+        <textarea id="b-kommentar" placeholder="Vad handlar artikeln om?"></textarea>
+      </div>
+      <button class="btn-send" onclick="sendReport('bernardo')">Skicka till Mikael</button>
+      <div class="success-msg" id="b-success">✓ Skickat! Mikael får ett mejl nu.</div>
+    </div>
+
+    <div class="add-section">
+      <div class="section-title" style="margin-bottom:14px">Lägg till kund</div>
+      <div class="add-row">
+        <div class="form-group">
+          <label>Företagsnamn</label>
+          <input type="text" id="b-add-name" placeholder="Företag AB">
+        </div>
+        <div class="form-group">
+          <label>Nyhetssida (URL)</label>
+          <input type="url" id="b-add-url" placeholder="https://foretag.se/nyheter">
+        </div>
+        <button class="btn-add" onclick="addCustomer('bernardo')">Lägg till</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Edit modal -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h3>Redigera kund</h3>
+    <div class="form-group" style="margin-bottom:10px">
+      <label>Företagsnamn</label>
+      <input type="text" id="edit-name">
+    </div>
+    <div class="form-group">
+      <label>Nyhetssida (URL)</label>
+      <input type="url" id="edit-url">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-save" onclick="saveEdit()">Spara</button>
+      <button class="btn-delete" onclick="deleteCustomer()">Ta bort</button>
+      <button class="btn-cancel" onclick="closeModal()">Avbryt</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const MIKAEL_EMAIL = 'mikael@commercialinsights.se';
+
+const DEFAULT_CUSTOMERS = {
+  andreas: [
+    { name: 'Wallenius SOL', url: 'https://wallenius-sol.com/en/news' },
+    { name: 'Foria', url: 'https://www.foria.se' },
+    { name: 'Volvo Penta', url: 'https://www.volvopenta.com/en/pressroom/' },
+    { name: 'Fair Transport', url: 'https://www.fairtransport.se/nyheter' },
+    { name: 'Finnvedens Lastvagnar', url: 'https://www.dealer.volvotrucks.se/finnvedenslast/sv-se/' },
+    { name: 'Ahrens åkeri', url: 'https://www.ahrens.se' },
+    { name: 'Kalmar', url: 'https://www.kalmarglobal.com/news-and-insights/' },
+    { name: 'Kärcher', url: 'https://www.kaercher.com/se/press/' },
+    { name: 'Logivity', url: 'https://www.logivity.se/nyheter' },
+    { name: 'SCA', url: 'https://www.sca.com' },
+    { name: 'Viking Line', url: 'https://www.vikingline.com/the-group/viking-line/news/' },
+  ],
+  bernardo: [
+    { name: 'Bjärnums Stålprodukter', url: 'https://www.stalprodukter.se' },
+    { name: 'Blastiq', url: 'https://www.blastiq.com/news' },
+    { name: 'Borga Plåt', url: 'https://www.borgaplat.se' },
+    { name: 'CityMail', url: 'https://www.citymail.se/nyheter' },
+    { name: 'CMT', url: 'https://www.cmt.se/nyheter' },
+    { name: 'Elis', url: 'https://www.elis.com/se/press' },
+    { name: 'Elmia Lastbil', url: 'https://www.mynewsdesk.com/se/rss/current_news/6127' },
+    { name: 'Emanuelssons Transport', url: 'https://www.emanuelssonstransport.se' },
+    { name: 'IVL Svenska Miljöinstitutet', url: 'https://www.ivl.se' },
+    { name: 'Kempower', url: 'https://kempower.com/news/' },
+    { name: 'Kvarken Ports', url: 'https://www.kvarkenports.com/news' },
+    { name: 'NC Nielsen', url: 'https://www.ncnielsen.dk/news' },
+    { name: 'Posti', url: 'https://www.posti.com' },
+    { name: 'Sandahls', url: 'https://www.sandahls.se/nyheter' },
+    { name: 'ShoreLink', url: 'https://en.shorelink.se/pressrum/' },
+    { name: 'Stena RoRo', url: 'https://stenaroro.com/news/' },
+  ]
+};
+
+let editTarget = null;
+let currentTab = 'andreas';
+
+function loadCustomers(user) {
+  const key = 'ci_customers_' + user;
+  const stored = localStorage.getItem(key);
+  if (stored) return JSON.parse(stored);
+  const defaults = DEFAULT_CUSTOMERS[user];
+  localStorage.setItem(key, JSON.stringify(defaults));
+  return defaults;
+}
+
+function saveCustomers(user, list) {
+  localStorage.setItem('ci_customers_' + user, JSON.stringify(list));
+}
+
+function renderGrid(user) {
+  const customers = loadCustomers(user);
+  const grid = document.getElementById('grid-' + user);
+  const select = document.getElementById((user === 'andreas' ? 'a' : 'b') + '-kund');
+
+  grid.innerHTML = '';
+  select.innerHTML = '<option value="">Välj kund...</option>';
+
+  customers.forEach((c, i) => {
+    const card = document.createElement('div');
+    card.className = 'customer-card';
+    card.innerHTML = `
+      <span class="customer-name" title="${c.name}">${c.name}</span>
+      <div class="customer-actions">
+        <a href="${c.url}" target="_blank" class="btn-visit">Besök</a>
+        <button class="btn-edit-customer" onclick="openEdit('${user}', ${i})">✎</button>
+      </div>
+    `;
+    grid.appendChild(card);
+
+    const opt = document.createElement('option');
+    opt.value = c.name;
+    opt.textContent = c.name;
+    select.appendChild(opt);
+  });
+}
+
+function addCustomer(user) {
+  const nameEl = document.getElementById((user === 'andreas' ? 'a' : 'b') + '-add-name');
+  const urlEl = document.getElementById((user === 'andreas' ? 'a' : 'b') + '-add-url');
+  const name = nameEl.value.trim();
+  const url = urlEl.value.trim();
+  if (!name || !url) return;
+  const customers = loadCustomers(user);
+  customers.push({ name, url });
+  saveCustomers(user, customers);
+  nameEl.value = '';
+  urlEl.value = '';
+  renderGrid(user);
+}
+
+function openEdit(user, index) {
+  const customers = loadCustomers(user);
+  editTarget = { user, index };
+  document.getElementById('edit-name').value = customers[index].name;
+  document.getElementById('edit-url').value = customers[index].url;
+  document.getElementById('editModal').classList.add('open');
+}
+
+function saveEdit() {
+  if (!editTarget) return;
+  const { user, index } = editTarget;
+  const customers = loadCustomers(user);
+  customers[index].name = document.getElementById('edit-name').value.trim();
+  customers[index].url = document.getElementById('edit-url').value.trim();
+  saveCustomers(user, customers);
+  renderGrid(user);
+  closeModal();
+}
+
+function deleteCustomer() {
+  if (!editTarget) return;
+  const { user, index } = editTarget;
+  const customers = loadCustomers(user);
+  customers.splice(index, 1);
+  saveCustomers(user, customers);
+  renderGrid(user);
+  closeModal();
+}
+
+function closeModal() {
+  document.getElementById('editModal').classList.remove('open');
+  editTarget = null;
+}
+
+function sendReport(user) {
+  const prefix = user === 'andreas' ? 'a' : 'b';
+  const kund = document.getElementById(prefix + '-kund').value;
+  const url = document.getElementById(prefix + '-url').value.trim();
+  const kommentar = document.getElementById(prefix + '-kommentar').value.trim();
+  const saljare = user === 'andreas' ? 'Andreas' : 'Bernardo';
+
+  if (!kund || !url) {
+    alert('Välj kund och klistra in en URL.');
+    return;
+  }
+
+  const subject = encodeURIComponent(`Ny nyhet: ${kund}`);
+  const body = encodeURIComponent(
+    `Hej Mikael!\n\n${saljare} har hittat en nyhet från ${kund}.\n\nURL: ${url}${kommentar ? '\n\nKommentar: ' + kommentar : ''}\n\nMvh\n${saljare}`
+  );
+
+  window.location.href = `mailto:${MIKAEL_EMAIL}?subject=${subject}&body=${body}`;
+
+  document.getElementById(prefix + '-success').style.display = 'block';
+  document.getElementById(prefix + '-url').value = '';
+  document.getElementById(prefix + '-kommentar').value = '';
+  document.getElementById(prefix + '-kund').value = '';
+  setTimeout(() => {
+    document.getElementById(prefix + '-success').style.display = 'none';
+  }, 4000);
+}
+
+function switchTab(user) {
+  currentTab = user;
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + user).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.remove('active-andreas', 'active-bernardo');
+  });
+  const activeBtn = [...document.querySelectorAll('.tab-btn')].find(b => b.textContent.toLowerCase() === user);
+  if (activeBtn) activeBtn.classList.add('active-' + user);
+}
+
+// Auto-select tab based on URL parameter
+const urlParams = new URLSearchParams(window.location.search);
+const userParam = urlParams.get('user');
+if (userParam === 'bernardo') {
+  switchTab('bernardo');
+} else {
+  switchTab('andreas');
+}
+
+renderGrid('andreas');
+renderGrid('bernardo');
+</script>
+</body>
+</html>

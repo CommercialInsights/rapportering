@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frånvaro & VAB — Commercial Insights</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --border: #e0ddd6;
+    --ink: #1a1a18;
+    --ink-soft: #555550;
+    --ink-faint: #999890;
+    --green: #2d6a4f;
+    --green-light: #e8f4ee;
+    --andreas: #1a3a4a;
+    --andreas-light: #e6f1fb;
+    --bernardo: #4a1a3a;
+    --bernardo-light: #f5e6f1;
+    --mikael: #2d6a4f;
+    --mikael-light: #e8f4ee;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .header {
+    margin-bottom: 24px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .name-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 8px;
+  }
+
+  .badge-andreas { background: var(--andreas-light); color: var(--andreas); }
+  .badge-bernardo { background: var(--bernardo-light); color: var(--bernardo); }
+  .badge-mikael { background: var(--mikael-light); color: var(--mikael); }
+  .badge-default { background: var(--bg); color: var(--ink-soft); border: 1px solid var(--border); }
+
+  .header h1 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+
+  .header p {
+    font-size: 13px;
+    color: var(--ink-faint);
+  }
+
+  .field {
+    margin-bottom: 14px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-faint);
+    letter-spacing: 0.06em;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+  }
+
+  .field input,
+  .field select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    font-size: 14px;
+    color: var(--ink);
+    font-family: inherit;
+    -webkit-appearance: none;
+    appearance: none;
+    transition: border 0.15s, background 0.15s;
+  }
+
+  .field input:focus,
+  .field select:focus {
+    outline: none;
+    border-color: var(--ink);
+    background: white;
+  }
+
+  /* Radio group */
+  .radio-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .radio-option { position: relative; }
+
+  .radio-option input[type=radio] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .radio-option label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 11px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    background: var(--bg);
+    transition: all 0.15s;
+    text-align: center;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .radio-option input[type=radio]:checked + label {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: white;
+  }
+
+  /* Date row */
+  .date-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* VAB section */
+  .vab-section {
+    background: var(--bernardo-light);
+    border: 1px solid #d4b0c8;
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 14px;
+    display: none;
+  }
+
+  .vab-section.visible { display: block; }
+
+  .vab-section .vab-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--bernardo);
+    margin-bottom: 12px;
+  }
+
+  .vab-section .field { margin-bottom: 10px; }
+  .vab-section .field:last-child { margin-bottom: 0; }
+
+  .vab-section .field label { color: var(--bernardo); }
+
+  .vab-section .field input {
+    background: white;
+    border-color: #d4b0c8;
+  }
+
+  /* Month selector */
+  .month-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* Submit */
+  .btn-submit {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 10px;
+    background: var(--ink);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+    margin-top: 4px;
+  }
+
+  .btn-submit:hover { background: #333; }
+
+  .success {
+    display: none;
+    text-align: center;
+    padding: 32px 20px;
+  }
+
+  .success .icon { font-size: 48px; margin-bottom: 12px; }
+  .success h2 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+  .success p { font-size: 13px; color: var(--ink-faint); margin-bottom: 20px; }
+
+  .btn-reset {
+    padding: 10px 24px;
+    font-size: 13px;
+    font-weight: 500;
+    background: var(--bg);
+    color: var(--ink);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .err { font-size: 11px; color: #b33; margin-top: 4px; display: none; }
+
+  /* Calendar */
+  .cal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .cal-nav-btn {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--ink);
+    transition: background 0.1s;
+  }
+
+  .cal-nav-btn:hover { background: var(--border); }
+
+  .cal-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+
+  .cal-day-header {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-faint);
+    padding: 4px 0;
+  }
+
+  .cal-day {
+    text-align: center;
+    padding: 7px 4px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    color: var(--ink);
+    transition: all 0.1s;
+    background: var(--bg);
+  }
+
+  .cal-day:hover { border-color: var(--ink); }
+
+  .cal-day.selected {
+    background: var(--ink);
+    color: white;
+    border-color: var(--ink);
+  }
+
+  .cal-day.empty { cursor: default; background: transparent; }
+  .cal-day.weekend { color: var(--ink-faint); }
+
+  .cal-selected {
+    font-size: 12px;
+    color: var(--green);
+    font-weight: 500;
+    min-height: 18px;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="card" id="formCard">
+  <div class="header">
+    <div class="name-badge badge-default" id="nameBadge">—</div>
+    <h1>Frånvaro & VAB</h1>
+    <p>Rapportera sjukfrånvaro eller VAB till Mikael.</p>
+  </div>
+
+  <!-- Namn -->
+  <div class="field">
+    <label>Ditt namn</label>
+    <select id="namn" onchange="onNamnChange()">
+      <option value="">Välj ditt namn...</option>
+      <option value="Andreas">Andreas</option>
+      <option value="Bernardo">Bernardo</option>
+      <option value="Johan">Johan</option>
+      <option value="Mikael">Mikael</option>
+      <option value="Kalle">Kalle</option>
+    </select>
+    <div class="err" id="err-namn">Välj ditt namn</div>
+  </div>
+
+  <!-- Typ -->
+  <div class="field">
+    <label>Typ av frånvaro</label>
+    <div class="radio-group">
+      <div class="radio-option">
+        <input type="radio" name="typ" id="typ-sjuk" value="Sjukfrånvaro" onchange="onTypChange()">
+        <label for="typ-sjuk">🤒 Sjukfrånvaro</label>
+      </div>
+      <div class="radio-option">
+        <input type="radio" name="typ" id="typ-vab" value="VAB" onchange="onTypChange()">
+        <label for="typ-vab">👶 VAB</label>
+      </div>
+    </div>
+    <div class="err" id="err-typ">Välj typ av frånvaro</div>
+  </div>
+
+  <!-- VAB-sektion (bara för Bernardo + VAB) -->
+  <div class="vab-section" id="vabSection">
+    <div class="vab-label">Uppgifter om barnet</div>
+    <div class="field">
+      <label>Barnets namn</label>
+      <input type="text" id="vab-namn" placeholder="Förnamn Efternamn">
+      <div class="err" id="err-vab-namn">Fyll i barnets namn</div>
+    </div>
+    <div class="field">
+      <label>Barnets personnummer</label>
+      <input type="text" id="vab-pnr" placeholder="ÅÅMMDD-XXXX">
+      <div class="err" id="err-vab-pnr">Fyll i personnummer</div>
+    </div>
+  </div>
+
+  <!-- Kalender -->
+  <div class="field">
+    <label>Välj dag(ar)</label>
+    <div class="cal-nav">
+      <button type="button" class="cal-nav-btn" onclick="changeMonth(-1)">&#8592;</button>
+      <span id="calTitle" class="cal-title"></span>
+      <button type="button" class="cal-nav-btn" onclick="changeMonth(1)">&#8594;</button>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-selected" id="calSelected">Inga dagar valda</div>
+    <div class="err" id="err-dagar">Välj minst en dag</div>
+  </div>
+
+  <button class="btn-submit" onclick="skicka()">Skicka till Mikael</button>
+</div>
+
+<!-- Success -->
+<div class="card success" id="successCard">
+  <div class="icon">✅</div>
+  <h2>Skickat!</h2>
+  <p id="successText">Mikael har fått ett mejl.</p>
+  <button class="btn-reset" onclick="reset()">Rapportera igen</button>
+</div>
+
+<script>
+const MIKAEL = 'mikael@commercialinsights.se';
+
+// Auto-select from URL param
+const params = new URLSearchParams(window.location.search);
+const userParam = params.get('user');
+if (userParam) {
+  const namn = document.getElementById('namn');
+  for (let i = 0; i < namn.options.length; i++) {
+    if (namn.options[i].value.toLowerCase() === userParam.toLowerCase()) {
+      namn.value = namn.options[i].value;
+      onNamnChange();
+      break;
+    }
+  }
+}
+
+// Calendar state
+const months = ['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'];
+const dayHeaders = ['Mån','Tis','Ons','Tor','Fre','Lör','Sön'];
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+let selectedDays = new Set();
+
+function renderCal() {
+  const title = document.getElementById('calTitle');
+  const grid = document.getElementById('calGrid');
+  title.textContent = months[calMonth] + ' ' + calYear;
+  grid.innerHTML = '';
+
+  // Headers
+  dayHeaders.forEach(d => {
+    const h = document.createElement('div');
+    h.className = 'cal-day-header';
+    h.textContent = d;
+    grid.appendChild(h);
+  });
+
+  // First day of month (adjust to Mon=0)
+  const first = new Date(calYear, calMonth, 1).getDay();
+  const offset = first === 0 ? 6 : first - 1;
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+
+  for (let i = 0; i < offset; i++) {
+    const empty = document.createElement('div');
+    empty.className = 'cal-day empty';
+    grid.appendChild(empty);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const cell = document.createElement('div');
+    const dayOfWeek = new Date(calYear, calMonth, d).getDay();
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+    cell.className = 'cal-day' + (isWeekend ? ' weekend' : '') + (selectedDays.has(d) ? ' selected' : '');
+    cell.textContent = d;
+    cell.onclick = () => toggleDay(d, cell);
+    grid.appendChild(cell);
+  }
+  updateSelectedLabel();
+}
+
+function toggleDay(d, cell) {
+  if (selectedDays.has(d)) {
+    selectedDays.delete(d);
+    cell.classList.remove('selected');
+  } else {
+    selectedDays.add(d);
+    cell.classList.add('selected');
+  }
+  updateSelectedLabel();
+}
+
+function updateSelectedLabel() {
+  const el = document.getElementById('calSelected');
+  if (selectedDays.size === 0) {
+    el.textContent = 'Inga dagar valda';
+    el.style.color = 'var(--ink-faint)';
+  } else {
+    const sorted = [...selectedDays].sort((a,b) => a-b);
+    el.textContent = sorted.length === 1
+      ? sorted[0] + ' ' + months[calMonth]
+      : sorted.join(', ') + ' ' + months[calMonth];
+    el.style.color = 'var(--green)';
+  }
+}
+
+function changeMonth(dir) {
+  selectedDays.clear();
+  calMonth += dir;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCal();
+}
+
+renderCal();
+
+function onNamnChange() {
+  const namn = document.getElementById('namn').value;
+  const badge = document.getElementById('nameBadge');
+  badge.textContent = namn || '—';
+  badge.className = 'name-badge';
+  if (namn === 'Andreas') badge.classList.add('badge-andreas');
+  else if (namn === 'Bernardo') badge.classList.add('badge-bernardo');
+  else if (namn === 'Mikael') badge.classList.add('badge-mikael');
+  else badge.classList.add('badge-default');
+  checkVabVisibility();
+}
+
+function onTypChange() {
+  checkVabVisibility();
+}
+
+function checkVabVisibility() {
+  const namn = document.getElementById('namn').value;
+  const typ = document.querySelector('input[name="typ"]:checked')?.value;
+  const vabSection = document.getElementById('vabSection');
+  vabSection.classList.toggle('visible', namn === 'Bernardo' && typ === 'VAB');
+}
+
+function clearErrors() {
+  document.querySelectorAll('.err').forEach(e => e.style.display = 'none');
+}
+
+function showErr(id) {
+  document.getElementById(id).style.display = 'block';
+}
+
+function validate() {
+  clearErrors();
+  let ok = true;
+  const namn = document.getElementById('namn').value;
+  const typ = document.querySelector('input[name="typ"]:checked')?.value;
+  if (!namn) { showErr('err-namn'); ok = false; }
+  if (!typ) { showErr('err-typ'); ok = false; }
+  if (selectedDays.size === 0) { showErr('err-dagar'); ok = false; }
+
+  if (namn === 'Bernardo' && typ === 'VAB') {
+    const vabNamn = document.getElementById('vab-namn').value.trim();
+    const vabPnr = document.getElementById('vab-pnr').value.trim();
+    if (!vabNamn) { showErr('err-vab-namn'); ok = false; }
+    if (!vabPnr) { showErr('err-vab-pnr'); ok = false; }
+  }
+  return ok;
+}
+
+function skicka() {
+  if (!validate()) return;
+
+  const namn = document.getElementById('namn').value;
+  const typ = document.querySelector('input[name="typ"]:checked').value;
+  const sorted = [...selectedDays].sort((a,b) => a-b);
+  const dagarText = sorted.join(', ');
+  const periodText = sorted.length === 1
+    ? sorted[0] + ' ' + months[calMonth] + ' ' + calYear
+    : sorted.join(', ') + ' ' + months[calMonth] + ' ' + calYear;
+  const vabNamn = document.getElementById('vab-namn').value.trim();
+  const vabPnr = document.getElementById('vab-pnr').value.trim();
+
+  const subject = `${typ}: ${namn} — ${periodText}`;
+
+  let bodyText = `Hej Mikael!\n\n${namn} rapporterar ${typ.toLowerCase()}.\n\nDag/dagar: ${periodText}`;
+  if (namn === 'Bernardo' && typ === 'VAB') {
+    bodyText += `\n\nBarnets namn: ${vabNamn}\nPersonnummer: ${vabPnr}`;
+  }
+  bodyText += `\n\nMvh\n${namn}`;
+
+  window.location.href = `mailto:${MIKAEL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
+
+  document.getElementById('formCard').style.display = 'none';
+  document.getElementById('successCard').style.display = 'block';
+  document.getElementById('successText').textContent = `${typ} för ${namn} (${periodText}) är skickat till Mikael.`;
+}
+
+function reset() {
+  document.getElementById('formCard').style.display = 'block';
+  document.getElementById('successCard').style.display = 'none';
+  document.getElementById('namn').value = '';
+  document.querySelectorAll('input[name="typ"]').forEach(r => r.checked = false);
+  selectedDays.clear(); renderCal();
+  document.getElementById('vab-namn').value = '';
+  document.getElementById('vab-pnr').value = '';
+  document.getElementById('vabSection').classList.remove('visible');
+  document.getElementById('nameBadge').textContent = '—';
+  document.getElementById('nameBadge').className = 'name-badge badge-default';
+
+  clearErrors();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Commercial Insights — Intranät</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --border: #e0ddd6;
+    --ink: #1a1a18;
+    --ink-soft: #555550;
+    --ink-faint: #999890;
+    --green: #2d6a4f;
+    --green-light: #e8f4ee;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--ink);
+  }
+
+  .logo span {
+    font-weight: 400;
+    color: var(--ink-faint);
+    margin-left: 8px;
+  }
+
+  .date {
+    font-size: 12px;
+    color: var(--ink-faint);
+  }
+
+  .main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 36px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  /* Tool grid */
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+  }
+
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    text-decoration: none;
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .tool-card:hover {
+    border-color: var(--ink);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+
+  .tool-icon {
+    font-size: 20px;
+    margin-bottom: 6px;
+  }
+
+  .tool-name {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .tool-desc {
+    font-size: 12px;
+    color: var(--ink-faint);
+    line-height: 1.4;
+  }
+
+  /* Personal links */
+  .personal-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .person-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .person-head {
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .person-head.andreas { background: #e6f1fb; color: #1a3a4a; }
+  .person-head.bernardo { background: #f5e6f1; color: #4a1a3a; }
+  .person-head.mikael { background: #e8f4ee; color: #2d6a4f; }
+
+  .person-links { padding: 8px 0; }
+
+  .person-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    text-decoration: none;
+    color: var(--ink);
+    font-size: 13px;
+    transition: background 0.1s;
+  }
+
+  .person-link:hover { background: var(--bg); }
+
+  .person-link-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+
+  /* Absence form */
+  .form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+
+  .form-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 18px;
+    color: var(--ink);
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .form-group.full { grid-column: 1 / -1; }
+
+  label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-faint);
+    letter-spacing: 0.05em;
+  }
+
+  input, select, textarea {
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    font-size: 14px;
+    color: var(--ink);
+    font-family: inherit;
+    transition: border 0.15s, background 0.15s;
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--ink);
+    background: white;
+  }
+
+  textarea { resize: vertical; min-height: 72px; }
+
+  .btn-send {
+    width: 100%;
+    padding: 11px;
+    margin-top: 4px;
+    border: none;
+    border-radius: 8px;
+    background: var(--ink);
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.1s;
+  }
+
+  .btn-send:hover { background: #333; }
+
+  .success-msg {
+    display: none;
+    background: var(--green-light);
+    border: 1px solid #a8d5b8;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--green);
+    margin-top: 12px;
+    text-align: center;
+  }
+
+  @media (max-width: 640px) {
+    .personal-grid { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .tool-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Commercial Insights <span>Intranät</span></div>
+  <div class="date" id="dateDisplay"></div>
+</header>
+
+<div class="main">
+
+  <!-- Gemensamma verktyg -->
+  <div>
+    <div class="section-label">Verktyg</div>
+    <div class="tool-grid">
+      <a href="https://commercialinsights.github.io/rapportering/salj-dashboard.html" target="_blank" class="tool-card">
+        <div class="tool-icon">📊</div>
+        <div class="tool-name">Resultat</div>
+        <div class="tool-desc">Säljdashboard och KPI:er</div>
+      </a>
+      <a href="https://commercialinsights.github.io/rapportering/nyhetsbevakning.html" target="_blank" class="tool-card">
+        <div class="tool-icon">📰</div>
+        <div class="tool-name">Nyhetsbevakning</div>
+        <div class="tool-desc">Bevaka och rapportera kundnyheter</div>
+      </a>
+      <a href="https://commercialinsights.github.io/rapportering/redaktionsplan.html" target="_blank" class="tool-card">
+        <div class="tool-icon">📅</div>
+        <div class="tool-name">Redaktionsplan</div>
+        <div class="tool-desc">Innehållsplanering</div>
+      </a>
+      <a href="https://commercialinsights.github.io/rapportering/orderbekraftelse.html" target="_blank" class="tool-card">
+        <div class="tool-icon">✅</div>
+        <div class="tool-name">Orderbekräftelse</div>
+        <div class="tool-desc">Bekräfta affärer till kund</div>
+      </a>
+      <a href="https://commercialinsights.github.io/rapportering/dm-content-paket.html" target="_blank" class="tool-card">
+        <div class="tool-icon">📄</div>
+        <div class="tool-name">Content / Bilaga</div>
+        <div class="tool-desc">DM contentpaket</div>
+      </a>
+      <a href="https://commercialinsights.github.io/rapportering/utlagg-tracker.html" target="_blank" class="tool-card">
+        <div class="tool-icon">🧾</div>
+        <div class="tool-name">Utlägg</div>
+        <div class="tool-desc">Registrera och följa upp utlägg</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Personliga länkar -->
+  <div>
+    <div class="section-label">Personliga verktyg</div>
+    <div class="personal-grid">
+
+      <div class="person-block">
+        <div class="person-head andreas">Andreas</div>
+        <div class="person-links">
+          <a href="https://commercialinsights.github.io/rapportering/rapportering-andreas.html" target="_blank" class="person-link">
+            <span class="person-link-dot"></span>Rapportering
+          </a>
+          <a href="https://commercialinsights.github.io/rapportering/nyhetsbevakning.html?user=andreas" target="_blank" class="person-link">
+            <span class="person-link-dot"></span>Nyhetsbevakning
+          </a>
+          <a href="https://commercialinsights.github.io/rapportering/franvaro-vab.html?user=andreas" target="_blank" class="person-link">
+            <span class="person-link-dot"></span>Frånvaro &amp; VAB
+          </a>
+        </div>
+      </div>
+
+      <div class="person-block">
+        <div class="person-head bernardo">Bernardo</div>
+        <div class="person-links">
+          <a href="https://commercialinsights.github.io/rapportering/rapportering-bernardo.html" target="_blank" class="person-link">
+            <span class="person-link-dot"></span>Rapportering
+          </a>
+          <a href="https://commercialinsights.github.io/rapportering/nyhetsbevakning.html?user=bernardo" target="_blank" class="person-link">
+            <span class="person-link-dot"></span>Nyhetsbevakning
+          </a>
+          <a href="https://commercialinsights.github.io/rapportering/franvaro-vab.html?user=bernardo" target="_blank" class="person-link">
+            <span class="person-link-dot"></span>Frånvaro &amp; VAB
+          </a>
+        </div>
+      </div>
+
+      <div class="person-block">
+        <div class="person-head mikael">Mikael</div>
+        <div class="person-links">
+          <a href="https://commercialinsights.github.io/rapportering/rapportering-mikael.html" target="_blank" class="person-link">
+            <span class="person-link-dot"></span>Rapportering
+          </a>
+          <a href="https://commercialinsights.github.io/rapportering/ekonomi-dashboard-v4.html" target="_blank" class="person-link">
+            <span class="person-link-dot"></span>Ekonomi
+          </a>
+          <a href="https://commercialinsights.github.io/rapportering/franvaro-vab.html?user=mikael" target="_blank" class="person-link">
+            <span class="person-link-dot"></span>Frånvaro &amp; VAB
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+</div>
+
+<script>
+  // Date display
+  const now = new Date();
+  document.getElementById('dateDisplay').textContent = now.toLocaleDateString('sv-SE', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  });
+
+  // Absence form
+  function sendAbsence() {
+    const namn = document.getElementById('f-namn').value;
+    const typ = document.getElementById('f-typ').value;
+    const fran = document.getElementById('f-fran').value;
+    const till = document.getElementById('f-till').value;
+    const kommentar = document.getElementById('f-kommentar').value.trim();
+
+    if (!namn || !typ || !fran) {
+      alert('Fyll i namn, typ och startdatum.');
+      return;
+    }
+
+    const franFormatted = new Date(fran).toLocaleDateString('sv-SE');
+    const tillFormatted = till ? new Date(till).toLocaleDateString('sv-SE') : franFormatted;
+    const period = fran === till || !till ? franFormatted : `${franFormatted} – ${tillFormatted}`;
+
+    const subject = encodeURIComponent(`${typ}: ${namn} — ${period}`);
+    const body = encodeURIComponent(
+      `Hej Mikael!\n\n${namn} rapporterar ${typ.toLowerCase()}.\n\nPeriod: ${period}${kommentar ? '\n\nKommentar: ' + kommentar : ''}\n\nMvh\n${namn}`
+    );
+
+    window.location.href = `mailto:mikael@commercialinsights.se?subject=${subject}&body=${body}`;
+
+    document.getElementById('f-success').style.display = 'block';
+    ['f-namn','f-typ','f-fran','f-till','f-kommentar'].forEach(id => {
+      const el = document.getElementById(id);
+      el.value = '';
+    });
+    setTimeout(() => {
+      document.getElementById('f-success').style.display = 'none';
+    }, 4000);
+  }
+
+  // Set today as default start date
+  document.getElementById('f-fran').valueAsDate = new Date();
+</script>
+</body>
+</html>

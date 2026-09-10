@@ -122,6 +122,19 @@
   }
   .add-row input:focus, .add-row select:focus { outline: none; border-color: var(--primary); }
   .add-row input::placeholder { color: #C4B8D6; }
+  .add-row .add-btn {
+    width: 100%;
+    padding: 7px 9px;
+    border: none;
+    border-radius: 7px;
+    background: var(--dark);
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 2px;
+  }
+  .add-row .add-btn:hover { background: #2c1354; }
 
   .loading { color: var(--muted); font-size: 14px; padding: 20px; }
 </style>
@@ -262,6 +275,7 @@ function render() {
             <option value="Bernardo">Bernardo</option>
             <option value="Annan">Annan...</option>
           </select>
+          <button class="add-btn">Lägg till</button>
         </div>
       </div>
     `;
@@ -281,6 +295,7 @@ function render() {
     const week = parseInt(col.getAttribute('data-week'));
     const kundInput = col.querySelector('.kund-input');
     const bokadAvSelect = col.querySelector('.bokadav-input');
+    const addBtn = col.querySelector('.add-btn');
 
     async function trySubmit() {
       const kund = kundInput.value.trim();
@@ -288,7 +303,8 @@ function render() {
       if (bokadAv === 'Annan') {
         bokadAv = prompt('Namn:') || '';
       }
-      if (!kund || !bokadAv) return;
+      if (!kund) { kundInput.focus(); return; }
+      if (!bokadAv) { bokadAvSelect.focus(); return; }
 
       entries.push({
         id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
@@ -300,14 +316,15 @@ function render() {
       if (newCol) newCol.focus();
     }
 
+    addBtn.addEventListener('click', trySubmit);
     kundInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         if (bokadAvSelect.value) { trySubmit(); }
         else { bokadAvSelect.focus(); }
       }
     });
-    bokadAvSelect.addEventListener('change', () => {
-      if (kundInput.value.trim()) trySubmit();
+    bokadAvSelect.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') trySubmit();
     });
   });
 

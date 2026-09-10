@@ -158,7 +158,7 @@
 </div>
 
 <script>
-const STORAGE_KEY = 'bokade-moten-lista';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwYNMArK6i-X1FtYDCECcI-uIE2cTrHzNvHoxQ2CsPA5IQBWL3JvE4-vpjhhp_Qj619MQ/exec';
 let entries = [];
 
 function isoWeek(date) {
@@ -195,15 +195,32 @@ function addWeeks(year, week, n) {
 
 async function loadEntries() {
   try {
-    const result = await window.storage.get(STORAGE_KEY, true);
-    return result ? JSON.parse(result.value) : [];
+    const res = await fetch(API_URL);
+    const data = await res.json();
+    return data.map(e => ({
+      id: e.id, kund: e.kund, bokadAv: e.bokadAv,
+      year: Number(e.year), week: Number(e.week)
+    }));
   } catch (e) {
-    return [];
+    console.error('Kunde inte hämta möten', e);
+    return null;
   }
 }
 
-async function saveEntries(list) {
-  await window.storage.set(STORAGE_KEY, JSON.stringify(list), true);
+async function addEntryRemote(entry) {
+  await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ action: 'add', ...entry })
+  });
+}
+
+async function deleteEntryRemote(id) {
+  await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ action: 'delete', id })
+  });
 }
 
 function escapeHtml(str) {
@@ -284,9 +301,14 @@ function render() {
   board.querySelectorAll('.del').forEach(btn => {
     btn.addEventListener('click', async () => {
       const id = btn.getAttribute('data-id');
+      btn.disabled = true;
       entries = entries.filter(e => e.id !== id);
-      await saveEntries(entries);
       render();
+      try {
+        await deleteEntryRemote(id);
+      } catch (e) {
+        alert('Kunde inte ta bort mötet, kolla anslutningen.');
+      }
     });
   });
 
@@ -306,14 +328,25 @@ function render() {
       if (!kund) { kundInput.focus(); return; }
       if (!bokadAv) { bokadAvSelect.focus(); return; }
 
-      entries.push({
+      addBtn.disabled = true;
+      addBtn.textContent = 'Lägger till...';
+
+      const entry = {
         id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
         year, week, kund, bokadAv
-      });
-      await saveEntries(entries);
-      render();
-      const newCol = board.querySelector(`.col[data-year="${year}"][data-week="${week}"] .kund-input`);
-      if (newCol) newCol.focus();
+      };
+
+      try {
+        await addEntryRemote(entry);
+        entries.push(entry);
+        render();
+        const newCol = board.querySelector(`.col[data-year="${year}"][data-week="${week}"] .kund-input`);
+        if (newCol) newCol.focus();
+      } catch (e) {
+        alert('Kunde inte spara mötet, kolla anslutningen och försök igen.');
+        addBtn.disabled = false;
+        addBtn.textContent = 'Lägg till';
+      }
     }
 
     addBtn.addEventListener('click', trySubmit);
@@ -333,7 +366,13 @@ function render() {
 }
 
 (async () => {
-  entries = await loadEntries();
+  const result = await loadEntries();
+  if (result === null) {
+    document.getElementById('board').innerHTML =
+      '<div class="loading">Kunde inte hämta möten. Ladda om sidan eller kolla internetanslutningen.</div>';
+    return;
+  }
+  entries = result;
   render();
 })();
 </script>

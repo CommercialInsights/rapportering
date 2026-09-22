@@ -36,6 +36,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .hint{font-size:11px;color:#999;margin-top:4px}
 .toggle-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f5f4f0;border-radius:8px;margin-bottom:12px;font-size:13px;color:#444}
 .toggle-row input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1a6b3c}
+.rabatt-section{display:none;background:#FFF8E6;border:1px solid #F0C84A;border-radius:8px;padding:12px 14px;margin-top:8px}
 #confirmation{display:none}
 .confirm-card{background:white;border:1px solid #e0ddd6;border-radius:16px;overflow:hidden}
 .confirm-header{background:#1a2e1a;color:white;padding:28px 32px}
@@ -167,10 +168,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
 
     <div id="section-digitalt" style="display:none">
-      <div class="price-display visible">Fast pris: 19 900 kr exkl. moms</div>
-      <div class="field" style="margin-top:10px">
-        <label>Rabatt (%)</label>
-        <input type="number" id="rabatt_pct_digitalt" value="32" min="1" max="70" placeholder="32">
+      <div class="field">
+        <label>Avtalat pris (kr exkl. moms)</label>
+        <input type="number" id="digitalt_pris" placeholder="19900">
+        <div class="hint">Standardpris: 19 900 kr.</div>
+      </div>
+      <div class="toggle-row" style="margin-top:4px">
+        <input type="checkbox" id="rabatt_dig_toggle" onchange="toggleRabatt('rabatt_dig_section')">
+        <label for="rabatt_dig_toggle" style="font-size:13px;cursor:pointer">Lägg till rabatt</label>
+      </div>
+      <div class="rabatt-section" id="rabatt_dig_section">
+        <label style="font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.7px">Rabatt (%)</label>
+        <input type="number" id="rabatt_pct_digitalt" value="10" min="1" max="70" placeholder="t.ex. 10" style="margin-top:5px;width:100%;padding:10px 12px;font-size:14px;border:1px solid #ddd;border-radius:8px;background:#fff;font-family:inherit">
       </div>
     </div>
 
@@ -178,24 +187,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="field">
         <label>Avtalat pris (kr exkl. moms)</label>
         <input type="number" id="dm_pris" placeholder="t.ex. 14900">
-        <div class="hint">Skriv in det pris du kommit överens om med kunden.</div>
       </div>
-      <div class="field">
-        <label>Rabatt (%)</label>
-        <input type="number" id="rabatt_pct_dm" value="32" min="1" max="70" placeholder="32">
+      <div class="toggle-row" style="margin-top:4px">
+        <input type="checkbox" id="rabatt_dm_toggle" onchange="toggleRabatt('rabatt_dm_section')">
+        <label for="rabatt_dm_toggle" style="font-size:13px;cursor:pointer">Lägg till rabatt</label>
+      </div>
+      <div class="rabatt-section" id="rabatt_dm_section">
+        <label style="font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.7px">Rabatt (%)</label>
+        <input type="number" id="rabatt_pct_dm" value="10" min="1" max="70" placeholder="t.ex. 10" style="margin-top:5px;width:100%;padding:10px 12px;font-size:14px;border:1px solid #ddd;border-radius:8px;background:#fff;font-family:inherit">
       </div>
     </div>
 
     <div id="section-arspaket" style="display:none">
-      <div class="price-display visible">Årspaket HO — listpris 69 000 kr exkl. moms</div>
-      <div class="field" style="margin-top:10px">
-        <label>Avtalat pris (kr exkl. moms)</label>
-        <input type="number" id="arspaket_pris" placeholder="69000">
-        <div class="hint">Standard årspaket HO: 69 000 kr. Justera om rabatt avtalats.</div>
-      </div>
       <div class="field">
-        <label>Rabatt (%)</label>
-        <input type="number" id="rabatt_pct_arspaket" value="32" min="1" max="70" placeholder="32">
+        <label>Avtalat pris (kr exkl. moms)</label>
+        <input type="number" id="arspaket_pris" placeholder="79900">
+        <div class="hint">Standardpris: 79 900 kr.</div>
+      </div>
+      <div class="toggle-row" style="margin-top:4px">
+        <input type="checkbox" id="rabatt_ars_toggle" onchange="toggleRabatt('rabatt_ars_section')">
+        <label for="rabatt_ars_toggle" style="font-size:13px;cursor:pointer">Lägg till rabatt</label>
+      </div>
+      <div class="rabatt-section" id="rabatt_ars_section">
+        <label style="font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.7px">Rabatt (%)</label>
+        <input type="number" id="rabatt_pct_arspaket" value="10" min="1" max="70" placeholder="t.ex. 10" style="margin-top:5px;width:100%;padding:10px 12px;font-size:14px;border:1px solid #ddd;border-radius:8px;background:#fff;font-family:inherit">
       </div>
     </div>
 
@@ -293,6 +308,11 @@ const NOTES_TEMPLATES = {
 
 let exklMoms = false;
 
+function toggleRabatt(sectionId) {
+  const section = document.getElementById(sectionId);
+  section.style.display = section.style.display === 'block' ? 'none' : 'block';
+}
+
 function updateMomsToggle() {
   exklMoms = document.getElementById('exkl_moms').checked;
 }
@@ -364,28 +384,32 @@ function generateOrder() {
     const PROD_LABELS = {redaktionell:'Redaktionell artikel', helsida:'Grafisk helsida', halvsida:'Grafisk halvsida'};
 
     if (p === 'arspaket') {
-      pris = parseInt(document.getElementById('arspaket_pris').value) || 69000;
-      const rabattAP = parseInt(document.getElementById('rabatt_pct_arspaket').value) || 32;
-      listpris = calcListpris(pris, rabattAP);
+      pris = parseInt(document.getElementById('arspaket_pris').value) || 79900;
+      const arsRabattOn = document.getElementById('rabatt_ars_toggle').checked;
+      const rabattAP = arsRabattOn ? (parseInt(document.getElementById('rabatt_pct_arspaket').value) || 10) : 0;
+      listpris = arsRabattOn ? calcListpris(pris, rabattAP) : pris;
       produktNamn = 'Årspaket Hållbar Omställning';
       rows = buildRow(produktNamn, listpris, pris);
     } else if (p === 'digitalt') {
-      pris = 19900;
-      const rabattD = parseInt(document.getElementById('rabatt_pct_digitalt').value) || 32;
-      listpris = calcListpris(pris, rabattD);
+      pris = parseInt(document.getElementById('digitalt_pris').value) || 19900;
+      const digRabattOn = document.getElementById('rabatt_dig_toggle').checked;
+      const rabattD = digRabattOn ? (parseInt(document.getElementById('rabatt_pct_digitalt').value) || 10) : 0;
+      listpris = digRabattOn ? calcListpris(pris, rabattD) : pris;
       produktNamn = 'Digitalt paket Hållbar Omställning';
       rows = buildRow(produktNamn, listpris, pris);
     } else if (p === 'dm') {
       pris = parseInt(document.getElementById('dm_pris').value) || 0;
-      const rabattDM = parseInt(document.getElementById('rabatt_pct_dm').value) || 32;
-      listpris = calcListpris(pris, rabattDM);
+      const dmRabattOn = document.getElementById('rabatt_dm_toggle').checked;
+      const rabattDM = dmRabattOn ? (parseInt(document.getElementById('rabatt_pct_dm').value) || 10) : 0;
+      listpris = dmRabattOn ? calcListpris(pris, rabattDM) : pris;
       produktNamn = 'Dagens Medarbetare – Mediapaket';
       rows = buildRow(produktNamn, listpris, pris);
     } else {
       const num = document.getElementById('antal_nummer').value.trim() || '–';
       pris = parseInt(document.getElementById('avtalat_pris').value) || 0;
-      const rabattHO = parseInt(document.getElementById('rabatt_pct').value) || 32;
-      listpris = calcListpris(pris, rabattHO);
+      const hoRabattOn = document.getElementById('rabatt_ho_toggle').checked;
+      const rabattHO = hoRabattOn ? (parseInt(document.getElementById('rabatt_pct').value) || 10) : 0;
+      listpris = hoRabattOn ? calcListpris(pris, rabattHO) : pris;
       produktNamn = 'Hållbar Omställning – ' + (PROD_LABELS[p] || p) + ', ' + num;
       rows = buildRow(produktNamn, listpris, pris);
     }

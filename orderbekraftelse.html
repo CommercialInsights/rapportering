@@ -351,13 +351,21 @@ function calcListpris(pris, rabatt) {
   return Math.ceil(raw / 500) * 500;
 }
 
-function buildRow(namn, listpris, pris) {
-  const rabatt = Math.round((1 - pris/listpris)*100);
-  return `<tr>
-    <td>${namn} <span class="discount-badge">−${rabatt}%</span></td>
-    <td class="right strike">${formatKr(listpris)} kr</td>
-    <td class="right"><strong>${formatKr(pris)} kr</strong></td>
-  </tr>`;
+function buildRow(namn, listpris, pris, harRabatt) {
+  if (harRabatt && listpris > pris) {
+    const rabatt = Math.round((1 - pris/listpris)*100);
+    return `<tr>
+      <td>${namn} <span class="discount-badge">−${rabatt}%</span></td>
+      <td class="right strike">${formatKr(listpris)} kr</td>
+      <td class="right"><strong>${formatKr(pris)} kr</strong></td>
+    </tr>`;
+  } else {
+    return `<tr>
+      <td>${namn}</td>
+      <td class="right"></td>
+      <td class="right"><strong>${formatKr(pris)} kr</strong></td>
+    </tr>`;
+  }
 }
 
 function generateOrder() {
@@ -389,21 +397,21 @@ function generateOrder() {
       const rabattAP = arsRabattOn ? (parseInt(document.getElementById('rabatt_pct_arspaket').value) || 10) : 0;
       listpris = arsRabattOn ? calcListpris(pris, rabattAP) : pris;
       produktNamn = 'Årspaket Hållbar Omställning';
-      rows = buildRow(produktNamn, listpris, pris);
+      rows = buildRow(produktNamn, listpris, pris, arsRabattOn);
     } else if (p === 'digitalt') {
       pris = parseInt(document.getElementById('digitalt_pris').value) || 19900;
       const digRabattOn = document.getElementById('rabatt_dig_toggle').checked;
       const rabattD = digRabattOn ? (parseInt(document.getElementById('rabatt_pct_digitalt').value) || 10) : 0;
       listpris = digRabattOn ? calcListpris(pris, rabattD) : pris;
       produktNamn = 'Digitalt paket Hållbar Omställning';
-      rows = buildRow(produktNamn, listpris, pris);
+      rows = buildRow(produktNamn, listpris, pris, digRabattOn);
     } else if (p === 'dm') {
       pris = parseInt(document.getElementById('dm_pris').value) || 0;
       const dmRabattOn = document.getElementById('rabatt_dm_toggle').checked;
       const rabattDM = dmRabattOn ? (parseInt(document.getElementById('rabatt_pct_dm').value) || 10) : 0;
       listpris = dmRabattOn ? calcListpris(pris, rabattDM) : pris;
       produktNamn = 'Dagens Medarbetare – Mediapaket';
-      rows = buildRow(produktNamn, listpris, pris);
+      rows = buildRow(produktNamn, listpris, pris, dmRabattOn);
     } else {
       const num = document.getElementById('antal_nummer').value.trim() || '–';
       pris = parseInt(document.getElementById('avtalat_pris').value) || 0;
@@ -411,7 +419,7 @@ function generateOrder() {
       const rabattHO = hoRabattOn ? (parseInt(document.getElementById('rabatt_pct').value) || 10) : 0;
       listpris = hoRabattOn ? calcListpris(pris, rabattHO) : pris;
       produktNamn = 'Hållbar Omställning – ' + (PROD_LABELS[p] || p) + ', ' + num;
-      rows = buildRow(produktNamn, listpris, pris);
+      rows = buildRow(produktNamn, listpris, pris, hoRabattOn);
     }
 
     // Summering — beroende på momsval

@@ -139,6 +139,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="field">
       <label>Välj produkt</label>
       <div class="radio-group" style="grid-template-columns:1fr 1fr">
+        <div class="radio-option"><input type="radio" name="produkt" id="p_arspaket" value="arspaket" onchange="updateProdukt()"><label for="p_arspaket">Årspaket HO</label></div>
         <div class="radio-option"><input type="radio" name="produkt" id="p_redaktionell" value="redaktionell" onchange="updateProdukt()"><label for="p_redaktionell">Redaktionell artikel</label></div>
         <div class="radio-option"><input type="radio" name="produkt" id="p_helsida" value="helsida" onchange="updateProdukt()"><label for="p_helsida">Grafisk helsida</label></div>
         <div class="radio-option"><input type="radio" name="produkt" id="p_halvsida" value="halvsida" onchange="updateProdukt()"><label for="p_halvsida">Grafisk halvsida</label></div>
@@ -182,6 +183,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="field">
         <label>Rabatt (%)</label>
         <input type="number" id="rabatt_pct_dm" value="32" min="1" max="70" placeholder="32">
+      </div>
+    </div>
+
+    <div id="section-arspaket" style="display:none">
+      <div class="price-display visible">Årspaket HO — listpris 69 000 kr exkl. moms</div>
+      <div class="field" style="margin-top:10px">
+        <label>Avtalat pris (kr exkl. moms)</label>
+        <input type="number" id="arspaket_pris" placeholder="69000">
+        <div class="hint">Standard årspaket HO: 69 000 kr. Justera om rabatt avtalats.</div>
+      </div>
+      <div class="field">
+        <label>Rabatt (%)</label>
+        <input type="number" id="rabatt_pct_arspaket" value="32" min="1" max="70" placeholder="32">
       </div>
     </div>
 
@@ -273,7 +287,8 @@ const NOTES_TEMPLATES = {
   redaktionell: (n) => `Närvaro i ${n} utgåva${n>1?'r':''} av Hållbar Omställning: Transport & Logistik.\n\nIngår:\n• En längre intervju och redaktionell artikel med er som ansiktet utåt${n>1?', anpassad med ny vinkel inför varje utgåva':''}.\n• LinkedIn-inlägg publicerat i HO:s kanaler${n>1?' per utgåva':''}.\n• Artikel publicerad på Transportnet${n>1?' per utgåva':''}.\n• Distribution via Google Display.`,
   helsida: (n) => `Grafisk helsida i ${n} utgåva${n>1?'r':''} av Hållbar Omställning: Transport & Logistik.\n\nIngår:\n• Grafisk helsidesannons i ${n} utgåva${n>1?'r':''}.\n• Distribution via Google Display.`,
   halvsida: (n) => `Grafisk halvsida i ${n} utgåva${n>1?'r':''} av Hållbar Omställning: Transport & Logistik.\n\nIngår:\n• Grafisk halvsidesannons i ${n} utgåva${n>1?'r':''}.\n• Distribution via Google Display.`,
-  digitalt: `Digitalt paket Hållbar Omställning.\n\nIngår:\n• 2 LinkedIn-inlägg publicerade i HO:s kanaler.\n• 1 artikel på HållbarOmställning.se.\n• 1 artikel på Transportnet.`
+  digitalt: `Digitalt paket Hållbar Omställning.\n\nIngår:\n• 2 LinkedIn-inlägg publicerade i HO:s kanaler.\n• 1 artikel på HållbarOmställning.se.\n• 1 artikel på Transportnet.`,
+  arspaket: `Årspaket Hållbar Omställning.\n\nIngår:\n• Redaktionell artikel i samtliga utgåvor under avtalsperioden.\n• LinkedIn-inlägg publicerade i HO:s kanaler per utgåva.\n• Artikel publicerad på Transportnet per utgåva.\n• Distribution via Google Display per utgåva.`
 };
 
 let exklMoms = false;
@@ -288,8 +303,11 @@ function updateProdukt() {
   document.getElementById('section-med-nummer').style.display = medNummer ? 'block' : 'none';
   document.getElementById('section-digitalt').style.display = p === 'digitalt' ? 'block' : 'none';
   document.getElementById('section-dm').style.display = p === 'dm' ? 'block' : 'none';
+  document.getElementById('section-arspaket').style.display = p === 'arspaket' ? 'block' : 'none';
   if (p === 'digitalt') {
     document.getElementById('anteckningar').value = NOTES_TEMPLATES.digitalt;
+  } else if (p === 'arspaket') {
+    document.getElementById('anteckningar').value = NOTES_TEMPLATES.arspaket;
   } else {
     document.getElementById('anteckningar').value = '';
   }
@@ -345,7 +363,13 @@ function generateOrder() {
     let rows = '', pris = 0, listpris = 0, produktNamn = '';
     const PROD_LABELS = {redaktionell:'Redaktionell artikel', helsida:'Grafisk helsida', halvsida:'Grafisk halvsida'};
 
-    if (p === 'digitalt') {
+    if (p === 'arspaket') {
+      pris = parseInt(document.getElementById('arspaket_pris').value) || 69000;
+      const rabattAP = parseInt(document.getElementById('rabatt_pct_arspaket').value) || 32;
+      listpris = calcListpris(pris, rabattAP);
+      produktNamn = 'Årspaket Hållbar Omställning';
+      rows = buildRow(produktNamn, listpris, pris);
+    } else if (p === 'digitalt') {
       pris = 19900;
       const rabattD = parseInt(document.getElementById('rabatt_pct_digitalt').value) || 32;
       listpris = calcListpris(pris, rabattD);

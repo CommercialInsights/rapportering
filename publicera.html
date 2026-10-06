@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Publicera artikel – CI</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F6F2;--surface:#FFFFFF;--border:#E2DED7;--ink:#1C1B18;--ink-soft:#6B6860;--ink-faint:#A8A59E;
+  --dm:#1a3a5c;--dm-light:#E6EFF8;--ho:#2E5D4B;--ho-light:#E5F0EC;
+  --red:#B53A2F;--red-light:#FAEAE9;--green:#2E5D4B;--green-light:#E5F0EC;
+  --yellow:#9A6F00;--yellow-light:#FEF7E0;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:32px 16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:720px;margin-top:8px}
+.header{margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.header h1{font-size:20px;font-weight:600;margin-bottom:4px}
+.header p{font-size:13px;color:var(--ink-soft);line-height:1.5}
+
+.field{margin-bottom:18px}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px}
+.field textarea{width:100%;padding:12px 14px;font-size:14px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.7;transition:border .15s,background .15s;resize:vertical}
+.field textarea:focus{outline:none;border-color:var(--ink);background:white}
+
+.sajt-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.sajt-opt{position:relative}
+.sajt-opt input[type=radio]{position:absolute;opacity:0;width:0;height:0}
+.sajt-opt label{display:flex;align-items:center;gap:10px;padding:12px 16px;border:2px solid var(--border);border-radius:10px;cursor:pointer;font-size:14px;font-weight:500;background:var(--bg);transition:all .15s}
+.sajt-opt label .dot{width:10px;height:10px;border-radius:50%;background:var(--border);flex-shrink:0}
+.sajt-opt input[value=ho]:checked + label{border-color:var(--ho);background:var(--ho-light);color:var(--ho)}
+.sajt-opt input[value=ho]:checked + label .dot{background:var(--ho)}
+.sajt-opt input[value=dm]:checked + label{border-color:var(--dm);background:var(--dm-light);color:var(--dm)}
+.sajt-opt input[value=dm]:checked + label .dot{background:var(--dm)}
+
+/* Bilduppladdning */
+.upload-zone{border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg);margin-bottom:18px}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--ink);background:#EEECEA}
+.upload-zone input[type=file]{display:none}
+.upload-zone .icon{font-size:28px;margin-bottom:6px}
+.upload-zone p{font-size:13px;color:var(--ink-soft)}
+.upload-zone p strong{color:var(--ink)}
+.file-list{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
+.file-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:var(--green-light);border:1px solid var(--ho);border-radius:100px;font-size:12px;font-weight:500;color:var(--ho)}
+.file-chip.unmatched{background:var(--yellow-light);border-color:var(--yellow);color:var(--yellow)}
+
+/* Hint */
+.hint{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:18px;font-size:12px;color:var(--ink-soft);line-height:1.9}
+.hint strong{color:var(--ink);font-weight:600}
+.hint code{font-family:monospace;background:var(--border);padding:1px 5px;border-radius:4px;font-size:11px;color:var(--ink)}
+
+/* Artikelkort i preview */
+.articles-preview{margin-bottom:18px}
+.art-card{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px}
+.art-card-header{background:var(--bg);padding:10px 14px;font-size:12px;font-weight:600;color:var(--ink-soft);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.art-card-header .art-num{background:var(--ink);color:white;font-size:11px;padding:2px 8px;border-radius:100px}
+.art-card-header .art-bild{font-size:11px;font-weight:500}
+.art-card-header .art-bild.ok{color:var(--green)}
+.art-card-header .art-bild.missing{color:var(--yellow)}
+.art-card-body{padding:14px}
+.pfield{margin-bottom:8px;font-size:13px}
+.pfield .plabel{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-faint);margin-bottom:2px}
+.pfield .pval{color:var(--ink)}
+.pfield .pval.missing{color:var(--red);font-style:italic}
+
+/* Submit */
+.submit-btn{width:100%;padding:14px;font-size:15px;font-weight:600;background:var(--ink);color:white;border:none;border-radius:10px;cursor:pointer;font-family:var(--sans);transition:background .15s}
+.submit-btn:hover{background:#333}
+.err-msg{font-size:12px;color:var(--red);margin-top:6px;display:none}
+
+/* Resultat */
+.result-section{margin-top:20px}
+.cmd-card{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px}
+.cmd-card-header{background:var(--green-light);padding:10px 14px;font-size:13px;font-weight:600;color:var(--ho);border-bottom:1px solid var(--ho);display:flex;justify-content:space-between;align-items:center}
+.cmd-box{background:#1C1B18;color:#A8F0C6;font-family:monospace;font-size:11px;padding:14px;line-height:1.6;white-space:pre-wrap;word-break:break-all;max-height:160px;overflow-y:auto}
+.copy-btn{font-size:11px;font-weight:600;padding:4px 12px;background:white;color:var(--ho);border:1px solid var(--ho);border-radius:6px;cursor:pointer;font-family:var(--sans)}
+.copy-btn:active{background:var(--ho-light)}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <h1>Publicera artikel</h1>
+    <p>Klistra in en eller flera artiklar från ChatGPT, ladda upp bilderna och generera WordPress-kommandon. Separera flera artiklar med <strong>---</strong> på en egen rad.</p>
+  </div>
+
+  <!-- Sajt -->
+  <div class="field">
+    <label>Sajt</label>
+    <div class="sajt-row">
+      <div class="sajt-opt">
+        <input type="radio" name="sajt" id="sajtHO" value="ho" onchange="onParse()">
+        <label for="sajtHO"><span class="dot"></span>Hållbar Omställning</label>
+      </div>
+      <div class="sajt-opt">
+        <input type="radio" name="sajt" id="sajtDM" value="dm" onchange="onParse()">
+        <label for="sajtDM"><span class="dot"></span>Dagens Medarbetare</label>
+      </div>
+    </div>
+    <div class="err-msg" id="err-sajt">Välj sajt</div>
+  </div>
+
+  <!-- Tagghint -->
+  <div class="hint">
+    <strong>Taggar:</strong><br>
+    <code>[RUBRIK]</code> <code>[INGRESS]</code> <code>[BRODTEXT]</code> <code>[UTDRAG]</code> <code>[BILD]</code> filnamn.jpg<br>
+    <code>[SKRIBENT]</code> <code>[KATEGORI]</code> <code>[FOKUSKW]</code> <code>[META]</code> <code>[OG_RUBRIK]</code> <code>[OG_BESKRIVNING]</code><br>
+    <strong>Flera artiklar:</strong> separera med <code>---</code> på egen rad
+  </div>
+
+  <!-- Text -->
+  <div class="field">
+    <label>Klistra in text från ChatGPT</label>
+    <textarea id="rawText" rows="16" placeholder="[RUBRIK] Volvo satsar på eldrift i nya flottan
+[INGRESS] Volvo meddelar i dag att hela lastbilsflottan...
+[BRODTEXT] Vid en presskonferens i Göteborg presenterade...
+[BILD] volvo.jpg
+[SKRIBENT] Johan Svedberg
+[KATEGORI] Transport & Logistik
+[FOKUSKW] volvo eldrift lastbilar
+[META] Volvo satsar stort på eldrift i sin nya lastbilsflotta.
+
+---
+
+[RUBRIK] SSAB lanserar fossilfritt stål
+[INGRESS] Ståljätten SSAB presenterar...
+[BRODTEXT] Vid en presskonferens i Stockholm...
+[BILD] ssab.jpg
+[SKRIBENT] Johan Svedberg
+[KATEGORI] Industri
+[FOKUSKW] ssab fossilfritt stål
+[META] SSAB tar nästa steg mot fossilfri stålproduktion." oninput="onParse()"></textarea>
+    <div class="err-msg" id="err-text">Texten måste innehålla minst [RUBRIK] och [BRODTEXT]</div>
+  </div>
+
+  <!-- Bilduppladdning -->
+  <div class="field">
+    <label>Bilder <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--ink-faint)">(döp filerna till samma namn som i [BILD]-taggen)</span></label>
+    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()"
+         ondragover="event.preventDefault();this.classList.add('drag')"
+         ondragleave="this.classList.remove('drag')"
+         ondrop="onDrop(event)">
+      <input type="file" id="fileInput" multiple accept="image/*" onchange="onFiles(this.files)">
+      <div class="icon">🖼️</div>
+      <p><strong>Klicka eller dra hit bilder</strong><br>Ladda upp alla bilder för dagens artiklar på en gång</p>
+      <div class="file-list" id="fileList"></div>
+    </div>
+  </div>
+
+  <!-- Preview -->
+  <div class="articles-preview" id="articlesPreview"></div>
+
+  <button class="submit-btn" onclick="generate()">Generera WordPress-kommandon</button>
+  <div class="err-msg" id="err-gen" style="margin-top:8px"></div>
+
+  <!-- Resultat -->
+  <div class="result-section" id="resultSection"></div>
+</div>
+
+<script>
+const SITES = {
+  ho:{
+    url:'https://hallbaromstallning.se/wp-json/wp/v2/posts',
+    mediaUrl:'https://hallbaromstallning.se/wp-json/wp/v2/media',
+    user:'application', pass:'IzvY d11c q7Nf UNfm xAnv 76y9',
+    authors:{'johan svedberg':4,'johan':4,'mikael stange':7,'mikael':7,'kalle dixelius':5,'kalle':5},
+  },
+  dm:{
+    url:'https://dagensmedarbetare.se/wp-json/wp/v2/posts',
+    mediaUrl:'https://dagensmedarbetare.se/wp-json/wp/v2/media',
+    user:'application', pass:'4vC6 IHpQ XXja jK6v DzBw 7aAj',
+    authors:{'johan svedberg':4,'johan':4,'mikael stange':7,'mikael':7,'kalle dixelius':5,'kalle':5},
+  }
+};
+
+let uploadedFiles = {}; // filename -> File object
+
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag');
+  onFiles(e.dataTransfer.files);
+}
+
+function onFiles(files) {
+  for (const f of files) {
+    uploadedFiles[f.name.toLowerCase()] = f;
+  }
+  renderFileList();
+  onParse();
+}
+
+function renderFileList() {
+  const parsedArticles = parseAll();
+  const neededImages = new Set(parsedArticles.map(a => (a.BILD||'').toLowerCase()).filter(Boolean));
+  const list = document.getElementById('fileList');
+  list.innerHTML = Object.keys(uploadedFiles).map(name => {
+    const matched = neededImages.has(name);
+    return `<span class="file-chip ${matched?'':'unmatched'}">${matched?'✓':' ⚠'} ${name}</span>`;
+  }).join('');
+}
+
+function parseTagged(raw) {
+  const tags = ['RUBRIK','INGRESS','BRODTEXT','UTDRAG','BILD','SKRIBENT','KATEGORI','FOKUSKW','META','OG_RUBRIK','OG_BESKRIVNING'];
+  const result = {};
+  const allTags = new RegExp('\\[(' + tags.join('|') + ')\\]\\s*', 'g');
+  const parts = raw.split(allTags);
+  for (let i = 1; i < parts.length; i += 2) {
+    const key = parts[i];
+    const val = (parts[i+1] || '').trim();
+    if (val) result[key] = val;
+  }
+  return result;
+}
+
+function parseAll() {
+  const raw = document.getElementById('rawText').value;
+  if (!raw.trim()) return [];
+  return raw.split(/^---\s*$/m).map(s => parseTagged(s.trim())).filter(a => a.RUBRIK || a.BRODTEXT);
+}
+
+function onParse() {
+  const sajt = document.querySelector('input[name=sajt]:checked')?.value;
+  const articles = parseAll();
+  renderFileList();
+
+  const container = document.getElementById('articlesPreview');
+  if (!articles.length || !sajt) { container.innerHTML=''; return; }
+
+  container.innerHTML = articles.map((a, i) => {
+    const bildNavn = (a.BILD||'').toLowerCase();
+    const bildOk = bildNavn && uploadedFiles[bildNavn];
+    const fields = [
+      {l:'Rubrik', v:a.RUBRIK},
+      {l:'Ingress', v:a.INGRESS},
+      {l:'Brödtext', v:a.BRODTEXT ? a.BRODTEXT.substring(0,100)+'…' : null},
+      {l:'Skribent', v:a.SKRIBENT},
+      {l:'Kategori', v:a.KATEGORI},
+      {l:'Fokuskw', v:a.FOKUSKW},
+      {l:'Meta', v:a.META},
+    ];
+    return `<div class="art-card">
+      <div class="art-card-header">
+        <span><span class="art-num">Artikel ${i+1}</span> &nbsp; ${a.RUBRIK ? a.RUBRIK.substring(0,60) : '(ingen rubrik)'}</span>
+        <span class="art-bild ${bildOk?'ok':'missing'}">${bildNavn ? (bildOk ? '✓ '+a.BILD : '⚠ '+a.BILD+' saknas') : 'ingen bild'}</span>
+      </div>
+      <div class="art-card-body">
+        ${fields.map(f=>`<div class="pfield"><div class="plabel">${f.l}</div><div class="pval${f.v?'':' missing'}">${f.v||'saknas'}</div></div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function buildHtml(ingress, brodtext) {
+  let html = '';
+  if (ingress) html += `<p><strong>${ingress}</strong></p>\n`;
+  if (brodtext) {
+    brodtext.split(/\n\n+/).map(p=>p.trim()).filter(Boolean).forEach(p => { html += `<p>${p}</p>\n`; });
+  }
+  return html.trim();
+}
+
+function generate() {
+  const sajt = document.querySelector('input[name=sajt]:checked')?.value;
+  const articles = parseAll();
+  document.getElementById('err-sajt').style.display='none';
+  document.getElementById('err-text').style.display='none';
+  document.getElementById('err-gen').style.display='none';
+
+  if (!sajt) { document.getElementById('err-sajt').style.display='block'; return; }
+  if (!articles.length) { document.getElementById('err-text').style.display='block'; return; }
+
+  const s = SITES[sajt];
+  const creds = btoa(`${s.user}:${s.pass}`);
+  const sajtNamn = sajt==='ho' ? 'Hållbar Omställning' : 'Dagens Medarbetare';
+
+  const cards = articles.map((a, i) => {
+    if (!a.RUBRIK || !a.BRODTEXT) return `<div class="cmd-card"><div class="cmd-card-header">⚠ Artikel ${i+1} saknar rubrik eller brödtext</div></div>`;
+
+    const authorId = a.SKRIBENT ? (s.authors[a.SKRIBENT.toLowerCase()] || 4) : 4;
+    const content = buildHtml(a.INGRESS, a.BRODTEXT);
+    const body = { title: a.RUBRIK, content, status:'draft', author: authorId };
+    if (a.UTDRAG) body.excerpt = a.UTDRAG;
+    const meta = {};
+    if (a.FOKUSKW) meta['_yoast_wpseo_focuskw'] = a.FOKUSKW;
+    if (a.META) meta['_yoast_wpseo_metadesc'] = a.META;
+    if (a.OG_RUBRIK) meta['_yoast_wpseo_opengraph-title'] = a.OG_RUBRIK;
+    if (a.OG_BESKRIVNING) meta['_yoast_wpseo_opengraph-description'] = a.OG_BESKRIVNING;
+    if (Object.keys(meta).length) body.meta = meta;
+
+    const jsonBody = JSON.stringify(body).replace(/'/g,"''");
+    const bildNamn = (a.BILD||'').toLowerCase();
+    const harBild = bildNamn && uploadedFiles[bildNamn];
+
+    let bildSteg = '';
+    if (harBild) {
+      bildSteg = `\n# Steg 1: Ladda upp bild\n$media = Invoke-RestMethod -Method POST \`\n  -Uri "${s.mediaUrl}" \`\n  -Headers @{"Authorization" = "Basic ${creds}"; "Content-Disposition" = "attachment; filename=${a.BILD}"} \`\n  -ContentType "image/jpeg" \`\n  -InFile "C:\\Users\\micke\\Downloads\\${a.BILD}"\n$mediaId = $media.id\n\n# Steg 2: Skapa artikel med bild\n$body = '${jsonBody}' | ConvertFrom-Json\n$body.featured_media = $mediaId\nInvoke-RestMethod -Method POST \`\n  -Uri "${s.url}" \`\n  -Headers @{"Authorization" = "Basic ${creds}"} \`\n  -ContentType "application/json" \`\n  -Body ($body | ConvertTo-Json -Depth 10)`;
+    } else {
+      bildSteg = `Invoke-RestMethod -Method POST \`\n  -Uri "${s.url}" \`\n  -Headers @{"Authorization" = "Basic ${creds}"} \`\n  -ContentType "application/json" \`\n  -Body '${jsonBody}'`;
+    }
+
+    const id = `cmd${i}`;
+    return `<div class="cmd-card">
+      <div class="cmd-card-header">
+        <span>Artikel ${i+1} — ${a.RUBRIK.substring(0,50)}${harBild?' 🖼️':''}</span>
+        <button class="copy-btn" onclick="copyEl('${id}')">Kopiera</button>
+      </div>
+      <div class="cmd-box" id="${id}">${bildSteg}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('resultSection').innerHTML = `<p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Kör kommandona i ordning i PowerShell. ${articles.length} artikel${articles.length>1?'ar':''} för ${sajtNamn}.</p>${cards}`;
+}
+
+function copyEl(id) {
+  navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => {
+    event.target.textContent='Kopierat!';
+    setTimeout(()=>event.target.textContent='Kopiera',2000);
+  });
+}
+</script>
+</body>
+</html>

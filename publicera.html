@@ -420,6 +420,16 @@ async function publishOne(article, site, index, skribentOverride) {
     } else {
       const mediaData = await mediaRes.json();
       mediaId = mediaData.id;
+      // Sätt alt-text automatiskt från artikelns rubrik
+      if (mediaId && article.RUBRIK) {
+        try {
+          await fetch(`${s.mediaUrl}/${mediaId}`, {
+            method: 'POST',
+            headers: { ...headers, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ alt_text: article.RUBRIK }),
+          });
+        } catch(e) { console.warn('Alt-text kunde inte sättas:', e); }
+      }
     }
   }
 

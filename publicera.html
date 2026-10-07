@@ -384,7 +384,7 @@ function setCard(id, state, title, body) {
   if (body !== undefined) bodyEl.innerHTML = body;
 }
 
-async function publishOne(article, site, index) {
+async function publishOne(article, site, index, skribentOverride) {
   const s = SITES[site];
   const creds = btoa(`${s.user}:${s.pass}`);
   const headers = { 'Authorization': `Basic ${creds}` };
@@ -398,6 +398,10 @@ async function publishOne(article, site, index) {
     setCard(index, 'running',
       `<span class="spinner"></span> Artikel ${index+1} — Laddar upp bild…`,
       '');
+
+    // Läs filen som ArrayBuffer och skicka binärt
+    const arrayBuffer = await bildFil.arrayBuffer();
+
     const mediaRes = await fetch(s.mediaUrl, {
       method: 'POST',
       headers: {
@@ -405,14 +409,19 @@ async function publishOne(article, site, index) {
         'Content-Disposition': `attachment; filename="${article.BILD}"`,
         'Content-Type': bildFil.type || 'image/jpeg',
       },
-      body: bildFil,
+      body: arrayBuffer,
     });
     if (!mediaRes.ok) {
-      const err = await mediaRes.text();
-      throw new Error(`Bilduppladdning misslyckades (${mediaRes.status}): ${err.substring(0,200)}`);
+      const errText = await mediaRes.text();
+      // CORS eller auth-fel — logga men fortsätt utan bild
+      console.warn('Bilduppladdning misslyckades:', mediaRes.status, errText.substring(0,300));
+      setCard(index, 'running',
+        `<span class="spinner"></span> Artikel ${index+1} — Skapar inlägg (utan bild)…`,
+        `⚠ Bild kunde inte laddas upp (${mediaRes.status}) — artikeln skapas utan omslagsbild.`);
+    } else {
+      const mediaData = await mediaRes.json();
+      mediaId = mediaData.id;
     }
-    const mediaData = await mediaRes.json();
-    mediaId = mediaData.id;
   }
 
   // Steg 2: Skapa inlägg
@@ -420,7 +429,8 @@ async function publishOne(article, site, index) {
     `<span class="spinner"></span> Artikel ${index+1} — Skapar inlägg…`,
     '');
 
-  const authorId = article.SKRIBENT ? (s.authors[article.SKRIBENT.toLowerCase()] || 4) : 4;
+  const skribentNamn = skribentOverride || article.SKRIBENT || '';
+  const authorId = s.authors[skribentNamn.toLowerCase()] || 4;
   const content = buildHtml(article.INGRESS, article.BRODTEXT);
   const body = {
     title: article.RUBRIK,
@@ -431,10 +441,12 @@ async function publishOne(article, site, index) {
   if (article.UTDRAG) body.excerpt = article.UTDRAG;
 
   const meta = {};
-  if (article.FOKUSKW)       meta['_yoast_wpseo_focuskw']              = article.FOKUSKW;
-  if (article.META)          meta['_yoast_wpseo_metadesc']             = article.META;
-  if (article.OG_RUBRIK)     meta['_yoast_wpseo_opengraph-title']      = article.OG_RUBRIK;
-  if (article.OG_BESKRIVNING)meta['_yoast_wpseo_opengraph-description']= article.OG_BESKRIVNING;
+  if (article.FOKUSKW)       meta['_yoast_wpseo_focuskw']               = article.FOKUSKW;
+  if (article.META)          meta['_yoast_wpseo_metadesc']              = article.META;
+  if (article.OG_RUBRIK)     meta['_yoast_wpseo_opengraph-title']       = article.OG_RUBRIK;
+  if (article.OG_RUBRIK)     meta['_yoast_wpseo_opengraph_title']       = article.OG_RUBRIK;
+  if (article.OG_BESKRIVNING)meta['_yoast_wpseo_opengraph-description'] = article.OG_BESKRIVNING;
+  if (article.OG_BESKRIVNING)meta['_yoast_wpseo_opengraph_description'] = article.OG_BESKRIVNING;
   if (Object.keys(meta).length) body.meta = meta;
   if (mediaId) body.featured_media = mediaId;
 
@@ -461,8 +473,11 @@ async function publishAll() {
   document.getElementById('err-text').style.display = 'none';
   document.getElementById('err-gen').style.display = 'none';
 
+  document.getElementById('err-skribent').style.display = 'none';
   if (!sajt) { document.getElementById('err-sajt').style.display='block'; return; }
   if (!articles.length) { document.getElementById('err-text').style.display='block'; return; }
+  const skribent = getSkribent();
+  if (!skribent) { document.getElementById('err-skribent').style.display='block'; return; }
 
   const s = SITES[sajt];
   const btn = document.getElementById('publishBtn');
@@ -484,7 +499,7 @@ async function publishAll() {
 
   for (let i = 0; i < articles.length; i++) {
     try {
-      const post = await publishOne(articles[i], sajt, i);
+      const post = await publishOne(articles[i], sajt, i, skribent);
       const editUrl = s.editBase + post.id;
       setCard(i, 'ok',
         `✓ Artikel ${i+1} — ${(articles[i].RUBRIK||'').substring(0,50)}`,

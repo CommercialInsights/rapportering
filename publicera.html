@@ -26,6 +26,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
 .field textarea:focus{outline:none;border-color:var(--ink);background:white}
 
 .sajt-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.sajt-row.four{grid-template-columns:1fr 1fr 1fr}
 .sajt-opt{position:relative}
 .sajt-opt input[type=radio]{position:absolute;opacity:0;width:0;height:0}
 .sajt-opt label{display:flex;align-items:center;gap:10px;padding:12px 16px;border:2px solid var(--border);border-radius:10px;cursor:pointer;font-size:14px;font-weight:500;background:var(--bg);transition:all .15s}
@@ -34,6 +35,10 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
 .sajt-opt input[value=ho]:checked + label .dot{background:var(--ho)}
 .sajt-opt input[value=dm]:checked + label{border-color:var(--dm);background:var(--dm-light);color:var(--dm)}
 .sajt-opt input[value=dm]:checked + label .dot{background:var(--dm)}
+.sajt-opt input[value=ho3]:checked + label{border-color:var(--ho);background:var(--ho-light);color:var(--ho)}
+.sajt-opt input[value=ho3]:checked + label .dot{background:var(--ho)}
+.sajt-opt input[value=dm3]:checked + label{border-color:var(--dm);background:var(--dm-light);color:var(--dm)}
+.sajt-opt input[value=dm3]:checked + label .dot{background:var(--dm)}
 
 /* Bilduppladdning */
 .upload-zone{border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg);margin-bottom:18px}
@@ -88,15 +93,31 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
 
   <!-- Sajt -->
   <div class="field">
-    <label>Sajt</label>
-    <div class="sajt-row">
+    <label>Sajt &amp; format</label>
+    <div class="sajt-row four">
       <div class="sajt-opt">
         <input type="radio" name="sajt" id="sajtHO" value="ho" onchange="onParse()">
-        <label for="sajtHO"><span class="dot"></span>Hållbar Omställning</label>
+        <label for="sajtHO"><span class="dot"></span>HO – Artikel</label>
       </div>
       <div class="sajt-opt">
         <input type="radio" name="sajt" id="sajtDM" value="dm" onchange="onParse()">
-        <label for="sajtDM"><span class="dot"></span>Dagens Medarbetare</label>
+        <label for="sajtDM"><span class="dot"></span>DM – Artikel</label>
+      </div>
+      <div class="sajt-opt">
+        <input type="radio" name="sajt" id="sajtHO3" value="ho3" onchange="onParse()">
+        <label for="sajtHO3"><span class="dot"></span>HO – Tre snabba</label>
+      </div>
+      <div class="sajt-opt">
+        <input type="radio" name="sajt" id="sajtDM3" value="dm3" onchange="onParse()">
+        <label for="sajtDM3"><span class="dot"></span>DM – Tre snabba</label>
+      </div>
+      <div class="sajt-opt">
+        <input type="radio" name="sajt" id="sajtHOkron" value="hokron" onchange="onParse()">
+        <label for="sajtHOkron"><span class="dot"></span>HO – Krönika</label>
+      </div>
+      <div class="sajt-opt">
+        <input type="radio" name="sajt" id="sajtDMkron" value="dmkron" onchange="onParse()">
+        <label for="sajtDMkron"><span class="dot"></span>DM – Krönika</label>
       </div>
     </div>
     <div class="err-msg" id="err-sajt">Välj sajt</div>
@@ -166,13 +187,43 @@ const SITES = {
     mediaUrl:'https://hallbaromstallning.se/wp-json/wp/v2/media',
     user:'application', pass:'IzvY d11c q7Nf UNfm xAnv 76y9',
     authors:{'johan svedberg':4,'johan':4,'mikael stange':7,'mikael':7,'kalle dixelius':5,'kalle':5},
+    label:'Hållbar Omställning',
   },
   dm:{
     url:'https://dagensmedarbetare.se/wp-json/wp/v2/posts',
     mediaUrl:'https://dagensmedarbetare.se/wp-json/wp/v2/media',
     user:'application', pass:'4vC6 IHpQ XXja jK6v DzBw 7aAj',
     authors:{'johan svedberg':4,'johan':4,'mikael stange':7,'mikael':7,'kalle dixelius':5,'kalle':5},
-  }
+    label:'Dagens Medarbetare',
+  },
+  ho3:{
+    url:'https://hallbaromstallning.se/wp-json/wp/v2/featured-article',
+    mediaUrl:'https://hallbaromstallning.se/wp-json/wp/v2/media',
+    user:'application', pass:'IzvY d11c q7Nf UNfm xAnv 76y9',
+    authors:{'johan svedberg':4,'johan':4,'mikael stange':7,'mikael':7,'kalle dixelius':5,'kalle':5},
+    label:'HO – Tre snabba',
+  },
+  dm3:{
+    url:'https://dagensmedarbetare.se/wp-json/wp/v2/quick-three',
+    mediaUrl:'https://dagensmedarbetare.se/wp-json/wp/v2/media',
+    user:'application', pass:'4vC6 IHpQ XXja jK6v DzBw 7aAj',
+    authors:{'johan svedberg':4,'johan':4,'mikael stange':7,'mikael':7,'kalle dixelius':5,'kalle':5},
+    label:'DM – Tre snabba',
+  },
+  hokron:{
+    url:'https://hallbaromstallning.se/wp-json/wp/v2/chronicle',
+    mediaUrl:'https://hallbaromstallning.se/wp-json/wp/v2/media',
+    user:'application', pass:'IzvY d11c q7Nf UNfm xAnv 76y9',
+    authors:{'johan svedberg':4,'johan':4,'mikael stange':7,'mikael':7,'kalle dixelius':5,'kalle':5},
+    label:'HO – Krönika',
+  },
+  dmkron:{
+    url:'https://dagensmedarbetare.se/wp-json/wp/v2/featured-article',
+    mediaUrl:'https://dagensmedarbetare.se/wp-json/wp/v2/media',
+    user:'application', pass:'4vC6 IHpQ XXja jK6v DzBw 7aAj',
+    authors:{'johan svedberg':4,'johan':4,'mikael stange':7,'mikael':7,'kalle dixelius':5,'kalle':5},
+    label:'DM – Krönika',
+  },
 };
 
 let uploadedFiles = {}; // filename -> File object
@@ -273,7 +324,7 @@ function generate() {
 
   const s = SITES[sajt];
   const creds = btoa(`${s.user}:${s.pass}`);
-  const sajtNamn = sajt==='ho' ? 'Hållbar Omställning' : 'Dagens Medarbetare';
+  const sajtNamn = s.label;
 
   const cards = articles.map((a, i) => {
     if (!a.RUBRIK || !a.BRODTEXT) return `<div class="cmd-card"><div class="cmd-card-header">⚠ Artikel ${i+1} saknar rubrik eller brödtext</div></div>`;

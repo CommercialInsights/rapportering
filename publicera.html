@@ -370,7 +370,20 @@ function onParse() {
 function buildHtml(brodtext) {
   let html = '';
   if (brodtext) {
-    brodtext.split(/\n\n+/).map(p=>p.trim()).filter(Boolean).forEach(p => { html += `<p>${p}</p>\n`; });
+    brodtext.split(/\n\n+/).map(p=>p.trim()).filter(Boolean).forEach(p => {
+      // Om stycket innehåller rader som börjar med – (citat), dela upp dem som egna stycken
+      const lines = p.split(/\n/).map(l=>l.trim()).filter(Boolean);
+      let buf = [];
+      lines.forEach(line => {
+        if (line.startsWith('–') || line.startsWith('-–') || line.startsWith('–')) {
+          if (buf.length) { html += `<p>${buf.join(' ')}</p>\n`; buf = []; }
+          html += `<p>${line}</p>\n`;
+        } else {
+          buf.push(line);
+        }
+      });
+      if (buf.length) html += `<p>${buf.join(' ')}</p>\n`;
+    });
   }
   return html.trim();
 }
@@ -439,14 +452,14 @@ async function publishOne(article, site, index, skribentOverride) {
     '');
 
   const skribentNamn = skribentOverride || article.SKRIBENT || '';
-  const authorId = s.authors[skribentNamn.toLowerCase()] || 4;
+  const authorId = s.authors[skribentNamn.toLowerCase()] || null;
   const content = buildHtml(article.BRODTEXT);
   const body = {
     title: article.RUBRIK,
     content,
     status: 'draft',
-    author: authorId,
   };
+  if (authorId) body.author = authorId;
   // UTDRAG prioriteras; annars används INGRESS som excerpt
   if (article.UTDRAG) body.excerpt = article.UTDRAG;
   else if (article.INGRESS) body.excerpt = article.INGRESS;
@@ -488,7 +501,6 @@ async function publishAll() {
   if (!sajt) { document.getElementById('err-sajt').style.display='block'; return; }
   if (!articles.length) { document.getElementById('err-text').style.display='block'; return; }
   const skribent = getSkribent();
-  if (!skribent) { document.getElementById('err-skribent').style.display='block'; return; }
 
   const s = SITES[sajt];
   const btn = document.getElementById('publishBtn');

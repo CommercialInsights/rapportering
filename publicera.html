@@ -39,6 +39,10 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
 .sajt-opt input[value=ho3]:checked + label .dot{background:var(--ho)}
 .sajt-opt input[value=dm3]:checked + label{border-color:var(--dm);background:var(--dm-light);color:var(--dm)}
 .sajt-opt input[value=dm3]:checked + label .dot{background:var(--dm)}
+.sajt-opt input[value=hokron]:checked + label{border-color:var(--ho);background:var(--ho-light);color:var(--ho)}
+.sajt-opt input[value=hokron]:checked + label .dot{background:var(--ho)}
+.sajt-opt input[value=dmkron]:checked + label{border-color:var(--dm);background:var(--dm-light);color:var(--dm)}
+.sajt-opt input[value=dmkron]:checked + label .dot{background:var(--dm)}
 
 /* Bilduppladdning */
 .upload-zone{border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg);margin-bottom:18px}
@@ -72,23 +76,30 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
 
 /* Submit */
 .submit-btn{width:100%;padding:14px;font-size:15px;font-weight:600;background:var(--ink);color:white;border:none;border-radius:10px;cursor:pointer;font-family:var(--sans);transition:background .15s}
-.submit-btn:hover{background:#333}
+.submit-btn:hover:not(:disabled){background:#333}
+.submit-btn:disabled{background:#999;cursor:not-allowed}
 .err-msg{font-size:12px;color:var(--red);margin-top:6px;display:none}
 
-/* Resultat */
-.result-section{margin-top:20px}
-.cmd-card{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px}
-.cmd-card-header{background:var(--green-light);padding:10px 14px;font-size:13px;font-weight:600;color:var(--ho);border-bottom:1px solid var(--ho);display:flex;justify-content:space-between;align-items:center}
-.cmd-box{background:#1C1B18;color:#A8F0C6;font-family:monospace;font-size:11px;padding:14px;line-height:1.6;white-space:pre-wrap;word-break:break-all;max-height:160px;overflow-y:auto}
-.copy-btn{font-size:11px;font-weight:600;padding:4px 12px;background:white;color:var(--ho);border:1px solid var(--ho);border-radius:6px;cursor:pointer;font-family:var(--sans)}
-.copy-btn:active{background:var(--ho-light)}
+/* Progress */
+.progress-section{margin-top:20px}
+.prog-card{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px}
+.prog-header{padding:12px 16px;font-size:13px;font-weight:600;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.prog-header.pending{background:var(--bg);color:var(--ink-soft)}
+.prog-header.running{background:var(--yellow-light);color:var(--yellow)}
+.prog-header.ok{background:var(--green-light);color:var(--ho);border-color:#a8d5b8}
+.prog-header.err{background:var(--red-light);color:var(--red);border-color:#e8b4b0}
+.prog-body{padding:12px 16px;font-size:13px;color:var(--ink-soft);line-height:1.6}
+.prog-link{color:var(--ho);font-weight:600;text-decoration:none}
+.prog-link:hover{text-decoration:underline}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--yellow);border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
 <div class="card">
   <div class="header">
     <h1>Publicera artikel</h1>
-    <p>Klistra in en eller flera artiklar från ChatGPT, ladda upp bilderna och generera WordPress-kommandon. Separera flera artiklar med <strong>---</strong> på en egen rad.</p>
+    <p>Klistra in en eller flera artiklar från ChatGPT, ladda upp bilderna och publicera direkt till WordPress. Separera flera artiklar med <strong>---</strong> på en egen rad.</p>
   </div>
 
   <!-- Sajt -->
@@ -173,11 +184,11 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
   <!-- Preview -->
   <div class="articles-preview" id="articlesPreview"></div>
 
-  <button class="submit-btn" onclick="generate()">Generera WordPress-kommandon</button>
+  <button class="submit-btn" id="publishBtn" onclick="publishAll()">Publicera till WordPress</button>
   <div class="err-msg" id="err-gen" style="margin-top:8px"></div>
 
-  <!-- Resultat -->
-  <div class="result-section" id="resultSection"></div>
+  <!-- Progress -->
+  <div class="progress-section" id="progressSection"></div>
 </div>
 
 <script>
@@ -188,6 +199,7 @@ const SITES = {
     user:'application', pass:'IzvY d11c q7Nf UNfm xAnv 76y9',
     authors:{'johan svedberg':4,'johan':4,'mikael stange':7,'mikael':7,'kalle dixelius':5,'kalle':5},
     label:'Hållbar Omställning',
+    editBase:'https://hallbaromstallning.se/wp-admin/post.php?action=edit&post=',
   },
   dm:{
     url:'https://dagensmedarbetare.se/wp-json/wp/v2/posts',
@@ -195,6 +207,7 @@ const SITES = {
     user:'application', pass:'4vC6 IHpQ XXja jK6v DzBw 7aAj',
     authors:{'johan svedberg':4,'johan':4,'mikael stange':7,'mikael':7,'kalle dixelius':5,'kalle':5},
     label:'Dagens Medarbetare',
+    editBase:'https://dagensmedarbetare.se/wp-admin/post.php?action=edit&post=',
   },
   ho3:{
     url:'https://hallbaromstallning.se/wp-json/wp/v2/featured-article',
@@ -202,6 +215,7 @@ const SITES = {
     user:'application', pass:'IzvY d11c q7Nf UNfm xAnv 76y9',
     authors:{'johan svedberg':4,'johan':4,'mikael stange':7,'mikael':7,'kalle dixelius':5,'kalle':5},
     label:'HO – Tre snabba',
+    editBase:'https://hallbaromstallning.se/wp-admin/post.php?action=edit&post=',
   },
   dm3:{
     url:'https://dagensmedarbetare.se/wp-json/wp/v2/quick-three',
@@ -209,6 +223,7 @@ const SITES = {
     user:'application', pass:'4vC6 IHpQ XXja jK6v DzBw 7aAj',
     authors:{'johan svedberg':4,'johan':4,'mikael stange':7,'mikael':7,'kalle dixelius':5,'kalle':5},
     label:'DM – Tre snabba',
+    editBase:'https://dagensmedarbetare.se/wp-admin/post.php?action=edit&post=',
   },
   hokron:{
     url:'https://hallbaromstallning.se/wp-json/wp/v2/chronicle',
@@ -216,6 +231,7 @@ const SITES = {
     user:'application', pass:'IzvY d11c q7Nf UNfm xAnv 76y9',
     authors:{'johan svedberg':4,'johan':4,'mikael stange':7,'mikael':7,'kalle dixelius':5,'kalle':5},
     label:'HO – Krönika',
+    editBase:'https://hallbaromstallning.se/wp-admin/post.php?action=edit&post=',
   },
   dmkron:{
     url:'https://dagensmedarbetare.se/wp-json/wp/v2/featured-article',
@@ -223,10 +239,11 @@ const SITES = {
     user:'application', pass:'4vC6 IHpQ XXja jK6v DzBw 7aAj',
     authors:{'johan svedberg':4,'johan':4,'mikael stange':7,'mikael':7,'kalle dixelius':5,'kalle':5},
     label:'DM – Krönika',
+    editBase:'https://dagensmedarbetare.se/wp-admin/post.php?action=edit&post=',
   },
 };
 
-let uploadedFiles = {}; // filename -> File object
+let uploadedFiles = {};
 
 function onDrop(e) {
   e.preventDefault();
@@ -235,9 +252,7 @@ function onDrop(e) {
 }
 
 function onFiles(files) {
-  for (const f of files) {
-    uploadedFiles[f.name.toLowerCase()] = f;
-  }
+  for (const f of files) uploadedFiles[f.name.toLowerCase()] = f;
   renderFileList();
   onParse();
 }
@@ -248,7 +263,7 @@ function renderFileList() {
   const list = document.getElementById('fileList');
   list.innerHTML = Object.keys(uploadedFiles).map(name => {
     const matched = neededImages.has(name);
-    return `<span class="file-chip ${matched?'':'unmatched'}">${matched?'✓':' ⚠'} ${name}</span>`;
+    return `<span class="file-chip ${matched?'':'unmatched'}">${matched?'✓':'⚠'} ${name}</span>`;
   }).join('');
 }
 
@@ -312,63 +327,131 @@ function buildHtml(ingress, brodtext) {
   return html.trim();
 }
 
-function generate() {
+function setCard(id, state, title, body) {
+  const header = document.querySelector(`#prog-${id} .prog-header`);
+  const bodyEl = document.querySelector(`#prog-${id} .prog-body`);
+  header.className = `prog-header ${state}`;
+  header.innerHTML = title;
+  if (body !== undefined) bodyEl.innerHTML = body;
+}
+
+async function publishOne(article, site, index) {
+  const s = SITES[site];
+  const creds = btoa(`${s.user}:${s.pass}`);
+  const headers = { 'Authorization': `Basic ${creds}` };
+
+  // Steg 1: Bilduppladdning (om bild finns)
+  let mediaId = null;
+  const bildNamn = (article.BILD||'').toLowerCase();
+  const bildFil = bildNamn ? uploadedFiles[bildNamn] : null;
+
+  if (bildFil) {
+    setCard(index, 'running',
+      `<span class="spinner"></span> Artikel ${index+1} — Laddar upp bild…`,
+      '');
+    const mediaRes = await fetch(s.mediaUrl, {
+      method: 'POST',
+      headers: {
+        ...headers,
+        'Content-Disposition': `attachment; filename="${article.BILD}"`,
+        'Content-Type': bildFil.type || 'image/jpeg',
+      },
+      body: bildFil,
+    });
+    if (!mediaRes.ok) {
+      const err = await mediaRes.text();
+      throw new Error(`Bilduppladdning misslyckades (${mediaRes.status}): ${err.substring(0,200)}`);
+    }
+    const mediaData = await mediaRes.json();
+    mediaId = mediaData.id;
+  }
+
+  // Steg 2: Skapa inlägg
+  setCard(index, 'running',
+    `<span class="spinner"></span> Artikel ${index+1} — Skapar inlägg…`,
+    '');
+
+  const authorId = article.SKRIBENT ? (s.authors[article.SKRIBENT.toLowerCase()] || 4) : 4;
+  const content = buildHtml(article.INGRESS, article.BRODTEXT);
+  const body = {
+    title: article.RUBRIK,
+    content,
+    status: 'draft',
+    author: authorId,
+  };
+  if (article.UTDRAG) body.excerpt = article.UTDRAG;
+
+  const meta = {};
+  if (article.FOKUSKW)       meta['_yoast_wpseo_focuskw']              = article.FOKUSKW;
+  if (article.META)          meta['_yoast_wpseo_metadesc']             = article.META;
+  if (article.OG_RUBRIK)     meta['_yoast_wpseo_opengraph-title']      = article.OG_RUBRIK;
+  if (article.OG_BESKRIVNING)meta['_yoast_wpseo_opengraph-description']= article.OG_BESKRIVNING;
+  if (Object.keys(meta).length) body.meta = meta;
+  if (mediaId) body.featured_media = mediaId;
+
+  const postRes = await fetch(s.url, {
+    method: 'POST',
+    headers: { ...headers, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+  if (!postRes.ok) {
+    const err = await postRes.text();
+    throw new Error(`Inlägg misslyckades (${postRes.status}): ${err.substring(0,300)}`);
+  }
+
+  const postData = await postRes.json();
+  return postData;
+}
+
+async function publishAll() {
   const sajt = document.querySelector('input[name=sajt]:checked')?.value;
   const articles = parseAll();
-  document.getElementById('err-sajt').style.display='none';
-  document.getElementById('err-text').style.display='none';
-  document.getElementById('err-gen').style.display='none';
+
+  document.getElementById('err-sajt').style.display = 'none';
+  document.getElementById('err-text').style.display = 'none';
+  document.getElementById('err-gen').style.display = 'none';
 
   if (!sajt) { document.getElementById('err-sajt').style.display='block'; return; }
   if (!articles.length) { document.getElementById('err-text').style.display='block'; return; }
 
   const s = SITES[sajt];
-  const creds = btoa(`${s.user}:${s.pass}`);
-  const sajtNamn = s.label;
+  const btn = document.getElementById('publishBtn');
+  btn.disabled = true;
+  btn.textContent = 'Publicerar…';
 
-  const cards = articles.map((a, i) => {
-    if (!a.RUBRIK || !a.BRODTEXT) return `<div class="cmd-card"><div class="cmd-card-header">⚠ Artikel ${i+1} saknar rubrik eller brödtext</div></div>`;
-
-    const authorId = a.SKRIBENT ? (s.authors[a.SKRIBENT.toLowerCase()] || 4) : 4;
-    const content = buildHtml(a.INGRESS, a.BRODTEXT);
-    const body = { title: a.RUBRIK, content, status:'draft', author: authorId };
-    if (a.UTDRAG) body.excerpt = a.UTDRAG;
-    const meta = {};
-    if (a.FOKUSKW) meta['_yoast_wpseo_focuskw'] = a.FOKUSKW;
-    if (a.META) meta['_yoast_wpseo_metadesc'] = a.META;
-    if (a.OG_RUBRIK) meta['_yoast_wpseo_opengraph-title'] = a.OG_RUBRIK;
-    if (a.OG_BESKRIVNING) meta['_yoast_wpseo_opengraph-description'] = a.OG_BESKRIVNING;
-    if (Object.keys(meta).length) body.meta = meta;
-
-    const jsonBody = JSON.stringify(body).replace(/'/g,"''");
-    const bildNamn = (a.BILD||'').toLowerCase();
-    const harBild = bildNamn && uploadedFiles[bildNamn];
-
-    let bildSteg = '';
-    if (harBild) {
-      bildSteg = `\n# Steg 1: Ladda upp bild\n$media = Invoke-RestMethod -Method POST \`\n  -Uri "${s.mediaUrl}" \`\n  -Headers @{"Authorization" = "Basic ${creds}"; "Content-Disposition" = "attachment; filename=${a.BILD}"} \`\n  -ContentType "image/jpeg" \`\n  -InFile "C:\\Users\\micke\\Downloads\\${a.BILD}"\n$mediaId = $media.id\n\n# Steg 2: Skapa artikel med bild\n$body = '${jsonBody}' | ConvertFrom-Json\n$body.featured_media = $mediaId\nInvoke-RestMethod -Method POST \`\n  -Uri "${s.url}" \`\n  -Headers @{"Authorization" = "Basic ${creds}"} \`\n  -ContentType "application/json" \`\n  -Body ($body | ConvertTo-Json -Depth 10)`;
-    } else {
-      bildSteg = `Invoke-RestMethod -Method POST \`\n  -Uri "${s.url}" \`\n  -Headers @{"Authorization" = "Basic ${creds}"} \`\n  -ContentType "application/json" \`\n  -Body '${jsonBody}'`;
-    }
-
-    const id = `cmd${i}`;
-    return `<div class="cmd-card">
-      <div class="cmd-card-header">
-        <span>Artikel ${i+1} — ${a.RUBRIK.substring(0,50)}${harBild?' 🖼️':''}</span>
-        <button class="copy-btn" onclick="copyEl('${id}')">Kopiera</button>
+  // Bygg progress-kort
+  const section = document.getElementById('progressSection');
+  section.innerHTML = articles.map((a,i) => `
+    <div class="prog-card" id="prog-${i}">
+      <div class="prog-header pending">
+        <span>Artikel ${i+1} — ${(a.RUBRIK||'').substring(0,60)}</span>
+        <span style="font-size:11px;font-weight:400">väntar…</span>
       </div>
-      <div class="cmd-box" id="${id}">${bildSteg}</div>
-    </div>`;
-  }).join('');
+      <div class="prog-body"></div>
+    </div>`).join('');
 
-  document.getElementById('resultSection').innerHTML = `<p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Kör kommandona i ordning i PowerShell. ${articles.length} artikel${articles.length>1?'ar':''} för ${sajtNamn}.</p>${cards}`;
-}
+  let allOk = true;
 
-function copyEl(id) {
-  navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => {
-    event.target.textContent='Kopierat!';
-    setTimeout(()=>event.target.textContent='Kopiera',2000);
-  });
+  for (let i = 0; i < articles.length; i++) {
+    try {
+      const post = await publishOne(articles[i], sajt, i);
+      const editUrl = s.editBase + post.id;
+      setCard(i, 'ok',
+        `✓ Artikel ${i+1} — ${(articles[i].RUBRIK||'').substring(0,50)}`,
+        `Sparat som utkast. <a class="prog-link" href="${editUrl}" target="_blank">Öppna i WordPress →</a>`
+      );
+    } catch(e) {
+      allOk = false;
+      setCard(i, 'err',
+        `✗ Artikel ${i+1} — misslyckades`,
+        `<strong>Fel:</strong> ${e.message}`
+      );
+    }
+  }
+
+  btn.disabled = false;
+  btn.textContent = allOk ? 'Publicera till WordPress' : 'Försök igen';
 }
 </script>
 </body>

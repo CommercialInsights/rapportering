@@ -367,9 +367,8 @@ function onParse() {
   }).join('');
 }
 
-function buildHtml(ingress, brodtext) {
+function buildHtml(brodtext) {
   let html = '';
-  if (ingress) html += `<p><strong>${ingress}</strong></p>\n`;
   if (brodtext) {
     brodtext.split(/\n\n+/).map(p=>p.trim()).filter(Boolean).forEach(p => { html += `<p>${p}</p>\n`; });
   }
@@ -412,12 +411,12 @@ async function publishOne(article, site, index, skribentOverride) {
       body: arrayBuffer,
     });
     if (!mediaRes.ok) {
-      const errText = await mediaRes.text();
-      // CORS eller auth-fel — logga men fortsätt utan bild
+      let errText = '';
+      try { errText = await mediaRes.text(); } catch(e) {}
       console.warn('Bilduppladdning misslyckades:', mediaRes.status, errText.substring(0,300));
       setCard(index, 'running',
         `<span class="spinner"></span> Artikel ${index+1} — Skapar inlägg (utan bild)…`,
-        `⚠ Bild kunde inte laddas upp (${mediaRes.status}) — artikeln skapas utan omslagsbild.`);
+        `⚠ Bild kunde inte laddas upp — Status: ${mediaRes.status}${errText ? ' · ' + errText.substring(0,150) : ''}<br>Artikeln skapas ändå utan omslagsbild.`);
     } else {
       const mediaData = await mediaRes.json();
       mediaId = mediaData.id;
@@ -431,14 +430,16 @@ async function publishOne(article, site, index, skribentOverride) {
 
   const skribentNamn = skribentOverride || article.SKRIBENT || '';
   const authorId = s.authors[skribentNamn.toLowerCase()] || 4;
-  const content = buildHtml(article.INGRESS, article.BRODTEXT);
+  const content = buildHtml(article.BRODTEXT);
   const body = {
     title: article.RUBRIK,
     content,
     status: 'draft',
     author: authorId,
   };
+  // UTDRAG prioriteras; annars används INGRESS som excerpt
   if (article.UTDRAG) body.excerpt = article.UTDRAG;
+  else if (article.INGRESS) body.excerpt = article.INGRESS;
 
   const meta = {};
   if (article.FOKUSKW)       meta['_yoast_wpseo_focuskw']               = article.FOKUSKW;

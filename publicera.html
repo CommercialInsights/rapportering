@@ -44,6 +44,16 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
 .sajt-opt input[value=dmkron]:checked + label{border-color:var(--dm);background:var(--dm-light);color:var(--dm)}
 .sajt-opt input[value=dmkron]:checked + label .dot{background:var(--dm)}
 
+/* Skribent */
+.skribent-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.skrib-opt{position:relative}
+.skrib-opt input[type=radio]{position:absolute;opacity:0;width:0;height:0}
+.skrib-opt label{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border:2px solid var(--border);border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;background:var(--bg);transition:all .15s}
+.skrib-opt input:checked + label{border-color:var(--ink);background:var(--ink);color:white}
+.skrib-annan{display:none;margin-top:8px}
+.skrib-annan input{width:100%;padding:9px 12px;font-size:14px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);color:var(--ink);font-family:var(--sans)}
+.skrib-annan input:focus{outline:none;border-color:var(--ink);background:white}
+
 /* Bilduppladdning */
 .upload-zone{border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg);margin-bottom:18px}
 .upload-zone:hover,.upload-zone.drag{border-color:var(--ink);background:#EEECEA}
@@ -132,6 +142,33 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
       </div>
     </div>
     <div class="err-msg" id="err-sajt">Välj sajt</div>
+  </div>
+
+  <!-- Skribent -->
+  <div class="field">
+    <label>Skribent</label>
+    <div class="skribent-row">
+      <div class="skrib-opt">
+        <input type="radio" name="skribent" id="skribJohan" value="Johan Svedberg" onchange="onSkribent()">
+        <label for="skribJohan">Johan Svedberg</label>
+      </div>
+      <div class="skrib-opt">
+        <input type="radio" name="skribent" id="skribMikael" value="Mikael Stange" onchange="onSkribent()">
+        <label for="skribMikael">Mikael Stange</label>
+      </div>
+      <div class="skrib-opt">
+        <input type="radio" name="skribent" id="skribKalle" value="Kalle Dixelius" onchange="onSkribent()">
+        <label for="skribKalle">Kalle Dixelius</label>
+      </div>
+      <div class="skrib-opt">
+        <input type="radio" name="skribent" id="skribAnnan" value="annan" onchange="onSkribent()">
+        <label for="skribAnnan">Annan…</label>
+      </div>
+    </div>
+    <div class="skrib-annan" id="skribAnnanFalt">
+      <input type="text" id="skribentText" placeholder="Skriv in namn på skribent">
+    </div>
+    <div class="err-msg" id="err-skribent">Välj eller ange skribent</div>
   </div>
 
   <!-- Tagghint -->
@@ -244,6 +281,18 @@ const SITES = {
 };
 
 let uploadedFiles = {};
+
+function onSkribent() {
+  const val = document.querySelector('input[name=skribent]:checked')?.value;
+  document.getElementById('skribAnnanFalt').style.display = (val === 'annan') ? 'block' : 'none';
+}
+
+function getSkribent() {
+  const val = document.querySelector('input[name=skribent]:checked')?.value;
+  if (!val) return null;
+  if (val === 'annan') return document.getElementById('skribentText').value.trim() || null;
+  return val;
+}
 
 function onDrop(e) {
   e.preventDefault();

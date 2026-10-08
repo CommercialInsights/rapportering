@@ -282,6 +282,13 @@ const SITES = {
 
 let uploadedFiles = {};
 
+function normFilename(name) {
+  return (name||'').toLowerCase()
+    .replace(/å/g,'a').replace(/ä/g,'a').replace(/ö/g,'o')
+    .replace(/é/g,'e').replace(/è/g,'e').replace(/ü/g,'u')
+    .replace(/[^a-z0-9.]/g,'-');
+}
+
 function onSkribent() {
   const val = document.querySelector('input[name=skribent]:checked')?.value;
   document.getElementById('skribAnnanFalt').style.display = (val === 'annan') ? 'block' : 'none';
@@ -301,14 +308,14 @@ function onDrop(e) {
 }
 
 function onFiles(files) {
-  for (const f of files) uploadedFiles[f.name.toLowerCase()] = f;
+  for (const f of files) uploadedFiles[normFilename(f.name)] = f;
   renderFileList();
   onParse();
 }
 
 function renderFileList() {
   const parsedArticles = parseAll();
-  const neededImages = new Set(parsedArticles.map(a => (a.BILD||'').toLowerCase()).filter(Boolean));
+  const neededImages = new Set(parsedArticles.map(a => normFilename(a.BILD)).filter(Boolean));
   const list = document.getElementById('fileList');
   list.innerHTML = Object.keys(uploadedFiles).map(name => {
     const matched = neededImages.has(name);
@@ -344,7 +351,7 @@ function onParse() {
   if (!articles.length || !sajt) { container.innerHTML=''; return; }
 
   container.innerHTML = articles.map((a, i) => {
-    const bildNavn = (a.BILD||'').toLowerCase();
+    const bildNavn = normFilename(a.BILD);
     const bildOk = bildNavn && uploadedFiles[bildNavn];
     const fields = [
       {l:'Rubrik', v:a.RUBRIK},
@@ -403,7 +410,7 @@ async function publishOne(article, site, index, skribentOverride) {
 
   // Steg 1: Bilduppladdning (om bild finns)
   let mediaId = null;
-  const bildNamn = (article.BILD||'').toLowerCase();
+  const bildNamn = normFilename(article.BILD);
   const bildFil = bildNamn ? uploadedFiles[bildNamn] : null;
 
   if (bildFil) {

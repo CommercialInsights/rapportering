@@ -43,6 +43,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
 .sajt-opt input[value=hokron]:checked + label .dot{background:var(--ho)}
 .sajt-opt input[value=dmkron]:checked + label{border-color:var(--dm);background:var(--dm-light);color:var(--dm)}
 .sajt-opt input[value=dmkron]:checked + label .dot{background:var(--dm)}
+.sajt-opt input[value=horep]:checked + label{border-color:var(--ho);background:var(--ho-light);color:var(--ho)}
+.sajt-opt input[value=horep]:checked + label .dot{background:var(--ho)}
 
 /* Skribent */
 .skribent-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
@@ -140,6 +142,10 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
         <input type="radio" name="sajt" id="sajtDMkron" value="dmkron" onchange="onParse()">
         <label for="sajtDMkron"><span class="dot"></span>DM – Krönika</label>
       </div>
+      <div class="sajt-opt">
+        <input type="radio" name="sajt" id="sajtHOrep" value="horep" onchange="onParse()">
+        <label for="sajtHOrep"><span class="dot"></span>HO – Reportage</label>
+      </div>
     </div>
     <div class="err-msg" id="err-sajt">Välj sajt</div>
   </div>
@@ -229,12 +235,18 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
 </div>
 
 <script>
+// Author IDs per sajt (skribentnamn lowercase → dm_author post ID)
+// HO: Mikael=30355, Johan=30263, Kalle=okänt (null)
+// DM: Mikael=30165, Kalle=37570, Johan=okänt (null)
+const HO_AUTHORS = {'johan svedberg':30263,'johan':30263,'mikael stange':30355,'mikael':30355,'kalle dixelius':null,'kalle':null};
+const DM_AUTHORS = {'johan svedberg':null,'johan':null,'mikael stange':30165,'mikael':30165,'kalle dixelius':37570,'kalle':37570};
+
 const SITES = {
   ho:{
     url:'https://hallbaromstallning.se/wp-json/wp/v2/posts',
     mediaUrl:'https://hallbaromstallning.se/wp-json/wp/v2/media',
     user:'application', pass:'IzvY d11c q7Nf UNfm xAnv 76y9',
-    authors:{'johan svedberg':4,'johan':4,'mikael stange':7,'mikael':7,'kalle dixelius':5,'kalle':5},
+    authors: HO_AUTHORS,
     label:'Hållbar Omställning',
     editBase:'https://hallbaromstallning.se/wp-admin/post.php?action=edit&post=',
   },
@@ -242,7 +254,7 @@ const SITES = {
     url:'https://dagensmedarbetare.se/wp-json/wp/v2/posts',
     mediaUrl:'https://dagensmedarbetare.se/wp-json/wp/v2/media',
     user:'application', pass:'4vC6 IHpQ XXja jK6v DzBw 7aAj',
-    authors:{'johan svedberg':4,'johan':4,'mikael stange':7,'mikael':7,'kalle dixelius':5,'kalle':5},
+    authors: DM_AUTHORS,
     label:'Dagens Medarbetare',
     editBase:'https://dagensmedarbetare.se/wp-admin/post.php?action=edit&post=',
   },
@@ -250,7 +262,7 @@ const SITES = {
     url:'https://hallbaromstallning.se/wp-json/wp/v2/featured-article',
     mediaUrl:'https://hallbaromstallning.se/wp-json/wp/v2/media',
     user:'application', pass:'IzvY d11c q7Nf UNfm xAnv 76y9',
-    authors:{'johan svedberg':4,'johan':4,'mikael stange':7,'mikael':7,'kalle dixelius':5,'kalle':5},
+    authors: HO_AUTHORS,
     label:'HO – Tre snabba',
     editBase:'https://hallbaromstallning.se/wp-admin/post.php?action=edit&post=',
   },
@@ -258,7 +270,7 @@ const SITES = {
     url:'https://dagensmedarbetare.se/wp-json/wp/v2/quick-three',
     mediaUrl:'https://dagensmedarbetare.se/wp-json/wp/v2/media',
     user:'application', pass:'4vC6 IHpQ XXja jK6v DzBw 7aAj',
-    authors:{'johan svedberg':4,'johan':4,'mikael stange':7,'mikael':7,'kalle dixelius':5,'kalle':5},
+    authors: DM_AUTHORS,
     label:'DM – Tre snabba',
     editBase:'https://dagensmedarbetare.se/wp-admin/post.php?action=edit&post=',
   },
@@ -266,7 +278,7 @@ const SITES = {
     url:'https://hallbaromstallning.se/wp-json/wp/v2/chronicle',
     mediaUrl:'https://hallbaromstallning.se/wp-json/wp/v2/media',
     user:'application', pass:'IzvY d11c q7Nf UNfm xAnv 76y9',
-    authors:{'johan svedberg':4,'johan':4,'mikael stange':7,'mikael':7,'kalle dixelius':5,'kalle':5},
+    authors: HO_AUTHORS,
     label:'HO – Krönika',
     editBase:'https://hallbaromstallning.se/wp-admin/post.php?action=edit&post=',
   },
@@ -274,9 +286,17 @@ const SITES = {
     url:'https://dagensmedarbetare.se/wp-json/wp/v2/featured-article',
     mediaUrl:'https://dagensmedarbetare.se/wp-json/wp/v2/media',
     user:'application', pass:'4vC6 IHpQ XXja jK6v DzBw 7aAj',
-    authors:{'johan svedberg':4,'johan':4,'mikael stange':7,'mikael':7,'kalle dixelius':5,'kalle':5},
+    authors: DM_AUTHORS,
     label:'DM – Krönika',
     editBase:'https://dagensmedarbetare.se/wp-admin/post.php?action=edit&post=',
+  },
+  horep:{
+    url:'https://hallbaromstallning.se/wp-json/wp/v2/report',
+    mediaUrl:'https://hallbaromstallning.se/wp-json/wp/v2/media',
+    user:'application', pass:'IzvY d11c q7Nf UNfm xAnv 76y9',
+    authors: HO_AUTHORS,
+    label:'HO – Reportage',
+    editBase:'https://hallbaromstallning.se/wp-admin/post.php?action=edit&post=',
   },
 };
 
@@ -459,14 +479,18 @@ async function publishOne(article, site, index, skribentOverride) {
     '');
 
   const skribentNamn = skribentOverride || article.SKRIBENT || '';
-  const authorId = s.authors[skribentNamn.toLowerCase()] || null;
+  const authorId = s.authors[skribentNamn.toLowerCase()] ?? null;
   const content = buildHtml(article.BRODTEXT);
   const body = {
     title: article.RUBRIK,
     content,
     status: 'draft',
   };
-  if (authorId) body.author = authorId;
+  // Skicka skribent via ACF-fältet post_author (dm_author post ID)
+  if (authorId) {
+    if (!body.acf) body.acf = {};
+    body.acf.post_author = authorId;
+  }
   // UTDRAG prioriteras; annars används INGRESS som excerpt
   if (article.UTDRAG) body.excerpt = article.UTDRAG;
   else if (article.INGRESS) body.excerpt = article.INGRESS;

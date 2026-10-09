@@ -415,6 +415,21 @@ function buildHtml(brodtext) {
   return html.trim();
 }
 
+function buildHtmlTreSnabba(brodtext) {
+  // Tre snabba: rader som börjar med "Fråga" blir bold, svarsrader blir vanliga stycken
+  let html = '';
+  if (!brodtext) return html;
+  const lines = brodtext.split(/\n/).map(l=>l.trim()).filter(Boolean);
+  lines.forEach(line => {
+    if (/^Fråga\s*\d+/i.test(line)) {
+      html += `<p><strong>${line}</strong></p>\n`;
+    } else {
+      html += `<p>${line}</p>\n`;
+    }
+  });
+  return html.trim();
+}
+
 function setCard(id, state, title, body) {
   const header = document.querySelector(`#prog-${id} .prog-header`);
   const bodyEl = document.querySelector(`#prog-${id} .prog-body`);
@@ -480,7 +495,8 @@ async function publishOne(article, site, index, skribentOverride) {
 
   const skribentNamn = skribentOverride || article.SKRIBENT || '';
   const authorId = s.authors[skribentNamn.toLowerCase()] ?? null;
-  const content = buildHtml(article.BRODTEXT);
+  const isTreSnabba = site === 'ho3' || site === 'dm3';
+  const content = isTreSnabba ? buildHtmlTreSnabba(article.BRODTEXT) : buildHtml(article.BRODTEXT);
   const body = {
     title: article.RUBRIK,
     content,

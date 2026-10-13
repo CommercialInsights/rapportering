@@ -180,7 +180,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
   <!-- Tagghint -->
   <div class="hint">
     <strong>Taggar:</strong><br>
-    <code>[RUBRIK]</code> <code>[INGRESS]</code> <code>[BRODTEXT]</code> <code>[UTDRAG]</code> <code>[BILD]</code> filnamn.jpg<br>
+    <code>[RUBRIK]</code> <code>[INGRESS]</code> <code>[BRODTEXT]</code> <code>[UTDRAG]</code> <code>[BILD]</code> filnamn.jpg <code>[BILDTEXT]</code> bildtext<br>
     <code>[SKRIBENT]</code> <code>[KATEGORI]</code> <code>[FOKUSKW]</code> <code>[META]</code> <code>[OG_RUBRIK]</code> <code>[OG_BESKRIVNING]</code><br>
     <strong>Flera artiklar:</strong> separera med <code>---</code> på egen rad
   </div>
@@ -344,7 +344,7 @@ function renderFileList() {
 }
 
 function parseTagged(raw) {
-  const tags = ['RUBRIK','INGRESS','BRODTEXT','UTDRAG','BILD','SKRIBENT','KATEGORI','FOKUSKW','META','OG_RUBRIK','OG_BESKRIVNING'];
+  const tags = ['RUBRIK','INGRESS','BRODTEXT','UTDRAG','BILD','BILDTEXT','SKRIBENT','KATEGORI','FOKUSKW','META','OG_RUBRIK','OG_BESKRIVNING'];
   const result = {};
   const allTags = new RegExp('\\[(' + tags.join('|') + ')\\]\\s*', 'g');
   const parts = raw.split(allTags);
@@ -417,6 +417,7 @@ function buildHtml(brodtext) {
 
 function buildHtmlTreSnabba(brodtext) {
   // Tre snabba: rader som börjar med "Fråga" blir bold, svarsrader blir vanliga stycken
+  // "Svar:" och "Svar: " stripps bort från svarsrader
   let html = '';
   if (!brodtext) return html;
   const lines = brodtext.split(/\n/).map(l=>l.trim()).filter(Boolean);
@@ -424,7 +425,9 @@ function buildHtmlTreSnabba(brodtext) {
     if (/^Fråga\s*\d+/i.test(line)) {
       html += `<p><strong>${line}</strong></p>\n`;
     } else {
-      html += `<p>${line}</p>\n`;
+      // Strippa "Svar:" eller "Svar: " i början
+      const cleaned = line.replace(/^Svar:\s*/i, '');
+      html += `<p>${cleaned}</p>\n`;
     }
   });
   return html.trim();
@@ -475,15 +478,20 @@ async function publishOne(article, site, index, skribentOverride) {
     } else {
       const mediaData = await mediaRes.json();
       mediaId = mediaData.id;
-      // Sätt alt-text automatiskt från artikelns rubrik
-      if (mediaId && article.RUBRIK) {
+      // Sätt alt-text och bildtext automatiskt
+      if (mediaId) {
         try {
-          await fetch(`${s.mediaUrl}/${mediaId}`, {
-            method: 'POST',
-            headers: { ...headers, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ alt_text: article.RUBRIK }),
-          });
-        } catch(e) { console.warn('Alt-text kunde inte sättas:', e); }
+          const mediaUpdate = {};
+          if (article.RUBRIK) mediaUpdate.alt_text = article.RUBRIK;
+          if (article.BILDTEXT) mediaUpdate.caption = article.BILDTEXT;
+          if (Object.keys(mediaUpdate).length) {
+            await fetch(`${s.mediaUrl}/${mediaId}`, {
+              method: 'POST',
+              headers: { ...headers, 'Content-Type': 'application/json' },
+              body: JSON.stringify(mediaUpdate),
+            });
+          }
+        } catch(e) { console.warn('Alt-text/bildtext kunde inte sättas:', e); }
       }
     }
   }

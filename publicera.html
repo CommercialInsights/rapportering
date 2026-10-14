@@ -478,12 +478,15 @@ async function publishOne(article, site, index, skribentOverride) {
     } else {
       const mediaData = await mediaRes.json();
       mediaId = mediaData.id;
-      // Sätt alt-text och bildtext automatiskt
+      // Sätt title, alt-text och bildtext på bilden
       if (mediaId) {
         try {
           const mediaUpdate = {};
-          if (article.RUBRIK) mediaUpdate.alt_text = article.RUBRIK;
-          if (article.BILDTEXT) mediaUpdate.caption = article.BILDTEXT;
+          if (article.RUBRIK) {
+            mediaUpdate.title = article.RUBRIK;   // Rubrik = artikelrubrik, inte filnamn
+            mediaUpdate.alt_text = article.RUBRIK;
+          }
+          if (article.BILDTEXT) mediaUpdate.caption = article.BILDTEXT;  // Bara [BILDTEXT], aldrig [BILDBESKRIVNING]
           if (Object.keys(mediaUpdate).length) {
             await fetch(`${s.mediaUrl}/${mediaId}`, {
               method: 'POST',

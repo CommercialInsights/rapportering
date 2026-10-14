@@ -344,7 +344,7 @@ function renderFileList() {
 }
 
 function parseTagged(raw) {
-  const tags = ['RUBRIK','INGRESS','BRODTEXT','UTDRAG','BILD','BILDTEXT','SKRIBENT','KATEGORI','FOKUSKW','META','OG_RUBRIK','OG_BESKRIVNING'];
+  const tags = ['RUBRIK','INGRESS','BRODTEXT','UTDRAG','BILD','BILDTEXT','BILDBESKRIVNING','BILD_ALT','BILD_TITLE','SKRIBENT','KATEGORI','FOKUSKW','META','OG_RUBRIK','OG_BESKRIVNING'];
   const result = {};
   const allTags = new RegExp('\\[(' + tags.join('|') + ')\\]\\s*', 'g');
   const parts = raw.split(allTags);
@@ -505,8 +505,14 @@ async function publishOne(article, site, index, skribentOverride) {
   const authorId = s.authors[skribentNamn.toLowerCase()] ?? null;
   const isTreSnabba = site === 'ho3' || site === 'dm3';
   const content = isTreSnabba ? buildHtmlTreSnabba(article.BRODTEXT) : buildHtml(article.BRODTEXT);
+  // DM Tre snabba: rubrik ska börja med "Med " inte "Tre snabba med "
+  let title = article.RUBRIK || '';
+  if (site === 'dm3') {
+    title = title.replace(/^Tre snabba med\s+/i, 'Med ');
+  }
+
   const body = {
-    title: article.RUBRIK,
+    title,
     content,
     status: 'draft',
   };

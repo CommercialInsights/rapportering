@@ -511,7 +511,9 @@ async function publishOne(article, site, index, skribentOverride) {
   // DM Tre snabba: rubrik ska börja med "Med " inte "Tre snabba med "
   let title = article.RUBRIK || '';
   if (site === 'dm3') {
-    title = title.replace(/^Tre snabba med\s+/i, 'Med ');
+    title = title.replace(/^Tre snabba med\s+/i, '...med ');
+    // Om ChatGPT redan skrivit "Med " (stor M) utan punkter, lägg till punkterna
+    title = title.replace(/^Med\s+/, '...med ');
   }
 
   const body = {

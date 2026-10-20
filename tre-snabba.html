@@ -65,7 +65,18 @@ input::placeholder,textarea::placeholder{color:#6E7277}
 .found{margin:0;line-height:1.5;color:var(--muted)}
 .found b{color:var(--text);font-weight:600}
 .found.warn{color:var(--danger)}
-.app.kind-rapport .k-snabba,.app.kind-snabba .k-rapport{display:none!important}
+.app.kind-rapport .k-snabba,.app.kind-rapport .k-veckan,.app.kind-snabba .k-rapport,.app.kind-snabba .k-veckan,.app.kind-veckan .k-snabba,.app.kind-veckan .k-rapport,.app.kind-veckan .k-ts,.app.kind-veckan .k-bilder,.app.no-ts .k-ts{display:none!important}
+.check{display:flex;align-items:center;gap:10px;min-height:44px;cursor:pointer;font-weight:600}
+.check input{width:20px;height:20px;accent-color:var(--accent)}
+.wk-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.wk-list:empty{display:none}
+.wk-item{display:grid;grid-template-columns:56px 1fr auto;gap:12px;align-items:start;padding:10px;border:1px solid var(--line);border-radius:12px;background:#111214}
+.wk-item .wthumb{width:56px;height:76px;border-radius:4px;background:#222428 center/cover no-repeat}
+.wk-fields{display:flex;flex-direction:column;gap:8px;min-width:0}
+.wk-fields input{min-height:40px;padding:8px 10px;font-size:14px}
+.wk-acts{display:flex;flex-direction:column;gap:6px}
+.wk-acts button{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.wk-acts button:disabled{opacity:.35;cursor:default}
 .thumb.cov{width:66px;height:88px;justify-self:center}
 .qa{display:flex;flex-direction:column;gap:10px;padding-top:12px;border-top:1px solid var(--line)}
 .qa:first-of-type{border-top:0;padding-top:0}
@@ -98,12 +109,13 @@ canvas#cv{width:100%;height:100%;display:block}
   <header class="top">
     <div>
       <h1>Tre snabba-studion</h1>
-      <p>Gör en Tre snabba-intervju eller en rapportfilm för Dagensrapport. Förhandsvisningen uppdateras direkt, och du laddar ner film (4:5) och karusell (PDF) för LinkedIn.</p>
+      <p>Gör en Tre snabba-intervju, en rapportfilm eller veckans rapporter för Dagensrapport. Förhandsvisningen uppdateras direkt, och du laddar ner film (4:5) och karusell (PDF) för LinkedIn.</p>
     </div>
     <div class="samples">
       <button class="btn" type="button" id="exDm">Exempel: DM</button>
       <button class="btn" type="button" id="exHo">Exempel: HO</button>
       <button class="btn" type="button" id="exRp">Exempel: Rapport</button>
+      <button class="btn" type="button" id="exWk">Exempel: Veckan</button>
       <button class="btn" type="button" id="clear">Töm</button>
     </div>
   </header>
@@ -113,7 +125,8 @@ canvas#cv{width:100%;height:100%;display:block}
       <legend>Vad vill du göra?</legend>
       <div class="seg" role="group" aria-label="Typ" id="kindSeg">
         <button type="button" data-kind="snabba" aria-pressed="true">Tre snabba-intervju</button>
-        <button type="button" data-kind="rapport" aria-pressed="false">Rapportfilm (Dagensrapport)</button>
+        <button type="button" data-kind="rapport" aria-pressed="false">Rapportfilm</button>
+        <button type="button" data-kind="veckan" aria-pressed="false">Veckans rapporter</button>
       </div>
     </fieldset>
 
@@ -126,7 +139,7 @@ canvas#cv{width:100%;height:100%;display:block}
       </div>
     </fieldset>
 
-    <fieldset>
+    <fieldset class="k-bilder">
       <legend>Bilder</legend>
       <div class="drop k-rapport" id="dropCover">
         <div class="thumb cov" id="thCover" aria-hidden="true">
@@ -148,7 +161,7 @@ canvas#cv{width:100%;height:100%;display:block}
           <div class="acts"><label class="btn" for="fShot">Välj bild</label><input id="fShot" type="file" accept="image/*"><button class="btn" type="button" id="rmShot">Ta bort</button></div>
         </div>
       </div>
-      <div class="drop" id="dropFace">
+      <div class="drop k-ts" id="dropFace">
         <div class="thumb round" id="thFace" aria-hidden="true">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"></path></svg>
         </div>
@@ -170,9 +183,10 @@ canvas#cv{width:100%;height:100%;display:block}
         <textarea id="rInsights" rows="6" placeholder="1 kg cellulosa tar bort 1,42 kg CO₂ ur atmosfären&#10;Tillverkningen kräver 92 % mindre energi än EPS&#10;…"></textarea>
       </label>
       <p class="found" id="rFound" role="status"></p>
+      <label class="check"><input type="checkbox" id="rWithTS" checked> <span>Ta med Tre snabba i filmen</span></label>
     </fieldset>
 
-    <fieldset class="k-rapport">
+    <fieldset class="k-rapport k-ts">
       <legend>Tre snabba i filmen</legend>
       <div class="row">
         <label class="f"><span>Namn</span><input type="text" id="rName" placeholder="Erik Holmvall"></label>
@@ -181,6 +195,25 @@ canvas#cv{width:100%;height:100%;display:block}
       <label class="f"><span>Vad berättar personen om? <small>ett ämne per rad, max tre</small></span>
         <textarea id="rTopics" rows="4" placeholder="Var i klimatkalkylen cellulosan gör störst skillnad&#10;Vad som krävs för att cellulosa ska gå från nisch till norm&#10;Varför ”obrännbart” inte alltid är bäst vid brand"></textarea>
       </label>
+    </fieldset>
+
+    <fieldset class="k-veckan">
+      <legend>Veckans rapporter</legend>
+      <div class="row">
+        <label class="f"><span>Vecka</span><input type="text" id="wWeek" inputmode="numeric" placeholder="43"></label>
+        <label class="f"><span>Rubrik <small>tomt = "Veckans rapporter"</small></span><input type="text" id="wTitle" placeholder="Veckans rapporter"></label>
+      </div>
+      <div class="drop" id="dropWeek">
+        <div class="thumb cov" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"></path><path d="M15 3v4h4"></path><line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg>
+        </div>
+        <div class="meta">
+          <b>Lägg till rapporter</b>
+          <small>Dra in veckans rapporter som PDF eller omslagsbilder, flera på en gång. Bolagsnamnet gissas från filnamnet. Högst 8.</small>
+          <div class="acts"><label class="btn" for="fWeek">Välj filer</label><input id="fWeek" type="file" accept="image/*,application/pdf" multiple></div>
+        </div>
+      </div>
+      <ol class="wk-list" id="wkList"></ol>
     </fieldset>
 
     <fieldset class="k-snabba">
@@ -313,8 +346,8 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
 
   // ---------- State ----------
   const $ = id => document.getElementById(id);
-  const state = { kind:'snabba', rp:{ company:'', report:'', insights:'', name:'', title:'', topics:'' }, cover:null, site:'dm', paste:'', shot:null, face:null, name:'', role:'', roleShort:'', title:'', lead:'', url:'', qa:[['',''],['',''],['','']] };
-  const imgs = { shot:null, face:null, cover:null, dmLogo:null };
+  const state = { kind:'snabba', rp:{ company:'', report:'', insights:'', name:'', title:'', topics:'', withTS:true }, wk:{ week:'', title:'', items:[] }, cover:null, site:'dm', paste:'', shot:null, face:null, name:'', role:'', roleShort:'', title:'', lead:'', url:'', qa:[['',''],['',''],['','']] };
+  const imgs = { shot:null, face:null, cover:null, dmLogo:null, wk:[] };
   const loadImg = src => new Promise(res => { if (!src) return res(null); const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = src; });
 
   // Q&A fields
@@ -332,6 +365,10 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
 
   function readForm(){
     Object.entries(RP_IDS).forEach(([id, k]) => state.rp[k] = $(id).value);
+    state.rp.withTS = $('rWithTS').checked;
+    state.wk.week = $('wWeek').value.trim(); state.wk.title = $('wTitle').value.trim();
+    $$('#wkList [data-f]').forEach(el => { const it = state.wk.items[+el.dataset.i]; if (it) it[el.dataset.f] = el.value; });
+    $('app').classList.toggle('no-ts', state.kind === 'rapport' && !state.rp.withTS);
     const n = linesOf(state.rp.insights).length, rf = $('rFound');
     rf.className = 'found' + (n > 5 ? ' warn' : '');
     rf.textContent = n ? (n + (n === 1 ? ' insikt' : ' insikter') + (n > 5 ? ' – bara de fem första kommer med.' : '')) : '';
@@ -349,11 +386,14 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     readForm();
   }
   function setKind(k){
-    state.kind = k; const app = $('app'); app.classList.toggle('kind-rapport', k === 'rapport'); app.classList.toggle('kind-snabba', k !== 'rapport');
+    state.kind = k; const app = $('app'); ['snabba','rapport','veckan'].forEach(x => app.classList.toggle('kind-' + x, k === x));
+    app.classList.toggle('no-ts', k === 'rapport' && state.rp.withTS === false);
     $$('#kindSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.kind === k)));
   }
   function writeForm(){
     Object.entries(RP_IDS).forEach(([id, k]) => $(id).value = state.rp[k] || '');
+    $('rWithTS').checked = state.rp.withTS !== false;
+    $('wWeek').value = state.wk.week || ''; $('wTitle').value = state.wk.title || ''; renderWkList();
     setKind(state.kind || 'snabba'); setThumb('thCover', state.cover);
     $('paste').value = state.paste || '';
     writeFields();
@@ -362,6 +402,26 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     readForm();
   }
   function $$(s){ return [...document.querySelectorAll(s)]; }
+  function renderWkList(){
+    const ol = $('wkList'); if (!ol) return;
+    const esc = x => (x || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+    const up = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 15 12 9 18 15"></polyline></svg>';
+    const down = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+    const del = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line></svg>';
+    const n = state.wk.items.length;
+    ol.innerHTML = state.wk.items.map((it, i) =>
+      '<li class="wk-item"><div class="wthumb" style="' + (it.cover ? 'background-image:url(' + it.cover + ')' : '') + '"></div>' +
+      '<div class="wk-fields">' +
+        '<input type="text" data-i="' + i + '" data-f="company" aria-label="Bolag, rapport ' + (i+1) + '" placeholder="Bolag" value="' + esc(it.company) + '">' +
+        '<input type="text" data-i="' + i + '" data-f="report" aria-label="Rapport ' + (i+1) + '" placeholder="Rapport, t.ex. Delårsrapport Q3 2026" value="' + esc(it.report) + '">' +
+        '<input type="text" data-i="' + i + '" data-f="insight" aria-label="Insikt, rapport ' + (i+1) + '" placeholder="En insikt (valfritt), t.ex. Omsättningen ökade 14 %" value="' + esc(it.insight) + '">' +
+      '</div><div class="wk-acts">' +
+        '<button type="button" data-act="up" data-i="' + i + '" aria-label="Flytta upp"' + (i === 0 ? ' disabled' : '') + '>' + up + '</button>' +
+        '<button type="button" data-act="down" data-i="' + i + '" aria-label="Flytta ner"' + (i === n-1 ? ' disabled' : '') + '>' + down + '</button>' +
+        '<button type="button" data-act="del" data-i="' + i + '" aria-label="Ta bort">' + del + '</button>' +
+      '</div></li>').join('');
+  }
+
   function setThumb(id, src){ const t = $(id); t.style.backgroundImage = src ? 'url("' + src + '")' : ''; t.querySelector('svg').style.display = src ? 'none' : ''; }
 
   // ---------- Parse a pasted Tre snabba ----------
@@ -418,8 +478,8 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
 
   // persistence (per viewer convenience)
   const KEY = 'tre-snabba-studio-v1';
-  function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) { try { const s = Object.assign({}, state, {shot:null, face:null}); localStorage.setItem(KEY, JSON.stringify(s)); } catch(e2) {} } }
-  function restore(){ try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s && s.qa) { const rp = Object.assign({}, state.rp, s.rp || {}); Object.assign(state, s); state.rp = rp; return true; } } catch(e) {} return false; }
+  function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) { try { const s = Object.assign({}, state, {shot:null, face:null, cover:null, wk:Object.assign({}, state.wk, { items: state.wk.items.map(it => Object.assign({}, it, {cover:null})) })}); localStorage.setItem(KEY, JSON.stringify(s)); } catch(e2) {} } }
+  function restore(){ try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s && s.qa) { const rp = Object.assign({}, state.rp, s.rp || {}); const wk = Object.assign({}, state.wk, s.wk || {}); Object.assign(state, s); state.rp = rp; state.wk = wk; return true; } } catch(e) {} return false; }
 
   // ---------- Canvas helpers ----------
   const cv = $('cv'), ctx = cv.getContext('2d');
@@ -531,6 +591,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
 
   function buildScenes(){
     if (state.kind === 'rapport') return buildRapport();
+    if (state.kind === 'veckan') return buildVeckan();
     const B = BRANDS[state.site];
     const name = state.name || 'Namn Efternamn';
     const title = state.title || ('…med ' + name);
@@ -651,7 +712,8 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     const TOP = tops.length ? tops : ['Skriv ett ämne per rad'];
     const pname = (R.name || 'Namn Efternamn').trim(), ptitle = (R.title || 'vd').trim();
     const list = [];
-    const N = 4;
+    const withTS = R.withTS !== false;
+    const N = withTS ? 4 : 3;
     const cardFrame = (img, w, maxH) => { const h = img ? Math.min(maxH, w * img.height / img.width) : w * 1.45; return h; };
     function drawCover(x, y, w, h){
       if (imgs.cover) { ctx.drawImage(imgs.cover, x, y, w, h); return; }
@@ -718,6 +780,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
       drawFooter(B, 1, N, mode, '#111111', () => { textAt('dagensrapport.se', '400 22px Inter, Arial, sans-serif', PAD, H - 96, '#8A8A8A'); });
     }});
     // 3. Tre snabba
+    if (withTS) {
     const Q0 = 1.9, QSTEP = 1.0, tx = PAD + 260 + 44, tw = W - PAD - tx;
     const l1 = 'med ' + ptitle;
     const nSize = Math.min(fitFont(l1, s => `800 ${s}px Archivo, Arial, sans-serif`, 76, 40, tw, -.035), fitFont(pname, s => `800 ${s}px Archivo, Arial, sans-serif`, 76, 40, tw, -.035));
@@ -757,17 +820,25 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
       });
       drawFooter(B, 2, N, mode, '#FFFFFF', () => { textAt('dagensrapport.se', '400 22px Inter, Arial, sans-serif', PAD, H - 96, '#8A8A8A'); });
     }});
+    }
     // 4. Läs mer
-    list.push({ dur:5.5, draw:(l) => {
+    list.push(outroScene('Läs mer på', imgs.cover, drawCover));
+    finish(list);
+  }
+
+  function outroScene(headline, coverImg, drawCoverFn){
+    const B = BRANDS.dr;
+    const cardFrame = (img, w, maxH) => { const h = img ? Math.min(maxH, w * img.height / img.width) : w * 1.45; return h; };
+    return { dur:5.5, draw:(l) => {
       ctx.fillStyle = '#0E9F5F'; ctx.fillRect(0,0,W,H);
       setFont('800 30px Archivo, Arial, sans-serif', -.02, 30); textAt('Dagensrapport', '800 30px Archivo, Arial, sans-serif', PAD, 64, '#111111', -.02);
       textAt('LÄS MER', '700 22px Archivo, Arial, sans-serif', W - PAD, 70, '#111111', .08, 'right');
-      const mw = 220, mh = cardFrame(imgs.cover, mw, 330), pm = prog(l, .3, 1.1);
+      const mw = 220, mh = cardFrame(coverImg, mw, 330), pm = prog(l, .3, 1.1);
       ctx.save(); ctx.translate(W - PAD - mw/2, 150 + mh/2 + (-700*(1-bounce(pm)))); ctx.rotate((6 + 10*(1-eo(pm)))*Math.PI/180);
       ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.3)'; ctx.shadowBlur = 50; ctx.shadowOffsetY = 20; ctx.fillStyle = '#fff'; rr(-mw/2, -mh/2, mw, mh, 4); ctx.fill(); ctx.restore();
-      ctx.save(); rr(-mw/2, -mh/2, mw, mh, 4); ctx.clip(); drawCover(-mw/2, -mh/2, mw, mh); ctx.restore(); ctx.restore();
-      const hs = 150, hy = 520, ph = eo(prog(l,.1,.7));
-      ctx.save(); ctx.beginPath(); ctx.rect(0, hy - 10, W, hs*1.08); ctx.clip(); textAt('Läs mer på', `800 ${hs}px Archivo, Arial, sans-serif`, PAD, hy + (1-ph)*hs*1.1, '#111111', -.045); ctx.restore();
+      ctx.save(); rr(-mw/2, -mh/2, mw, mh, 4); ctx.clip(); drawCoverFn(-mw/2, -mh/2, mw, mh); ctx.restore(); ctx.restore();
+      const hs = fitFont(headline, s => `800 ${s}px Archivo, Arial, sans-serif`, 150, 80, W - 2*PAD, -.045), hy = 520, ph = eo(prog(l,.1,.7));
+      ctx.save(); ctx.beginPath(); ctx.rect(0, hy - 10, W, hs*1.08); ctx.clip(); textAt(headline, `800 ${hs}px Archivo, Arial, sans-serif`, PAD, hy + (1-ph)*hs*1.1, '#111111', -.045); ctx.restore();
       const url = 'DagensRapport.se', us = fitFont(url, s => `800 ${s}px Archivo, Arial, sans-serif`, 76, 40, W - 2*PAD - 150, -.03);
       setFont(`800 ${us}px Archivo, Arial, sans-serif`, -.03, us); const uw = ctx.measureText(url).width;
       const py = hy + hs + 40, pw = uw + 60 + 90, phh = us + 40, pu = prog(l, .8, .7), sc = pu < 1 ? .85 + .15*bounce(pu) : 1;
@@ -781,9 +852,95 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
       textAt('Vill ert bolag också synas?', '700 28px Archivo, Arial, sans-serif', PAD, H - bh + 50, '#FFFFFF');
       textAt('Vi gör din rapport synlig.', '400 22px Inter, Arial, sans-serif', PAD, H - bh + 92, '#BDBDBD');
       ctx.restore();
+    }};
+  }
+
+  // ---------- Veckans rapporter ----------
+  function isoWeek(d = new Date()){ const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); const y0 = new Date(Date.UTC(t.getUTCFullYear(),0,1)); return Math.ceil(((t - y0) / 86400000 + 1) / 7); }
+  function coverBox(img, x, y, w, h, company, report){
+    if (img) { ctx.drawImage(img, x, y, w, h); return; }
+    ctx.fillStyle = '#E7F5EE'; ctx.fillRect(x, y, w, h); const s = w / 500;
+    textAt((company || 'Bolag').toUpperCase(), `800 ${Math.max(10, Math.round(26*s))}px Archivo, Arial, sans-serif`, x + 36*s, y + 40*s, '#0A7A49', .04);
+    const txt = report || 'Rapport', longest = txt.split(/\s+/).sort((a, b) => b.length - a.length)[0] || txt;
+    const fz = fitFont(longest, z => `800 ${z}px Archivo, Arial, sans-serif`, Math.max(12, Math.round(58*s)), 10, w - 72*s, -.03);
+    const L = layout(txt, `800 ${fz}px Archivo, Arial, sans-serif`, w - 72*s, fz, -.03); drawWords(L, x + 36*s, y + h*.32, '#111111');
+  }
+  function buildVeckan(){
+    const B = BRANDS.dr, K = state.wk;
+    const week = (K.week || String(isoWeek())).replace(/^v\.?\s*/i, '');
+    const head = K.title || 'Veckans rapporter';
+    const items = K.items.slice(0, 8);
+    const ITEMS = items.length ? items : [{ company:'Bolag', report:'Rapportens namn', insight:'' }];
+    const IM = items.length ? imgs.wk.slice(0, 8) : [null];
+    const n = ITEMS.length, N = n + 2, list = [];
+    const ar = i => IM[i] ? IM[i].height / IM[i].width : 1.414;
+    // 1. intro: covers rain into a grid
+    const cols = n <= 4 ? n : 4, rows = Math.ceil(n / cols);
+    const gap = 28, cw = Math.min(300, (W - 2*PAD - gap*(cols-1)) / cols);
+    const chMax = Math.min(cw * 1.414, (600 - gap*(rows-1)) / rows), cwF = Math.min(cw, chMax / 1.414);
+    const gridW = cols*cwF + (cols-1)*gap, gridH = rows*chMax + (rows-1)*gap, gx0 = (W - gridW)/2, gy0 = 160 + (700 - gridH)/2;
+    list.push({ dur: 2.6 + n*.18 + 1.6, draw:(l) => {
+      ctx.fillStyle = '#111111'; ctx.fillRect(0,0,W,H);
+      const g = ctx.createRadialGradient(W/2, H, 0, W/2, H, 640); g.addColorStop(0,'rgba(14,159,95,.26)'); g.addColorStop(1,'rgba(14,159,95,0)'); ctx.fillStyle = g; ctx.fillRect(0, H-560, W, 560);
+      ctx.save(); ctx.globalAlpha = eo(prog(l,.1,.6)); drawLogo(B, PAD, 56, true); ctx.restore();
+      ctx.save(); ctx.globalAlpha = eo(prog(l,.3,.6)); textAt('VECKA ' + week, '700 22px Archivo, Arial, sans-serif', W - PAD, 70, '#0E9F5F', .08, 'right'); ctx.restore();
+      ITEMS.forEach((it, i) => {
+        const c = i % cols, r = Math.floor(i / cols);
+        const h = Math.min(cwF * ar(i), chMax), x = gx0 + c*(cwF + gap), y = gy0 + r*(chMax + gap) + (chMax - h);
+        const pf = prog(l, .4 + i*.18, 1.0); if (pf <= 0) return;
+        const dy = -1300 * (1 - bounce(pf)), rot = ((i*37) % 9 - 4) * (1 - .6*eo(pf));
+        ctx.save(); ctx.translate(x + cwF/2, y + h + dy); ctx.rotate(rot*Math.PI/180); ctx.translate(-(x + cwF/2), -(y + h));
+        ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.5)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 18; ctx.fillStyle = '#fff'; ctx.fillRect(x, y, cwF, h); ctx.restore();
+        coverBox(IM[i], x, y, cwF, h, it.company, it.report); ctx.restore();
+      });
+      const hs = fitFont(head, s => `800 ${s}px Archivo, Arial, sans-serif`, 120, 60, W - 2*PAD, -.04);
+      const words = head.split(' '); const last = words.pop(); const first = words.join(' ');
+      const ty = 880, pt = eo(prog(l, 1.3 + n*.1, .7));
+      ctx.save(); ctx.beginPath(); ctx.rect(0, ty - 10, W, hs*2.1); ctx.clip(); ctx.translate(0, (1-pt)*hs*2);
+      if (first) { textAt(first, `800 ${hs}px Archivo, Arial, sans-serif`, PAD, ty, '#FFFFFF', -.04); textAt(last, `800 ${hs}px Archivo, Arial, sans-serif`, PAD, ty + hs*.98, '#0E9F5F', -.04); }
+      else textAt(last, `800 ${hs}px Archivo, Arial, sans-serif`, PAD, ty, '#0E9F5F', -.04);
+      ctx.restore();
+      const ps = eo(prog(l, 1.7 + n*.1, .5)); ctx.save(); ctx.globalAlpha = ps;
+      textAt('Vecka ' + week + ' · ' + n + (n === 1 ? ' ny rapport' : ' nya rapporter'), '400 30px Inter, Arial, sans-serif', PAD, ty + (first ? hs*2 : hs) + 18, '#BDBDBD'); ctx.restore();
+      drawFooter(B, 0, N, mode, '#FFFFFF', () => { textAt('dagensrapport.se', '400 22px Inter, Arial, sans-serif', PAD, H - 96, '#8A8A8A'); });
     }});
+    // 2. one slide per report
+    ITEMS.forEach((it, i) => {
+      const comp = (it.company || 'Bolag').trim(), rpt = (it.report || '').trim(), ins = glue((it.insight || '').trim());
+      const cS = fitFont(comp, s => `800 ${s}px Archivo, Arial, sans-serif`, 76, 44, W - 2*PAD, -.035);
+      const RL = layout(rpt, '400 34px Inter, Arial, sans-serif', W - 2*PAD, 34*1.3);
+      const IL = ins ? layout(ins, '700 40px Archivo, Arial, sans-serif', W - 2*PAD - 84, 40*1.15, -.02) : null;
+      const textH = cS*1.05 + 14 + RL.h + (IL ? 44 + Math.max(56, IL.h) : 0);
+      const maxCH = H - 190 - 60 - textH - 150, chI = Math.max(240, Math.min(440 * ar(i), maxCH, 660)), cwR = chI / ar(i), cx = (W - cwR)/2;
+      const cy = Math.max(170, 150 + ((H - 150 - 140) - (chI + 60 + textH)) / 2);
+      list.push({ dur: 3.2, draw:(l) => {
+        ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0,0,W,H);
+        ctx.fillStyle = '#0E9F5F'; ctx.fillRect(0, 0, W * eo(prog(l,0,1)), 16);
+        drawLogo(B, PAD, 60, false);
+        textAt('VECKA ' + week + '  ·  ' + (i+1) + ' / ' + n, '700 22px Archivo, Arial, sans-serif', W - PAD, 74, '#0A7A49', .08, 'right');
+        const pf = prog(l, .05, .9), dy = -900 * (1 - bounce(pf)), rot = -5 * (1 - eo(pf));
+        ctx.save(); ctx.translate(W/2, cy + chI + dy); ctx.rotate(rot*Math.PI/180); ctx.translate(-W/2, -(cy + chI));
+        ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.28)'; ctx.shadowBlur = 50; ctx.shadowOffsetY = 22; ctx.fillStyle = '#fff'; ctx.fillRect(cx, cy, cwR, chI); ctx.restore();
+        coverBox(IM[i], cx, cy, cwR, chI, comp, rpt); ctx.restore();
+        let y = cy + chI + 60;
+        const pc = eo(prog(l, .6, .55)); ctx.save(); ctx.beginPath(); ctx.rect(0, y - 6, W, cS*1.15); ctx.clip(); textAt(comp, `800 ${cS}px Archivo, Arial, sans-serif`, PAD, y + (1-pc)*cS*1.1, '#111111', -.035); ctx.restore();
+        y += cS*1.05 + 14;
+        const pr = eo(prog(l, .85, .5)); drawWords(RL, PAD, y + (1-pr)*14, '#555555', () => pr); y += RL.h;
+        if (IL) {
+          y += 44; const pq = prog(l, 1.15, .5), pi = eo(pq), sc = pq < 1 ? .4 + .6*bounce(pq) : 1;
+          const cyy = y + Math.max(56, IL.h)/2;
+          ctx.save(); ctx.globalAlpha = pi; ctx.translate(PAD + 28, cyy); ctx.scale(sc, sc); ctx.fillStyle = '#0E9F5F'; ctx.beginPath(); ctx.arc(0, 0, 28, 0, Math.PI*2); ctx.fill();
+          ctx.strokeStyle = '#111'; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(-9, 1); ctx.lineTo(-3, 7); ctx.lineTo(10, -6); ctx.stroke(); ctx.restore();
+          drawWords(IL, PAD + 84, cyy - IL.h/2 + (1-pi)*12, '#111111', () => pi);
+        }
+        drawFooter(B, i+1, N, mode, '#111111', () => { textAt('dagensrapport.se', '400 22px Inter, Arial, sans-serif', PAD, H - 96, '#8A8A8A'); });
+      }});
+    });
+    // 3. outro
+    list.push(outroScene('Alla rapporter på', IM[0], (x, y, w, h) => coverBox(IM[0], x, y, w, h, ITEMS[0].company, ITEMS[0].report)));
     finish(list);
   }
+
 
   function renderAt(t){
     ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,W,H);
@@ -872,6 +1029,37 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
   $('rmFace').addEventListener('click', () => { state.face = null; imgs.face = null; setThumb('thFace', null); save(); buildScenes(); draw(); });
   $('fCover').addEventListener('change', e => setImage('cover', e.target.files[0]));
   $('rmCover').addEventListener('click', () => { state.cover = null; imgs.cover = null; setThumb('thCover', null); save(); buildScenes(); draw(); });
+  const guessCompany = name => name.replace(/\.[a-z0-9]+$/i, '').replace(/[_\-]+/g, ' ').replace(/\b(19|20)\d{2}\b/g, '').replace(/\b(q[1-4]|delårsrapport|årsredovisning|årsrapport|hållbarhetsrapport|rapport|report|annual|interim|sv|en|final)\b/gi, '').replace(/\s+/g, ' ').trim();
+  async function addWeekFiles(files){
+    const fs = [...files].slice(0, Math.max(0, 8 - state.wk.items.length));
+    if (!fs.length) { status('Det får plats högst 8 rapporter.', true); return; }
+    for (const f of fs) {
+      let src = null;
+      try {
+        if (f.type === 'application/pdf') { status('Läser ' + f.name + ' …'); src = await pdfFirstPage(f); }
+        else if (/^image\//.test(f.type)) src = await shrink(await fileToDataURL(f), 1400);
+        else continue;
+      } catch(e) { status('Kunde inte läsa ' + f.name + '. Prova en bild av omslaget i stället.', true); continue; }
+      state.wk.items.push({ cover: src, company: guessCompany(f.name), report: '', insight: '' });
+      imgs.wk.push(await loadImg(src));
+    }
+    status(''); renderWkList(); save(); buildScenes(); draw();
+  }
+  $('fWeek').addEventListener('change', e => { addWeekFiles(e.target.files); e.target.value = ''; });
+  (() => { const el = $('dropWeek');
+    el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('over'); });
+    el.addEventListener('dragleave', () => el.classList.remove('over'));
+    el.addEventListener('drop', e => { e.preventDefault(); el.classList.remove('over'); addWeekFiles(e.dataTransfer.files); });
+  })();
+  $('wkList').addEventListener('click', e => {
+    const b = e.target.closest('button[data-act]'); if (!b) return;
+    const i = +b.dataset.i, A = state.wk.items, I = imgs.wk;
+    const swap = (a, c) => { [A[a], A[c]] = [A[c], A[a]]; [I[a], I[c]] = [I[c], I[a]]; };
+    if (b.dataset.act === 'up' && i > 0) swap(i, i-1);
+    if (b.dataset.act === 'down' && i < A.length-1) swap(i, i+1);
+    if (b.dataset.act === 'del') { A.splice(i, 1); I.splice(i, 1); }
+    renderWkList(); save(); buildScenes(); draw();
+  });
   $$('#kindSeg button').forEach(b => b.addEventListener('click', () => { setKind(b.dataset.kind); save(); t = 0; slide = 0; buildScenes(); draw(); if (mode === 'film') play(); }));
   [['dropShot','shot'],['dropFace','face'],['dropCover','cover']].forEach(([id, kind]) => {
     const el = $(id);
@@ -882,14 +1070,25 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
   document.addEventListener('paste', e => {
     const item = [...(e.clipboardData ? e.clipboardData.items : [])].find(it => it.type.startsWith('image/'));
     if (!item) return; e.preventDefault();
+    if (state.kind === 'veckan') { addWeekFiles([item.getAsFile()]); return; }
     const kind = document.activeElement && document.activeElement.closest && document.activeElement.closest('#dropFace') ? 'face' : (state.kind === 'rapport' ? 'cover' : 'shot');
     setImage(kind, item.getAsFile());
   });
 
   async function applySample(key){
+    if (key === 'wk') {
+      state.kind = 'veckan';
+      state.wk = { week: String(isoWeek()), title:'', items:[
+        { cover: SAMPLE_IMG.rpCover, company:'ISOCELL Sverige', report:'Isolera med ansvar', insight:'1 kg cellulosa tar bort 1,42 kg CO₂ ur atmosfären' },
+        { cover: null, company:'Exempelbolaget AB', report:'Delårsrapport Q3 2026', insight:'' },
+        { cover: null, company:'Bolag Två AB', report:'Hållbarhetsrapport 2025', insight:'' } ] };
+      imgs.wk = await Promise.all(state.wk.items.map(it => loadImg(it.cover)));
+      writeForm(); save(); t = 0; slide = 0; buildScenes(); draw(); if (mode === 'film') play();
+      return;
+    }
     if (key === 'rp') {
       state.kind = 'rapport'; state.cover = SAMPLE_IMG.rpCover; state.face = SAMPLE_IMG.rpFace;
-      state.rp = { company:'ISOCELL Sverige', report:'Isolera med ansvar', name:'Erik Holmvall', title:'vd',
+      state.rp = { withTS:true, company:'ISOCELL Sverige', report:'Isolera med ansvar', name:'Erik Holmvall', title:'vd',
         insights:['1 kg cellulosa tar bort 1,42 kg CO₂ ur atmosfären','Tillverkningen kräver 92 % mindre energi än EPS','30 cm cellulosa skyddar huset i 90 minuter vid brand','Isoleringen sjunker inte ihop – ser ut som ny efter 30 år','Uttjänt isolering kan bli gödning för nya träd'].join('\n'),
         topics:['Var i klimatkalkylen cellulosan gör störst skillnad','Vad som krävs för att cellulosa ska gå från nisch till norm','Varför ”obrännbart” inte alltid är bäst vid brand'].join('\n') };
       imgs.cover = await loadImg(state.cover); imgs.face = await loadImg(state.face);
@@ -907,8 +1106,10 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
   $('exDm').addEventListener('click', () => applySample('dm'));
   $('exHo').addEventListener('click', () => applySample('ho'));
   $('exRp').addEventListener('click', () => applySample('rp'));
+  $('exWk').addEventListener('click', () => applySample('wk'));
   $('clear').addEventListener('click', async () => {
-    if (state.kind === 'rapport') { state.rp = { company:'', report:'', insights:'', name:'', title:'', topics:'' }; state.cover = null; imgs.cover = null; state.face = null; imgs.face = null; setThumb('thFace', null); writeForm(); save(); t = 0; buildScenes(); draw(); return; }
+    if (state.kind === 'veckan') { state.wk = { week:'', title:'', items:[] }; imgs.wk = []; writeForm(); save(); t = 0; buildScenes(); draw(); return; }
+    if (state.kind === 'rapport') { state.rp = { company:'', report:'', insights:'', name:'', title:'', topics:'', withTS:true }; state.cover = null; imgs.cover = null; state.face = null; imgs.face = null; setThumb('thFace', null); writeForm(); save(); t = 0; buildScenes(); draw(); return; }
     Object.assign(state, { paste:'', shot:null, face:null, name:'', role:'', roleShort:'', title:'', lead:'', url:'', qa:[['',''],['',''],['','']] });
     imgs.shot = null; imgs.face = null; writeForm(); report(null); save(); t = 0; buildScenes(); draw();
   });
@@ -916,7 +1117,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
   // ---------- Export ----------
   const statusEl = $('status');
   function status(msg, err){ statusEl.textContent = msg; statusEl.classList.toggle('err', !!err); }
-  const slug = () => (state.kind === 'rapport' ? 'rapportfilm-' + (state.rp.company || 'rapport') : 'tre-snabba-' + (state.name || 'intervju')).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  const slug = () => (state.kind === 'veckan' ? 'veckans-rapporter-v' + (state.wk.week || isoWeek()) : state.kind === 'rapport' ? 'rapportfilm-' + (state.rp.company || 'rapport') : 'tre-snabba-' + (state.name || 'intervju')).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
   let downloads = null;
   (async () => { try { downloads = window.claude && window.claude.use ? await window.claude.use('downloads') : null; } catch(e) { downloads = null; } })();
   async function offer(filename, blob){
@@ -970,7 +1171,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     setTimeout(play, 120);
   });
   function stopRec(){ setTimeout(() => { try { recorder && recorder.state !== 'inactive' && recorder.stop(); } catch(e) {} }, 250); }
-  function setBusy(b){ ['dlFilm','dlPdf','mFilm','mCar','play','exDm','exHo','exRp','clear'].forEach(id => $(id).disabled = b); scrub.disabled = b; }
+  function setBusy(b){ ['dlFilm','dlPdf','mFilm','mCar','play','exDm','exHo','exRp','exWk','clear'].forEach(id => $(id).disabled = b); scrub.disabled = b; }
   setInterval(() => { if (recording) $('recTxt').textContent = 'Spelar in ' + Math.floor(t) + ' / ' + Math.round(TOTAL) + ' s'; }, 250);
 
   // ---------- Boot ----------
@@ -978,7 +1179,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
   (async () => {
     imgs.dmLogo = await loadImg(DM_LOGO_SRC);
     try { await Promise.all(['700 40px "DM Sans"','400 40px "DM Sans"','400 40px "Noto Serif"','500 40px "Noto Serif"','600 40px "Noto Serif"','italic 400 40px "Noto Serif"','400 40px Inter','600 40px Inter','700 40px Inter','800 40px Archivo'].map(f => document.fonts.load(f))); } catch(e) {}
-    if (restore() && (state.name || state.shot || state.paste || state.rp.company || state.cover)) { imgs.shot = await loadImg(state.shot); imgs.face = await loadImg(state.face); imgs.cover = await loadImg(state.cover); writeForm(); report(null); buildScenes(); draw(); }
+    if (restore() && (state.name || state.shot || state.paste || state.rp.company || state.cover || state.wk.items.length)) { imgs.shot = await loadImg(state.shot); imgs.face = await loadImg(state.face); imgs.cover = await loadImg(state.cover); imgs.wk = await Promise.all(state.wk.items.map(it => loadImg(it.cover))); writeForm(); report(null); buildScenes(); draw(); }
     else { await applySample('dm'); }
     const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce) pause();

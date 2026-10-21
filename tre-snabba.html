@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Tre snabba-studion</title>
+<title>LinkedIn-studion</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,700&family=Inter:wght@400;500;600;700&family=Noto+Serif:ital,wght@0,400;0,500;0,600;1,400&display=swap">
 <style>
@@ -65,7 +65,7 @@ input::placeholder,textarea::placeholder{color:#6E7277}
 .found{margin:0;line-height:1.5;color:var(--muted)}
 .found b{color:var(--text);font-weight:600}
 .found.warn{color:var(--danger)}
-.app.kind-rapport .k-snabba,.app.kind-rapport .k-veckan,.app.kind-snabba .k-rapport,.app.kind-snabba .k-veckan,.app.kind-veckan .k-snabba,.app.kind-veckan .k-rapport,.app.kind-veckan .k-ts,.app.kind-veckan .k-bilder,.app.no-ts .k-ts{display:none!important}
+.app.kind-rapport .k-snabba,.app.kind-rapport .k-veckan,.app.kind-snabba .k-rapport,.app.kind-snabba .k-veckan,.app.kind-veckan .k-snabba,.app.kind-veckan .k-rapport,.app.kind-veckan .k-ts,.app.kind-veckan .k-bilder,.app.no-ts .k-ts,.app.kind-rapport .k-site,.app.kind-veckan .k-site,.app:not(.kind-artikel) .k-artikel,.app.kind-artikel .k-snabba,.app.kind-artikel .k-rapport,.app.kind-artikel .k-veckan,.app.kind-artikel .k-bilder,.app.ar-kronika .ar-rep{display:none!important}
 .check{display:flex;align-items:center;gap:10px;min-height:44px;cursor:pointer;font-weight:600}
 .check input{width:20px;height:20px;accent-color:var(--accent)}
 .wk-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
@@ -108,14 +108,15 @@ canvas#cv{width:100%;height:100%;display:block}
 <div class="app kind-snabba" id="app">
   <header class="top">
     <div>
-      <h1>Tre snabba-studion</h1>
-      <p>Gör en Tre snabba-intervju, en rapportfilm eller veckans rapporter för Dagensrapport. Förhandsvisningen uppdateras direkt, och du laddar ner film (4:5) och karusell (PDF) för LinkedIn.</p>
+      <h1>LinkedIn-studion</h1>
+      <p>Gör Tre snabba, reportage, krönikor, rapportfilmer och veckans rapporter. Förhandsvisningen uppdateras direkt, och du laddar ner film (4:5) och karusell (PDF) för LinkedIn.</p>
     </div>
     <div class="samples">
       <button class="btn" type="button" id="exDm">Exempel: DM</button>
       <button class="btn" type="button" id="exHo">Exempel: HO</button>
       <button class="btn" type="button" id="exRp">Exempel: Rapport</button>
       <button class="btn" type="button" id="exWk">Exempel: Veckan</button>
+      <button class="btn" type="button" id="exAr">Exempel: Reportage</button>
       <button class="btn" type="button" id="clear">Töm</button>
     </div>
   </header>
@@ -127,10 +128,11 @@ canvas#cv{width:100%;height:100%;display:block}
         <button type="button" data-kind="snabba" aria-pressed="true">Tre snabba-intervju</button>
         <button type="button" data-kind="rapport" aria-pressed="false">Rapportfilm</button>
         <button type="button" data-kind="veckan" aria-pressed="false">Veckans rapporter</button>
+        <button type="button" data-kind="artikel" aria-pressed="false">Reportage / krönika</button>
       </div>
     </fieldset>
 
-    <fieldset class="k-snabba">
+    <fieldset class="k-site">
       <legend>Sajt</legend>
       <div class="seg" role="group" aria-label="Sajt" id="siteSeg">
         <button type="button" data-site="dm" aria-pressed="true">Dagens Medarbetare</button>
@@ -195,6 +197,44 @@ canvas#cv{width:100%;height:100%;display:block}
       <label class="f"><span>Vad berättar personen om? <small>ett ämne per rad, max tre</small></span>
         <textarea id="rTopics" rows="4" placeholder="Var i klimatkalkylen cellulosan gör störst skillnad&#10;Vad som krävs för att cellulosa ska gå från nisch till norm&#10;Varför ”obrännbart” inte alltid är bäst vid brand"></textarea>
       </label>
+    </fieldset>
+
+    <fieldset class="k-artikel">
+      <legend>Artikeln</legend>
+      <div class="seg" role="group" aria-label="Artikeltyp" id="arTypeSeg">
+        <button type="button" data-ar="reportage" aria-pressed="true">Reportage</button>
+        <button type="button" data-ar="kronika" aria-pressed="false">Krönika</button>
+      </div>
+      <div class="drop ar-rep" id="dropArImg">
+        <div class="thumb" id="thArImg" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><circle cx="9" cy="10" r="2"></circle><path d="M21 17l-5-5-9 7"></path></svg>
+        </div>
+        <div class="meta">
+          <b>Bild från reportaget</b>
+          <small>Huvudbilden eller en skärmdump. Dra hit, välj fil eller klistra in.</small>
+          <div class="acts"><label class="btn" for="fArImg">Välj bild</label><input id="fArImg" type="file" accept="image/*"><button class="btn" type="button" id="rmArImg">Ta bort</button></div>
+        </div>
+      </div>
+      <div class="drop" id="dropArFace">
+        <div class="thumb round" id="thArFace" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"></path></svg>
+        </div>
+        <div class="meta">
+          <b id="arFaceLbl">Porträtt på den som citeras</b>
+          <small>Valfritt. Visas vid citatet och i slutet.</small>
+          <div class="acts"><label class="btn" for="fArFace">Välj bild</label><input id="fArFace" type="file" accept="image/*"><button class="btn" type="button" id="rmArFace">Ta bort</button></div>
+        </div>
+      </div>
+      <label class="f"><span>Rubrik</span><input type="text" id="arTitle" placeholder="Nya krav förändrar förpackningens roll – ska bära både produkt och data"></label>
+      <label class="f"><span>Ingress <small>första meningen räcker</small></span><textarea id="arLead" rows="2" placeholder="Blastiq kombinerar återvinningsbara förpackningsmaterial med RFID och digital spårbarhet …"></textarea></label>
+      <label class="f ar-rep"><span>Byline <small>valfritt</small></span><input type="text" id="arByline" placeholder="Text: Johan Svedberg"></label>
+      <label class="f ar-rep"><span>Tre saker från reportaget <small>en per rad, max tre – tomt hoppar över bilden</small></span><textarea id="arPoints" rows="4" placeholder="Förpackningen ska bära både produkt och data&#10;RFID läser många produkter på en gång – utan siktlinje&#10;EU:s digitala produktpass ställer nya krav"></textarea></label>
+      <label class="f"><span>Citat <small>ordagrant ur texten – tomt hoppar över bilden</small></span><textarea id="arQuote" rows="3" placeholder="RFID ses fortfarande som en teknikfråga, men egentligen handlar det om affärsutveckling."></textarea></label>
+      <div class="row">
+        <label class="f"><span id="arQNameLbl">Vem säger det</span><input type="text" id="arQName" placeholder="Patrik Wiberg"></label>
+        <label class="f"><span>Titel och bolag</span><input type="text" id="arQTitle" placeholder="vd, Blastiq"></label>
+      </div>
+      <label class="f"><span>Länktext i slutet <small>tomt = sajtens adress</small></span><input type="text" id="arUrl" placeholder="HallbarOmstallning.se"></label>
     </fieldset>
 
     <fieldset class="k-veckan">
@@ -346,8 +386,8 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
 
   // ---------- State ----------
   const $ = id => document.getElementById(id);
-  const state = { kind:'snabba', rp:{ company:'', report:'', insights:'', name:'', title:'', topics:'', withTS:true }, wk:{ week:'', title:'', items:[] }, cover:null, site:'dm', paste:'', shot:null, face:null, name:'', role:'', roleShort:'', title:'', lead:'', url:'', qa:[['',''],['',''],['','']] };
-  const imgs = { shot:null, face:null, cover:null, dmLogo:null, wk:[] };
+  const state = { ar:{ type:'reportage', title:'', lead:'', byline:'', points:'', quote:'', qName:'', qTitle:'', url:'' }, arImg:null, arFace:null, kind:'snabba', rp:{ company:'', report:'', insights:'', name:'', title:'', topics:'', withTS:true }, wk:{ week:'', title:'', items:[] }, cover:null, site:'dm', paste:'', shot:null, face:null, name:'', role:'', roleShort:'', title:'', lead:'', url:'', qa:[['',''],['',''],['','']] };
+  const imgs = { shot:null, face:null, cover:null, dmLogo:null, wk:[], arImg:null, arFace:null };
   const loadImg = src => new Promise(res => { if (!src) return res(null); const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = src; });
 
   // Q&A fields
@@ -360,12 +400,14 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     qaSet.appendChild(d);
   }
   const TEXT_IDS = ['name','role','roleShort','title','lead','url'];
+  const AR_IDS = { arTitle:'title', arLead:'lead', arByline:'byline', arPoints:'points', arQuote:'quote', arQName:'qName', arQTitle:'qTitle', arUrl:'url' };
   const RP_IDS = { rCompany:'company', rReport:'report', rInsights:'insights', rName:'name', rTitle:'title', rTopics:'topics' };
   const linesOf = s => (s || '').split(/\n+/).map(x => x.replace(/^\s*(?:\d+[.)]|[-–•*])\s*/, '').trim()).filter(Boolean);
 
   function readForm(){
     Object.entries(RP_IDS).forEach(([id, k]) => state.rp[k] = $(id).value);
     state.rp.withTS = $('rWithTS').checked;
+    Object.entries(AR_IDS).forEach(([id, k]) => state.ar[k] = $(id).value);
     state.wk.week = $('wWeek').value.trim(); state.wk.title = $('wTitle').value.trim();
     $$('#wkList [data-f]').forEach(el => { const it = state.wk.items[+el.dataset.i]; if (it) it[el.dataset.f] = el.value; });
     $('app').classList.toggle('no-ts', state.kind === 'rapport' && !state.rp.withTS);
@@ -386,11 +428,20 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     readForm();
   }
   function setKind(k){
-    state.kind = k; const app = $('app'); ['snabba','rapport','veckan'].forEach(x => app.classList.toggle('kind-' + x, k === x));
+    state.kind = k; const app = $('app'); ['snabba','rapport','veckan','artikel'].forEach(x => app.classList.toggle('kind-' + x, k === x));
+    setArType(state.ar.type || 'reportage');
     app.classList.toggle('no-ts', k === 'rapport' && state.rp.withTS === false);
     $$('#kindSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.kind === k)));
   }
+  function setArType(t){
+    state.ar.type = t; $('app').classList.toggle('ar-kronika', t === 'kronika');
+    $$('#arTypeSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.ar === t)));
+    $('arFaceLbl').textContent = t === 'kronika' ? 'Porträtt på krönikören' : 'Porträtt på den som citeras';
+    $('arQNameLbl').textContent = t === 'kronika' ? 'Krönikör' : 'Vem säger det';
+  }
   function writeForm(){
+    Object.entries(AR_IDS).forEach(([id, k]) => $(id).value = state.ar[k] || '');
+    setThumb('thArImg', state.arImg); setThumb('thArFace', state.arFace);
     Object.entries(RP_IDS).forEach(([id, k]) => $(id).value = state.rp[k] || '');
     $('rWithTS').checked = state.rp.withTS !== false;
     $('wWeek').value = state.wk.week || ''; $('wTitle').value = state.wk.title || ''; renderWkList();
@@ -478,8 +529,8 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
 
   // persistence (per viewer convenience)
   const KEY = 'tre-snabba-studio-v1';
-  function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) { try { const s = Object.assign({}, state, {shot:null, face:null, cover:null, wk:Object.assign({}, state.wk, { items: state.wk.items.map(it => Object.assign({}, it, {cover:null})) })}); localStorage.setItem(KEY, JSON.stringify(s)); } catch(e2) {} } }
-  function restore(){ try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s && s.qa) { const rp = Object.assign({}, state.rp, s.rp || {}); const wk = Object.assign({}, state.wk, s.wk || {}); Object.assign(state, s); state.rp = rp; state.wk = wk; return true; } } catch(e) {} return false; }
+  function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) { try { const s = Object.assign({}, state, {shot:null, face:null, cover:null, arImg:null, arFace:null, wk:Object.assign({}, state.wk, { items: state.wk.items.map(it => Object.assign({}, it, {cover:null})) })}); localStorage.setItem(KEY, JSON.stringify(s)); } catch(e2) {} } }
+  function restore(){ try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s && s.qa) { const rp = Object.assign({}, state.rp, s.rp || {}); const wk = Object.assign({}, state.wk, s.wk || {}); const ar = Object.assign({}, state.ar, s.ar || {}); Object.assign(state, s); state.rp = rp; state.wk = wk; state.ar = ar; return true; } } catch(e) {} return false; }
 
   // ---------- Canvas helpers ----------
   const cv = $('cv'), ctx = cv.getContext('2d');
@@ -592,6 +643,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
   function buildScenes(){
     if (state.kind === 'rapport') return buildRapport();
     if (state.kind === 'veckan') return buildVeckan();
+    if (state.kind === 'artikel') return buildArtikel();
     const B = BRANDS[state.site];
     const name = state.name || 'Namn Efternamn';
     const title = state.title || ('…med ' + name);
@@ -855,6 +907,170 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     }};
   }
 
+  // ---------- Artikel: reportage och krönika ----------
+  function buildArtikel(){
+    const B = BRANDS[state.site], A = state.ar, isK = A.type === 'kronika';
+    const title = (A.title || (isK ? 'Krönikans rubrik' : 'Reportagets rubrik')).trim();
+    const lead = (A.lead || '').trim(), byline = (A.byline || '').trim();
+    const pts = linesOf(A.points).slice(0, 3).map(glue);
+    const quote = (A.quote || '').trim().replace(/^[”"“„»«']+|[”"“„»«']+$/g, '');
+    const qName = (A.qName || '').trim(), qTitle = (A.qTitle || '').trim();
+    const url = (A.url || B.url).trim();
+    const label = isK ? 'Krönika' : 'Reportage';
+    const host = () => { setFont(B.body(22)); ctx.fillStyle = B.mute; ctx.textBaseline = 'top'; ctx.fillText(B.host, PAD, H - 96); };
+    const list = [];
+    const scenesPlanned = isK ? (quote ? 3 : 2) : (1 + (pts.length ? 1 : 0) + (quote ? 1 : 0) + 1);
+    const N = scenesPlanned;
+    let idx = 0;
+    function portrait(x, y, r, l, img){
+      const pp = prog(l, 0, .9), sc = pp < 1 ? .7 + .3*bounce(pp) : 1;
+      ctx.save(); ctx.globalAlpha = eo(prog(l,0,.7)); ctx.translate(x + r, y + r); ctx.scale(sc, sc);
+      ctx.fillStyle = B.acc; ctx.beginPath(); ctx.arc(0, 0, r + 8, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2); ctx.clip();
+      if (img) { const z = 1.12 - .1*eo(prog(l,0,6)); ctx.scale(z, z); cover(img, -r, -r, 2*r, 2*r, .22); }
+      else { ctx.fillStyle = '#2A2A2A'; ctx.fillRect(-r,-r,2*r,2*r); const ini = (qName || '?').split(' ').map(x => x[0] || '').join('').slice(0,2).toUpperCase(); setFont(`700 ${Math.round(r*.7)}px Inter, Arial, sans-serif`); ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(ini, 0, 4); ctx.textAlign = 'left'; ctx.textBaseline = 'top'; }
+      ctx.restore();
+    }
+    function titleLayout(maxLines, start, min, width){
+      let sz = start, L; do { L = layout(title, B.head(sz), width, sz*1.06, B.headLS); sz -= 4; } while (L.lines > maxLines && sz > min); return L;
+    }
+
+    if (!isK) {
+      // R1: bild + rubrik
+      const TL = titleLayout(3, 76, 44, W - 2*PAD);
+      let LL = lead ? layout(lead, B.body(30), W - 2*PAD, 30*1.35) : null;
+      if (LL && LL.lines > 2) { LL.words = LL.words.filter(w => w.y < 2*30*1.35); LL.lines = 2; LL.h = 2*30*1.35; const lw = LL.words[LL.words.length-1]; if (lw) lw.t = lw.t.replace(/[,.;:]?$/, '…'); }
+      const imgH = Math.max(380, Math.min(640, H - 150 - 70 - TL.h - (LL ? LL.h + 24 : 0) - (byline ? 50 : 0) - 150));
+      const i0 = idx++;
+      list.push({ dur:4.6, draw:(l) => {
+        ctx.fillStyle = B.q(ctx); ctx.fillRect(0,0,W,H);
+        drawHeader(B, l, label, false);
+        const pw = eio(prog(l, .15, .9));
+        ctx.save(); ctx.beginPath(); ctx.rect(0, 150, W, imgH * pw); ctx.clip();
+        if (imgs.arImg) { const z = 1.1 - .1*eo(prog(l, 0, 5)); ctx.translate(W/2, 150 + imgH/2); ctx.scale(z, z); ctx.translate(-W/2, -(150 + imgH/2)); cover(imgs.arImg, 0, 150, W, imgH, .3); }
+        else { ctx.fillStyle = B === BRANDS.ho ? '#DCDCDC' : '#EADCF0'; ctx.fillRect(0, 150, W, imgH); setFont('600 28px Inter, Arial, sans-serif'); ctx.fillStyle = '#8A8A90'; ctx.textAlign = 'center'; ctx.fillText('Lägg in en bild från reportaget', W/2, 150 + imgH/2 - 14); ctx.textAlign = 'left'; }
+        ctx.restore();
+        let y = 150 + imgH + 56;
+        const qstep = .7 / Math.max(1, TL.words.length);
+        drawWords(TL, PAD, y, B.ink, k => eo(prog(l, .9 + k*qstep, .4)));
+        y += TL.h + 18;
+        if (LL) { const pl = eo(prog(l, 1.7, .5)); drawWords(LL, PAD, y + (1-pl)*12, B.mute, () => pl); y += LL.h + 18; }
+        if (byline) { const pb = eo(prog(l, 2.0, .5)); ctx.save(); ctx.globalAlpha = pb; setFont(B.body(22, 600)); ctx.fillStyle = B.ink; ctx.textBaseline = 'top'; ctx.fillText(byline, PAD, y + 6); ctx.restore(); }
+        drawFooter(B, i0, N, mode, B.ink, host);
+      }});
+      // R2: tre saker
+      if (pts.length) {
+        const i1 = idx++, head = pts.length === 1 ? 'Det här tar reportaget upp' : (pts.length === 2 ? 'Två saker från reportaget' : 'Tre saker från reportaget');
+        const hS = fitFont(head, z => B.head(z), 68, 40, W - 2*PAD, B.headLS);
+        let ps = 58, PL;
+        for (;;) { PL = pts.map(x => layout(x, B.qHead(ps), W - 2*PAD - 130, ps*1.12, B.headLS)); const tot = PL.reduce((a, L) => a + Math.max(96, L.h) + 64, 0); if (tot <= H - 330 - 160 || ps <= 32) break; ps -= 2; }
+        const F0 = .9, FSTEP = 1.0;
+        list.push({ dur: F0 + pts.length*FSTEP + 1.6, draw:(l) => {
+          ctx.fillStyle = B.q(ctx); ctx.fillRect(0,0,W,H);
+          ctx.fillStyle = B.bar(ctx); ctx.fillRect(0, 0, W * eo(prog(l,0,1)), 14);
+          drawHeader(B, 99, label, false);
+          const ph = eo(prog(l, .1, .6)); ctx.save(); ctx.beginPath(); ctx.rect(0, 180, W, hS*1.3); ctx.clip();
+          setFont(B.head(hS), B.headLS, hS); ctx.fillStyle = B.ink; ctx.textBaseline = 'top'; ctx.fillText(head, PAD, 190 + (1-ph)*hS*1.2); ctx.restore();
+          const listH = PL.reduce((a, L) => a + Math.max(96, L.h) + 64, 0), top0 = 190 + hS*1.3 + 40;
+          let y = Math.max(top0, top0 + ((H - 150) - top0 - listH) / 2 - 30);
+          ctx.fillStyle = 'rgba(17,17,17,.12)'; ctx.fillRect(PAD, y, W - 2*PAD, 2);
+          PL.forEach((L, i) => {
+            const rowH = Math.max(96, L.h) + 64, a0 = F0 + i*FSTEP, p = eo(prog(l, a0, .55));
+            ctx.save(); ctx.globalAlpha = p; ctx.translate((1-p)*-60, 0);
+            const cy = y + rowH/2, pn = prog(l, a0, .6), sn = pn < 1 ? .5 + .5*bounce(pn) : 1;
+            ctx.save(); ctx.translate(PAD + 40, cy); ctx.scale(sn, sn);
+            if (B.numStyle === 'box') { ctx.fillStyle = B.acc; rr(-40, -40, 80, 80, 8); ctx.fill(); setFont('700 56px "DM Sans", Arial, sans-serif'); ctx.fillStyle = B.accInk; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(String(i+1), 0, 3); }
+            else if (B.numStyle === 'serif') { setFont('500 104px "Noto Serif", Georgia, serif'); ctx.fillStyle = B.acc; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(String(i+1), 0, 4); }
+            else { setFont('800 100px Archivo, Arial, sans-serif'); ctx.fillStyle = B.acc; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(String(i+1), 0, 4); }
+            ctx.restore(); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+            drawWords(L, PAD + 130, cy - L.h/2, B.ink);
+            ctx.restore();
+            y += rowH; ctx.fillStyle = 'rgba(17,17,17,.12)'; ctx.fillRect(PAD, y, W - 2*PAD, 2);
+          });
+          drawFooter(B, i1, N, mode, B.ink, host);
+        }});
+      }
+    } else {
+      // K1: krönikören
+      const i0 = idx++;
+      const nS = fitFont(qName || 'Krönikörens namn', z => B.head(z), 60, 34, W - PAD - (PAD + 300 + 44), B.headLS);
+      const TL = titleLayout(4, 92, 52, W - 2*PAD);
+      list.push({ dur:4.6, draw:(l) => {
+        ctx.fillStyle = B.cover(ctx); ctx.fillRect(0,0,W,H);
+        if (B.coverDark) { const g = ctx.createRadialGradient(W/2, H, 0, W/2, H, 700); g.addColorStop(0,'rgba(14,159,95,.25)'); g.addColorStop(1,'rgba(14,159,95,0)'); ctx.fillStyle = g; ctx.fillRect(0,0,W,H); }
+        const dark = !!B.coverDark, ink = dark ? '#FFFFFF' : B.ink, mute = dark ? '#BDBDBD' : B.mute;
+        drawHeader(B, l, label, dark);
+        portrait(PAD, 190, 150, l, imgs.arFace);
+        const tx = PAD + 300 + 44;
+        const pn = eo(prog(l, .4, .6)); ctx.save(); ctx.beginPath(); ctx.rect(tx, 250, W - tx, nS*1.25); ctx.clip();
+        setFont(B.head(nS), B.headLS, nS); ctx.fillStyle = ink; ctx.textBaseline = 'top'; ctx.fillText(qName || 'Krönikörens namn', tx, 262 + (1-pn)*nS*1.2); ctx.restore();
+        const pt = eo(prog(l, .7, .5)); ctx.save(); ctx.globalAlpha = pt; setFont(B.body(26)); ctx.fillStyle = mute; ctx.fillText(qTitle, tx, 262 + nS*1.2 + 8); ctx.restore();
+        const y = 600, qstep = .9 / Math.max(1, TL.words.length);
+        drawWords(TL, PAD, y, ink, k => eo(prog(l, 1.0 + k*qstep, .4)));
+        if (lead) { const LL = layout(lead, B.body(30), W - 2*PAD, 30*1.35); const pl = eo(prog(l, 2.0, .5)); if (y + TL.h + 30 + LL.h < H - 150) drawWords(LL, PAD, y + TL.h + 30 + (1-pl)*12, mute, () => pl); }
+        drawFooter(B, i0, N, mode, ink, () => { setFont(B.body(22)); ctx.fillStyle = mute; ctx.textBaseline = 'top'; ctx.fillText(B.host, PAD, H - 96); });
+      }});
+    }
+
+    // Citat (båda)
+    if (quote) {
+      const iq = idx++;
+      let qs = 76, QL; for (;;) { QL = layout(quote, B.ans(qs), W - 2*PAD, qs*1.28); if (QL.h <= 600 || qs <= 36) break; qs -= 3; }
+      const blockH = 170 + QL.h + 70 + 96, qTop = Math.max(170, 150 + ((H - 150 - 140) - blockH) / 2);
+      const dur = 1.0 + QL.words.length / 6 + 2.0;
+      list.push({ dur, draw:(l) => {
+        const dark = !!B.coverDark, bg = B.cover(ctx);
+        ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+        const ink = dark ? '#FFFFFF' : B.ink, mute = dark ? '#BDBDBD' : B.mute;
+        drawHeader(B, 99, label, dark);
+        const pm = prog(l, 0, .7), sm = pm < 1 ? .4 + .6*bounce(pm) : 1;
+        ctx.save(); ctx.globalAlpha = eo(pm); ctx.translate(PAD, qTop + 190); ctx.scale(sm, sm);
+        setFont(`700 300px ${B === BRANDS.ho ? '"Noto Serif", Georgia, serif' : (B === BRANDS.dm ? '"DM Sans", Arial, sans-serif' : 'Archivo, Arial, sans-serif')}`); ctx.fillStyle = B === BRANDS.dm ? '#111111' : B.acc; ctx.textBaseline = 'alphabetic'; ctx.fillText('”', -10, 0); ctx.restore(); ctx.textBaseline = 'top';
+        if (B === BRANDS.dm) { ctx.save(); ctx.globalAlpha = eo(pm); ctx.fillStyle = B.acc; ctx.fillRect(PAD, qTop + 140, 120 * eo(prog(l,.2,.5)), 12); ctx.restore(); }
+        const y0 = qTop + 170;
+        drawWords(QL, PAD, y0, ink, k => eo(prog(l, .7 + k/6, .35)));
+        const pa = eo(prog(l, .7 + QL.words.length/6 + .2, .5));
+        const ay = Math.min(H - 300, y0 + QL.h + 70);
+        ctx.save(); ctx.globalAlpha = pa; ctx.translate(0, (1-pa)*16);
+        if (imgs.arFace) portrait(PAD, ay, 48, 99, imgs.arFace);
+        const nx = imgs.arFace ? PAD + 96 + 30 : PAD;
+        setFont(B.body(30, 700)); ctx.fillStyle = ink; ctx.textBaseline = 'top'; ctx.fillText(qName, nx, ay + (imgs.arFace ? 14 : 0));
+        setFont(B.body(24)); ctx.fillStyle = mute; ctx.fillText(qTitle, nx, ay + (imgs.arFace ? 54 : 40));
+        ctx.restore();
+        drawFooter(B, iq, N, mode, ink, () => { setFont(B.body(22)); ctx.fillStyle = mute; ctx.textBaseline = 'top'; ctx.fillText(B.host, PAD, H - 96); });
+      }});
+    }
+
+    // Läs mer
+    const ie = idx++;
+    list.push({ dur:4.2, draw:(l) => {
+      ctx.fillStyle = B.cta(ctx); ctx.fillRect(0,0,W,H);
+      drawHeader(B, 99, 'Läs mer', !!B.ctaDark, true);
+      const mi = isK ? imgs.arFace : imgs.arImg;
+      if (mi) {
+        const pm = prog(l, .2, 1.0), mw = isK ? 260 : 400, mh = isK ? 260 : Math.min(300, mw * mi.height / mi.width);
+        ctx.save(); ctx.translate(W - 56 - mw/2, 170 + mh/2 + (-800*(1-bounce(pm)))); ctx.rotate((isK ? 0 : 5 + 8*(1-eo(pm))) * Math.PI/180);
+        if (isK) { ctx.fillStyle = B.acc; ctx.beginPath(); ctx.arc(0, 0, mw/2 + 8, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(0, 0, mw/2, 0, Math.PI*2); ctx.clip(); cover(mi, -mw/2, -mw/2, mw, mw, .22); }
+        else { ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.3)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 16; ctx.fillStyle = '#fff'; rr(-mw/2, -mh/2, mw, mh, 8); ctx.fill(); ctx.restore(); rr(-mw/2, -mh/2, mw, mh, 8); ctx.clip(); cover(mi, -mw/2, -mh/2, mw, mh, .3); }
+        ctx.restore();
+      }
+      const hs = 110, l1 = 'Läs hela', l2 = (isK ? 'krönikan' : 'reportaget') + ' på', top = 560;
+      const hsz = Math.min(hs, fitFont(l2, z => B.head(z), hs, 60, W - 2*PAD, B.headLS));
+      [l1, l2].forEach((txt, k) => { const p = eo(prog(l, .05 + k*.15, .55)); ctx.save(); ctx.beginPath(); ctx.rect(0, top + k*hsz - 6, W, hsz + 20); ctx.clip(); setFont(B.head(hsz), B.headLS, hsz); ctx.fillStyle = B.ctaInk; ctx.textBaseline = 'top'; ctx.fillText(txt, PAD, top + k*hsz + (1-p)*hsz*1.1); ctx.restore(); });
+      const pp = prog(l, .55, .6), sc = pp < 1 ? .8 + .2*bounce(pp) : 1;
+      const us = fitFont(url, z => B.body(z, 700), 56, 30, W - 2*PAD - 140, -.02);
+      setFont(B.body(us, 700), -.02, us); const tw = ctx.measureText(url).width; const pw = tw + 64 + 70, py = top + 2*hsz + 40, ph = us + 44;
+      ctx.save(); ctx.globalAlpha = eo(pp); ctx.translate(PAD, py + ph/2); ctx.scale(sc, sc); ctx.translate(-PAD, -(py + ph/2));
+      ctx.fillStyle = B.pillBg; rr(PAD, py, pw, ph, ph/2); ctx.fill();
+      ctx.fillStyle = B.pillInk; ctx.textBaseline = 'middle'; ctx.fillText(url, PAD + 32, py + ph/2 + 1); ctx.textBaseline = 'top';
+      const wob = l > 1.3 ? Math.max(0, Math.sin((l - 1.3) * Math.PI * 1.3)) * 12 : 0;
+      arrow(PAD + 32 + tw + 20 + wob, py + ph/2, 40, B.pillArrow, 5);
+      ctx.restore();
+      drawFooter(B, ie, N, mode, B.ctaInk, null);
+    }});
+    finish(list);
+  }
+
   // ---------- Veckans rapporter ----------
   function isoWeek(d = new Date()){ const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); const y0 = new Date(Date.UTC(t.getUTCFullYear(),0,1)); return Math.ceil(((t - y0) / 86400000 + 1) / 7); }
   function coverBox(img, x, y, w, h, company, report){
@@ -1010,7 +1226,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
     return c.toDataURL('image/jpeg', .9);
   }
-  const THUMB = { shot:'thShot', face:'thFace', cover:'thCover' };
+  const THUMB = { shot:'thShot', face:'thFace', cover:'thCover', arImg:'thArImg', arFace:'thArFace' };
   async function setImage(kind, file){
     let src;
     if (kind === 'cover' && file && file.type === 'application/pdf') {
@@ -1018,7 +1234,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
       try { src = await pdfFirstPage(file); } catch(e) { status('Kunde inte läsa PDF:en. Spara omslaget som en bild (PNG eller JPG) och välj den i stället.', true); return; }
     } else {
       if (!file || !/^image\//.test(file.type)) { status(kind === 'cover' ? 'Välj rapporten som PDF eller omslaget som PNG/JPG.' : 'Det där verkar inte vara en bild. Välj en PNG eller JPG.', true); return; }
-      src = await shrink(await fileToDataURL(file), kind === 'face' ? 800 : 1800);
+      src = await shrink(await fileToDataURL(file), (kind === 'face' || kind === 'arFace') ? 800 : 1800);
     }
     state[kind] = src; imgs[kind] = await loadImg(src);
     setThumb(THUMB[kind], src); save(); buildScenes(); draw(); status('');
@@ -1061,7 +1277,12 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     renderWkList(); save(); buildScenes(); draw();
   });
   $$('#kindSeg button').forEach(b => b.addEventListener('click', () => { setKind(b.dataset.kind); save(); t = 0; slide = 0; buildScenes(); draw(); if (mode === 'film') play(); }));
-  [['dropShot','shot'],['dropFace','face'],['dropCover','cover']].forEach(([id, kind]) => {
+  $('fArImg').addEventListener('change', e => setImage('arImg', e.target.files[0]));
+  $('fArFace').addEventListener('change', e => setImage('arFace', e.target.files[0]));
+  $('rmArImg').addEventListener('click', () => { state.arImg = null; imgs.arImg = null; setThumb('thArImg', null); save(); buildScenes(); draw(); });
+  $('rmArFace').addEventListener('click', () => { state.arFace = null; imgs.arFace = null; setThumb('thArFace', null); save(); buildScenes(); draw(); });
+  $$('#arTypeSeg button').forEach(b => b.addEventListener('click', () => { setArType(b.dataset.ar); save(); t = 0; slide = 0; buildScenes(); draw(); if (mode === 'film') play(); }));
+  [['dropShot','shot'],['dropFace','face'],['dropCover','cover'],['dropArImg','arImg'],['dropArFace','arFace']].forEach(([id, kind]) => {
     const el = $(id);
     el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('over'); });
     el.addEventListener('dragleave', () => el.classList.remove('over'));
@@ -1071,11 +1292,22 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     const item = [...(e.clipboardData ? e.clipboardData.items : [])].find(it => it.type.startsWith('image/'));
     if (!item) return; e.preventDefault();
     if (state.kind === 'veckan') { addWeekFiles([item.getAsFile()]); return; }
+    if (state.kind === 'artikel') { const f2 = document.activeElement && document.activeElement.closest && document.activeElement.closest('#dropArFace'); setImage(f2 || state.ar.type === 'kronika' ? 'arFace' : 'arImg', item.getAsFile()); return; }
     const kind = document.activeElement && document.activeElement.closest && document.activeElement.closest('#dropFace') ? 'face' : (state.kind === 'rapport' ? 'cover' : 'shot');
     setImage(kind, item.getAsFile());
   });
 
   async function applySample(key){
+    if (key === 'ar') {
+      state.kind = 'artikel'; state.site = 'ho'; state.arImg = null; state.arFace = null; imgs.arImg = null; imgs.arFace = null;
+      state.ar = { type:'reportage', title:'Nya krav förändrar förpackningens roll – ska bära både produkt och data',
+        lead:'Blastiq kombinerar återvinningsbara förpackningsmaterial med RFID och digital spårbarhet när kraven på produktinformation ökar.',
+        byline:'Text: Johan Svedberg',
+        points:['Förpackningen ska bära både produkt och data','RFID läser många produkter på en gång – utan siktlinje','EU:s digitala produktpass ställer nya krav på spårbarhet'].join('\n'),
+        quote:'RFID ses fortfarande som en teknikfråga, men egentligen handlar det om affärsutveckling.', qName:'Patrik Wiberg', qTitle:'vd, Blastiq', url:'' };
+      writeForm(); save(); t = 0; slide = 0; buildScenes(); draw(); if (mode === 'film') play();
+      return;
+    }
     if (key === 'wk') {
       state.kind = 'veckan';
       state.wk = { week: String(isoWeek()), title:'', items:[
@@ -1107,7 +1339,9 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
   $('exHo').addEventListener('click', () => applySample('ho'));
   $('exRp').addEventListener('click', () => applySample('rp'));
   $('exWk').addEventListener('click', () => applySample('wk'));
+  $('exAr').addEventListener('click', () => applySample('ar'));
   $('clear').addEventListener('click', async () => {
+    if (state.kind === 'artikel') { state.ar = { type: state.ar.type, title:'', lead:'', byline:'', points:'', quote:'', qName:'', qTitle:'', url:'' }; state.arImg = null; state.arFace = null; imgs.arImg = null; imgs.arFace = null; writeForm(); save(); t = 0; buildScenes(); draw(); return; }
     if (state.kind === 'veckan') { state.wk = { week:'', title:'', items:[] }; imgs.wk = []; writeForm(); save(); t = 0; buildScenes(); draw(); return; }
     if (state.kind === 'rapport') { state.rp = { company:'', report:'', insights:'', name:'', title:'', topics:'', withTS:true }; state.cover = null; imgs.cover = null; state.face = null; imgs.face = null; setThumb('thFace', null); writeForm(); save(); t = 0; buildScenes(); draw(); return; }
     Object.assign(state, { paste:'', shot:null, face:null, name:'', role:'', roleShort:'', title:'', lead:'', url:'', qa:[['',''],['',''],['','']] });
@@ -1117,7 +1351,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
   // ---------- Export ----------
   const statusEl = $('status');
   function status(msg, err){ statusEl.textContent = msg; statusEl.classList.toggle('err', !!err); }
-  const slug = () => (state.kind === 'veckan' ? 'veckans-rapporter-v' + (state.wk.week || isoWeek()) : state.kind === 'rapport' ? 'rapportfilm-' + (state.rp.company || 'rapport') : 'tre-snabba-' + (state.name || 'intervju')).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  const slug = () => (state.kind === 'artikel' ? (state.ar.type === 'kronika' ? 'kronika-' : 'reportage-') + (state.ar.title || 'artikel').split(' ').slice(0, 5).join(' ') : state.kind === 'veckan' ? 'veckans-rapporter-v' + (state.wk.week || isoWeek()) : state.kind === 'rapport' ? 'rapportfilm-' + (state.rp.company || 'rapport') : 'tre-snabba-' + (state.name || 'intervju')).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
   let downloads = null;
   (async () => { try { downloads = window.claude && window.claude.use ? await window.claude.use('downloads') : null; } catch(e) { downloads = null; } })();
   async function offer(filename, blob){
@@ -1171,7 +1405,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     setTimeout(play, 120);
   });
   function stopRec(){ setTimeout(() => { try { recorder && recorder.state !== 'inactive' && recorder.stop(); } catch(e) {} }, 250); }
-  function setBusy(b){ ['dlFilm','dlPdf','mFilm','mCar','play','exDm','exHo','exRp','exWk','clear'].forEach(id => $(id).disabled = b); scrub.disabled = b; }
+  function setBusy(b){ ['dlFilm','dlPdf','mFilm','mCar','play','exDm','exHo','exRp','exWk','exAr','clear'].forEach(id => $(id).disabled = b); scrub.disabled = b; }
   setInterval(() => { if (recording) $('recTxt').textContent = 'Spelar in ' + Math.floor(t) + ' / ' + Math.round(TOTAL) + ' s'; }, 250);
 
   // ---------- Boot ----------
@@ -1179,7 +1413,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
   (async () => {
     imgs.dmLogo = await loadImg(DM_LOGO_SRC);
     try { await Promise.all(['700 40px "DM Sans"','400 40px "DM Sans"','400 40px "Noto Serif"','500 40px "Noto Serif"','600 40px "Noto Serif"','italic 400 40px "Noto Serif"','400 40px Inter','600 40px Inter','700 40px Inter','800 40px Archivo'].map(f => document.fonts.load(f))); } catch(e) {}
-    if (restore() && (state.name || state.shot || state.paste || state.rp.company || state.cover || state.wk.items.length)) { imgs.shot = await loadImg(state.shot); imgs.face = await loadImg(state.face); imgs.cover = await loadImg(state.cover); imgs.wk = await Promise.all(state.wk.items.map(it => loadImg(it.cover))); writeForm(); report(null); buildScenes(); draw(); }
+    if (restore() && (state.name || state.shot || state.paste || state.rp.company || state.cover || state.wk.items.length || state.ar.title)) { imgs.shot = await loadImg(state.shot); imgs.face = await loadImg(state.face); imgs.cover = await loadImg(state.cover); imgs.wk = await Promise.all(state.wk.items.map(it => loadImg(it.cover))); imgs.arImg = await loadImg(state.arImg); imgs.arFace = await loadImg(state.arFace); writeForm(); report(null); buildScenes(); draw(); }
     else { await applySample('dm'); }
     const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce) pause();

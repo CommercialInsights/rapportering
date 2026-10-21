@@ -178,11 +178,11 @@ canvas#cv{width:100%;height:100%;display:block}
     <fieldset class="k-rapport">
       <legend>Rapporten</legend>
       <div class="row">
-        <label class="f"><span>Bolag</span><input type="text" id="rCompany" placeholder="ISOCELL Sverige"></label>
-        <label class="f"><span>Rapportens namn</span><input type="text" id="rReport" placeholder="Isolera med ansvar"></label>
+        <label class="f"><span>Bolag</span><input type="text" id="rCompany" placeholder="Bolagets namn"></label>
+        <label class="f"><span>Rapportens namn</span><input type="text" id="rReport" placeholder="Rapportens namn"></label>
       </div>
       <label class="f"><span>Rapportinsikter i korthet <small>en insikt per rad, max fem – skriv dem som begripliga rubriker</small></span>
-        <textarea id="rInsights" rows="6" placeholder="1 kg cellulosa tar bort 1,42 kg CO₂ ur atmosfären&#10;Tillverkningen kräver 92 % mindre energi än EPS&#10;…"></textarea>
+        <textarea id="rInsights" rows="6" placeholder="Skriv en insikt per rad, som en begriplig rubrik"></textarea>
       </label>
       <p class="found" id="rFound" role="status"></p>
       <label class="check"><input type="checkbox" id="rWithTS" checked> <span>Ta med Tre snabba i filmen</span></label>
@@ -191,11 +191,11 @@ canvas#cv{width:100%;height:100%;display:block}
     <fieldset class="k-rapport k-ts">
       <legend>Tre snabba i filmen</legend>
       <div class="row">
-        <label class="f"><span>Namn</span><input type="text" id="rName" placeholder="Erik Holmvall"></label>
+        <label class="f"><span>Namn</span><input type="text" id="rName" placeholder="För- och efternamn"></label>
         <label class="f"><span>Titel <small>visas som "med vd"</small></span><input type="text" id="rTitle" placeholder="vd"></label>
       </div>
       <label class="f"><span>Vad berättar personen om? <small>ett ämne per rad, max tre</small></span>
-        <textarea id="rTopics" rows="4" placeholder="Var i klimatkalkylen cellulosan gör störst skillnad&#10;Vad som krävs för att cellulosa ska gå från nisch till norm&#10;Varför ”obrännbart” inte alltid är bäst vid brand"></textarea>
+        <textarea id="rTopics" rows="4" placeholder="Skriv ett ämne per rad, max tre"></textarea>
       </label>
     </fieldset>
 
@@ -225,16 +225,16 @@ canvas#cv{width:100%;height:100%;display:block}
           <div class="acts"><label class="btn" for="fArFace">Välj bild</label><input id="fArFace" type="file" accept="image/*"><button class="btn" type="button" id="rmArFace">Ta bort</button></div>
         </div>
       </div>
-      <label class="f"><span>Rubrik</span><input type="text" id="arTitle" placeholder="Nya krav förändrar förpackningens roll – ska bära både produkt och data"></label>
-      <label class="f"><span>Ingress <small>första meningen räcker</small></span><textarea id="arLead" rows="2" placeholder="Blastiq kombinerar återvinningsbara förpackningsmaterial med RFID och digital spårbarhet …"></textarea></label>
-      <label class="f ar-rep"><span>Byline <small>valfritt</small></span><input type="text" id="arByline" placeholder="Text: Johan Svedberg"></label>
-      <label class="f ar-rep"><span>Tre saker från reportaget <small>en per rad, max tre – tomt hoppar över bilden</small></span><textarea id="arPoints" rows="4" placeholder="Förpackningen ska bära både produkt och data&#10;RFID läser många produkter på en gång – utan siktlinje&#10;EU:s digitala produktpass ställer nya krav"></textarea></label>
-      <label class="f"><span>Citat <small>ordagrant ur texten – tomt hoppar över bilden</small></span><textarea id="arQuote" rows="3" placeholder="RFID ses fortfarande som en teknikfråga, men egentligen handlar det om affärsutveckling."></textarea></label>
+      <label class="f"><span>Rubrik</span><input type="text" id="arTitle" placeholder="Artikelns rubrik"></label>
+      <label class="f"><span>Ingress <small>första meningen räcker</small></span><textarea id="arLead" rows="2" placeholder="Klistra in ingressen eller dess första mening"></textarea></label>
+      <label class="f ar-rep"><span>Byline <small>valfritt</small></span><input type="text" id="arByline" placeholder="T.ex. Text: Förnamn Efternamn"></label>
+      <label class="f ar-rep"><span>Tre saker från reportaget <small>en per rad, max tre – tomt hoppar över bilden</small></span><textarea id="arPoints" rows="4" placeholder="Skriv en punkt per rad, max tre"></textarea></label>
+      <label class="f"><span>Citat <small>ordagrant ur texten – tomt hoppar över bilden</small></span><textarea id="arQuote" rows="3" placeholder="Klistra in citatet ordagrant, utan citattecken"></textarea></label>
       <div class="row">
-        <label class="f"><span id="arQNameLbl">Vem säger det</span><input type="text" id="arQName" placeholder="Patrik Wiberg"></label>
-        <label class="f"><span>Titel och bolag</span><input type="text" id="arQTitle" placeholder="vd, Blastiq"></label>
+        <label class="f"><span id="arQNameLbl">Vem säger det</span><input type="text" id="arQName" placeholder="För- och efternamn"></label>
+        <label class="f"><span>Titel och bolag</span><input type="text" id="arQTitle" placeholder="T.ex. vd, Bolaget"></label>
       </div>
-      <label class="f"><span>Länktext i slutet <small>tomt = sajtens adress</small></span><input type="text" id="arUrl" placeholder="HallbarOmstallning.se"></label>
+      <label class="f"><span>Länktext i slutet <small>tomt = sajtens adress</small></span><input type="text" id="arUrl" placeholder="Tomt = sajtens adress"></label>
     </fieldset>
 
     <fieldset class="k-veckan">
@@ -259,7 +259,7 @@ canvas#cv{width:100%;height:100%;display:block}
     <fieldset class="k-snabba">
       <legend>Intervjun</legend>
       <label class="f"><span>Klistra in hela Tre snabba <small>rubrik, ingress, frågor och svar – kopiera direkt från sajten</small></span>
-        <textarea id="paste" rows="11" placeholder="…med Johan Widman, affärsområdeschef e-commerce på DHL Freight Sverige&#10;&#10;DHL inför ett nytt digitalt system för sina paketombud. …&#10;&#10;Hur stor skillnad kommer det nya systemet att göra …?&#10;– Vi räknar med en markant förändring för ombuden. …"></textarea>
+        <textarea id="paste" rows="11" placeholder="Markera hela Tre snabba på sajten, kopiera och klistra in här"></textarea>
       </label>
       <p class="found" id="found" role="status"></p>
     </fieldset>
@@ -270,13 +270,13 @@ canvas#cv{width:100%;height:100%;display:block}
     <fieldset>
       <legend>Person och rubrik</legend>
       <div class="row">
-        <label class="f"><span>Namn</span><input type="text" id="name" placeholder="Johan Widman"></label>
-        <label class="f"><span>Titel och bolag</span><input type="text" id="role" placeholder="Affärsområdeschef, DHL Freight Sverige"></label>
+        <label class="f"><span>Namn</span><input type="text" id="name" placeholder="För- och efternamn"></label>
+        <label class="f"><span>Titel och bolag</span><input type="text" id="role" placeholder="Titel och bolag"></label>
       </div>
-      <label class="f"><span>Kort bolagsnamn <small>visas under porträttet</small></span><input type="text" id="roleShort" placeholder="DHL Freight Sverige"></label>
-      <label class="f"><span>Rubrik på omslaget <small>tomt = "…med" + namn</small></span><input type="text" id="title" placeholder="…med Johan Widman"></label>
-      <label class="f"><span>Underrubrik på omslaget <small>tomt = titel och bolag</small></span><input type="text" id="lead" placeholder="DHL inför ett nytt digitalt system för sina paketombud."></label>
-      <label class="f"><span>Länktext i slutet <small>tomt = sajtens adress</small></span><input type="text" id="url" placeholder="DagensMedarbetare.se"></label>
+      <label class="f"><span>Kort bolagsnamn <small>visas under porträttet</small></span><input type="text" id="roleShort" placeholder="Bolagets namn"></label>
+      <label class="f"><span>Rubrik på omslaget <small>tomt = "…med" + namn</small></span><input type="text" id="title" placeholder="Tomt = …med + namn"></label>
+      <label class="f"><span>Underrubrik på omslaget <small>tomt = titel och bolag</small></span><input type="text" id="lead" placeholder="Tomt = titel och bolag"></label>
+      <label class="f"><span>Länktext i slutet <small>tomt = sajtens adress</small></span><input type="text" id="url" placeholder="Tomt = sajtens adress"></label>
     </fieldset>
 
     <fieldset id="qaSet">
@@ -464,8 +464,8 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
       '<li class="wk-item"><div class="wthumb" style="' + (it.cover ? 'background-image:url(' + it.cover + ')' : '') + '"></div>' +
       '<div class="wk-fields">' +
         '<input type="text" data-i="' + i + '" data-f="company" aria-label="Bolag, rapport ' + (i+1) + '" placeholder="Bolag" value="' + esc(it.company) + '">' +
-        '<input type="text" data-i="' + i + '" data-f="report" aria-label="Rapport ' + (i+1) + '" placeholder="Rapport, t.ex. Delårsrapport Q3 2026" value="' + esc(it.report) + '">' +
-        '<input type="text" data-i="' + i + '" data-f="insight" aria-label="Insikt, rapport ' + (i+1) + '" placeholder="En insikt (valfritt), t.ex. Omsättningen ökade 14 %" value="' + esc(it.insight) + '">' +
+        '<input type="text" data-i="' + i + '" data-f="report" aria-label="Rapport ' + (i+1) + '" placeholder="Rapportens namn" value="' + esc(it.report) + '">' +
+        '<input type="text" data-i="' + i + '" data-f="insight" aria-label="Insikt, rapport ' + (i+1) + '" placeholder="En insikt (valfritt)" value="' + esc(it.insight) + '">' +
       '</div><div class="wk-acts">' +
         '<button type="button" data-act="up" data-i="' + i + '" aria-label="Flytta upp"' + (i === 0 ? ' disabled' : '') + '>' + up + '</button>' +
         '<button type="button" data-act="down" data-i="' + i + '" aria-label="Flytta ner"' + (i === n-1 ? ' disabled' : '') + '>' + down + '</button>' +

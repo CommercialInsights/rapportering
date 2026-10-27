@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>LinkedIn-studion</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,700&family=Inter:wght@400;500;600;700&family=Noto+Serif:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,700&family=Inter:wght@400;500;600;700;800&family=Noto+Serif:ital,wght@0,400;0,500;0,600;1,400&display=swap">
 <style>
 /* Layout: form column (left) + sticky preview column (right) on wide screens; stacked on phones. Neutral dark tool shell; the canvas carries each site's brand. */
 :root{
@@ -38,7 +38,7 @@ legend{padding:0 6px;font-weight:700;font-size:13px;letter-spacing:.04em;text-tr
 label.f{display:flex;flex-direction:column;gap:6px;min-width:0}
 label.f span{font-weight:600}
 label.f small{color:var(--muted);font-weight:400}
-input[type=text],textarea{width:100%;min-height:44px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:#111214;color:var(--text);font:400 15px/1.45 var(--ui)}
+input[type=text],textarea,select{width:100%;min-height:44px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:#111214;color:var(--text);font:400 15px/1.45 var(--ui)}
 textarea{resize:vertical;min-height:72px}
 input::placeholder,textarea::placeholder{color:#6E7277}
 .seg{display:flex;gap:4px;background:#111214;border:1px solid var(--line);border-radius:12px;padding:4px}
@@ -73,7 +73,7 @@ input::placeholder,textarea::placeholder{color:#6E7277}
 .wk-item{display:grid;grid-template-columns:56px 1fr auto;gap:12px;align-items:start;padding:10px;border:1px solid var(--line);border-radius:12px;background:#111214}
 .wk-item .wthumb{width:56px;height:76px;border-radius:4px;background:#222428 center/cover no-repeat}
 .wk-fields{display:flex;flex-direction:column;gap:8px;min-width:0}
-.wk-fields input{min-height:40px;padding:8px 10px;font-size:14px}
+.wk-fields input,.wk-fields select{min-height:40px;padding:8px 10px;font-size:14px}
 .wk-acts{display:flex;flex-direction:column;gap:6px}
 .wk-acts button{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center}
 .wk-acts button:disabled{opacity:.35;cursor:default}
@@ -185,6 +185,9 @@ canvas#cv{width:100%;height:100%;display:block}
         <textarea id="rInsights" rows="6" placeholder="Skriv en insikt per rad, som en begriplig rubrik"></textarea>
       </label>
       <p class="found" id="rFound" role="status"></p>
+      <label class="f"><span>Rapporttyp <small>styr färgen på etiketter och ytor</small></span>
+        <select id="rType"><option value="kvartal">Kvartalsrapport</option><option value="ar">Årsrapport</option><option value="hallbarhet">Hållbarhetsrapport</option><option value="ovrigt">Övrig rapport</option></select>
+      </label>
       <label class="check"><input type="checkbox" id="rWithTS" checked> <span>Ta med Tre snabba i filmen</span></label>
     </fieldset>
 
@@ -377,11 +380,11 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
       ans:(s)=>`italic 400 ${s}px "Noto Serif", Georgia, serif`, body:(s,w=400)=>`${w} ${s}px Inter, Arial, sans-serif`,
       tagFont:'600 22px "Noto Serif", Georgia, serif', tagLS:.06, numStyle:'serif' },
     dr: { host:'dagensrapport.se', url:'DagensRapport.se',
-      cover: () => '#111111', q: () => '#FFFFFF', cta: () => '#0E9F5F', bar: () => '#0E9F5F', coverDark:true,
-      ink:'#111111', mute:'#555555', acc:'#0E9F5F', accInk:'#111111', ctaInk:'#111111', ctaMute:'#1F3D2E', pillBg:'#111111', pillInk:'#FFFFFF', pillArrow:'#0E9F5F', ctaTag:['#111111','#FFFFFF'], ctaLogo:'onGreen',
-      head:(s)=>`800 ${s}px Archivo, Arial, sans-serif`, headLS:-.035, qHead:(s)=>`800 ${s}px Archivo, Arial, sans-serif`,
-      ans:(s)=>`400 ${s}px Inter, Arial, sans-serif`, body:(s,w=400)=>`${w} ${s}px Inter, Arial, sans-serif`,
-      tagFont:'800 22px Archivo, Arial, sans-serif', tagLS:.08, numStyle:'big' }
+      cover: () => '#F4F4F2', q: () => '#FFFFFF', cta: () => '#111111', bar: () => '#111111',
+      ink:'#111111', mute:'#555555', acc:'#111111', accInk:'#FFFFFF', ctaInk:'#FFFFFF', ctaMute:'#BDBDBD', pillBg:'#FFFFFF', pillInk:'#111111', pillArrow:'#111111', ctaDark:true, ctaTag:['#FFFFFF','#111111'],
+      head:(s)=>`700 ${s}px Inter, Arial, sans-serif`, headLS:-.03, qHead:(s)=>`700 ${s}px Inter, Arial, sans-serif`,
+      ans:(s)=>`500 ${s}px Inter, Arial, sans-serif`, body:(s,w=400)=>`${w} ${s}px Inter, Arial, sans-serif`,
+      tagFont:'700 22px Inter, Arial, sans-serif', tagLS:0, numStyle:'big', pill:true }
   };
 
   // ---------- State ----------
@@ -406,7 +409,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
 
   function readForm(){
     Object.entries(RP_IDS).forEach(([id, k]) => state.rp[k] = $(id).value);
-    state.rp.withTS = $('rWithTS').checked;
+    state.rp.withTS = $('rWithTS').checked; state.rp.rtype = $('rType').value;
     Object.entries(AR_IDS).forEach(([id, k]) => state.ar[k] = $(id).value);
     state.wk.week = $('wWeek').value.trim(); state.wk.title = $('wTitle').value.trim();
     $$('#wkList [data-f]').forEach(el => { const it = state.wk.items[+el.dataset.i]; if (it) it[el.dataset.f] = el.value; });
@@ -443,7 +446,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     Object.entries(AR_IDS).forEach(([id, k]) => $(id).value = state.ar[k] || '');
     setThumb('thArImg', state.arImg); setThumb('thArFace', state.arFace);
     Object.entries(RP_IDS).forEach(([id, k]) => $(id).value = state.rp[k] || '');
-    $('rWithTS').checked = state.rp.withTS !== false;
+    $('rWithTS').checked = state.rp.withTS !== false; $('rType').value = state.rp.rtype || 'kvartal';
     $('wWeek').value = state.wk.week || ''; $('wTitle').value = state.wk.title || ''; renderWkList();
     setKind(state.kind || 'snabba'); setThumb('thCover', state.cover);
     $('paste').value = state.paste || '';
@@ -466,6 +469,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
         '<input type="text" data-i="' + i + '" data-f="company" aria-label="Bolag, rapport ' + (i+1) + '" placeholder="Bolag" value="' + esc(it.company) + '">' +
         '<input type="text" data-i="' + i + '" data-f="report" aria-label="Rapport ' + (i+1) + '" placeholder="Rapportens namn" value="' + esc(it.report) + '">' +
         '<input type="text" data-i="' + i + '" data-f="insight" aria-label="Insikt, rapport ' + (i+1) + '" placeholder="En insikt (valfritt)" value="' + esc(it.insight) + '">' +
+        '<select data-i="' + i + '" data-f="type" aria-label="Rapporttyp, rapport ' + (i+1) + '">' + Object.entries(DR_TYPES).map(([k, v]) => '<option value="' + k + '"' + ((it.type || 'kvartal') === k ? ' selected' : '') + '>' + v.l + '</option>').join('') + '</select>' +
       '</div><div class="wk-acts">' +
         '<button type="button" data-act="up" data-i="' + i + '" aria-label="Flytta upp"' + (i === 0 ? ' disabled' : '') + '>' + up + '</button>' +
         '<button type="button" data-act="down" data-i="' + i + '" aria-label="Flytta ner"' + (i === n-1 ? ' disabled' : '') + '>' + down + '</button>' +
@@ -571,6 +575,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
   const prog = (t, a, d) => clamp((t - a) / d);
 
   // ---------- Brand pieces ----------
+  const DR_WORDMARK = ["M201.01,438.24v185.55h108.24l77.31-77.31v-108.24h-185.55ZM355.64,531.02h-61.85v61.85h-61.85v-123.7h123.7v61.85Z", "M432.95,424.76c0-33.73,20.2-50.32,43.65-50.32,14.43,0,25.97,7.58,30.66,14.97h.18v-45.09h15.87v105.340l.54,23.45h-15.87l-.54-14.43h-.18c-3.97,8.48-16.05,16.59-31.2,16.59-25.970,0-43.11-18.76-43.11-50.5ZM508.52,424.76c0-22.19-10.82-37.88-29.58-37.88s-30.12,15.87-30.12,37.88,11.18,38.06,30.12,38.06,29.58-16.05,29.58-38.06Z", "M533.23,445.5c0-20.38,15.69-25.61,34.63-28.68l31.93-5.23v-5.77c0-12.81-7.75-19.48-23.090-19.48-14.25,0-23.27,6.13-24.35,18.22h-15.51c.54-19.12,15.33-30.12,39.86-30.12,18.94,0,30.3,5.23,35.35,15.33,2.17,4.51,3.25,10.1,3.25,15.51v45.09c0,10.28,0,12.81.9,22.73h-15.87l-.36-10.28h-.54c-4.69,6.13-14.79,12.44-31.2,12.44-20.02,0-34.99-11.54-34.99-29.76ZM600.33,437.39v-14.79l-29.76,5.41c-11.72,1.98-21.1,6.13-21.1,17.32s9.2,18.4,21.82,18.4c15.69,0,29.04-9.02,29.04-26.33Z", "M630.26,480.49h15.87c2.34,9.74,10.46,15.33,23.81,15.33,15.33,0,29.76-7.94,29.76-27.24v-13.35h-.18c-4.33,9.02-16.59,16.96-31.02,16.96-26.51,0-43.29-17.32-43.29-48.88s21.1-48.88,43.65-48.88c15.69,0,26.33,7.76,30.66,15.87h.18l.54-13.71h15.87l-.54,23.45v68.54c0,28.14-21.28,38.96-46.36,38.96-23.27,0-37.88-8.84-38.96-27.05ZM701.15,423.32c0-22.19-11.9-36.43-30.12-36.43s-29.94,14.43-29.94,36.43,11.72,36.44,29.94,36.44,30.12-14.43,30.12-36.44Z", "M726.39,424.76c0-31.75,19.48-50.32,46.72-50.32,29.76,0,44.01,19.12,44.01,51.77v1.62h-75.4c1.08,21.46,11.9,34.99,31.38,34.99,13.17,0,23.81-6.31,26.7-18.94h15.51c-3.07,20.38-20.92,31.38-42.75,31.38-29.94,0-46.18-18.94-46.18-50.5ZM772.57,386.52c-16.96,0-27.78,11.18-30.3,29.4h58.8c-1.62-18.22-11.18-29.4-28.5-29.4Z", "M828.84,391.39l-.36-14.79h15.87l.36,15.15h.54c3.61-8.3,14.61-17.32,31.2-17.32,21.28,0,34.63,13.53,34.63,35.17v63.49h-15.87v-61.69c0-14.97-8.12-24.53-22.91-24.53-16.59,0-27.6,12.81-27.6,30.48v55.73h-15.87v-81.71Z", "M921.18,444.06h15.87c1.08,12.45,9.74,19.3,23.63,19.3,14.61,0,23.99-6.13,23.99-15.87s-6.49-12.81-20.74-15.69l-8.84-1.8c-20.56-4.15-32.11-9.74-32.11-27.6,0-15.69,16.05-27.96,37.52-27.96s36.98,8.84,37.88,28.68h-15.87c-.72-11.18-10.82-16.78-22.37-16.78s-21.64,5.77-21.64,14.79,5.95,12.09,19.48,14.97l8.84,1.8c20.2,4.15,33.19,8.84,33.19,28.14,0,16.78-15.51,29.22-39.68,29.22s-38.24-10.46-39.14-31.2Z", "M438.72,541.69l-.36-14.79h15.87l.36,15.33h.54c2.17-7.76,11-17.14,26.15-17.14h4.33v14.07h-7.4c-15.15,0-23.630,11.72-23.630,29.76v54.47h-15.87v-81.71Z", "M483.99,595.8c0-20.38,15.69-25.61,34.63-28.68l31.93-5.23v-5.77c0-12.81-7.76-19.48-23.09-19.48-14.25,0-23.27,6.13-24.35,18.22h-15.51c.54-19.12,15.33-30.12,39.86-30.12,18.94,0,30.3,5.23,35.35,15.33,2.16,4.51,3.25,10.1,3.25,15.51v45.09c0,10.28,0,12.81.9,22.73h-15.87l-.36-10.28h-.54c-4.69,6.13-14.79,12.44-31.2,12.44-20.02,0-34.99-11.54-34.99-29.76ZM551.09,587.69v-14.79l-29.76,5.41c-11.72,1.98-21.1,6.13-21.1,17.32s9.2,18.4,21.82,18.4c15.69,0,29.04-9.02,29.04-26.33Z", "M580.12,550.35l-.54-23.45h15.87l.54,14.43h.18c4.69-8.3,17.13-16.59,31.2-16.59,25.97,0,43.11,18.76,43.11,50.5,0,33.73-20.92,50.32-44.01,50.32-14.25,0-25.79-7.58-30.3-15.15h-.18v45.27h-15.87v-105.34ZM654.61,575.06c0-22.19-10.64-37.88-29.4-37.88s-30.12,15.87-30.12,37.88,11.18,38.06,30.12,38.06,29.4-16.05,29.4-38.06Z", "M682.74,550.35l-.54-23.45h15.87l.54,14.43h.18c4.69-8.3,17.14-16.59,31.2-16.59,25.97,0,43.11,18.76,43.11,50.5,0,33.73-20.92,50.32-44.01,50.32-14.25,0-25.79-7.58-30.3-15.15h-.18v45.27h-15.87v-105.34ZM757.24,575.06c0-22.19-10.64-37.88-29.4-37.88s-30.12,15.87-30.12,37.88,11.18,38.06,30.12,38.06,29.4-16.05,29.4-38.06Z", "M780.32,575.06c0-30.84,17.14-50.32,46.36-50.32s46.18,19.66,46.18,50.32-16.77,50.5-46.18,50.5-46.36-19.84-46.36-50.5ZM856.98,575.06c0-22.19-10.28-37.88-30.3-37.88s-30.48,15.87-30.48,37.88,10.28,38.06,30.48,38.06,30.3-16.05,30.3-38.06Z", "M884.75,541.69l-.36-14.79h15.87l.36,15.33h.54c2.17-7.76,11-17.14,26.15-17.14h4.33v14.07h-7.4c-15.15,0-23.63,11.72-23.63,29.76v54.47h-15.87v-81.71Z", "M950.76,603.2v-64.57h-13.71v-11.72h13.71v-23.09h15.69v23.09h17.86v11.72h-17.86v63.13c0,6.49,2.17,9.2,7.58,9.2h9.38v12.45h-12.27c-12.99,0-20.38-3.97-20.38-20.2Z", "M77.31,376.39L0,453.71v170.09h185.55v-247.4h-108.24ZM154.62,592.87H30.92v-123.7h61.85v-61.85h61.85v185.55Z"];
   function drawLogo(B, x, y, dark, onGreen){
     const ink = dark ? '#FFFFFF' : '#111111';
     if (B === BRANDS.dm) {
@@ -585,20 +590,15 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
       ctx.fillText('Hållbar', x + 6*u + 14, y); ctx.fillText('Omställning', x + 6*u + 14, y + 24);
       return;
     }
-    // Dagensrapport
-    ctx.fillStyle = onGreen ? '#111111' : '#0E9F5F'; rr(x, y, 48, 48, 10); ctx.fill();
-    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.6; ctx.lineJoin = 'round';
-    ctx.beginPath(); ctx.moveTo(x+13,y+10); ctx.lineTo(x+27,y+10); ctx.lineTo(x+35,y+18); ctx.lineTo(x+35,y+38); ctx.lineTo(x+13,y+38); ctx.closePath(); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(x+18,y+25); ctx.lineTo(x+29,y+25); ctx.moveTo(x+18,y+31); ctx.lineTo(x+29,y+31); ctx.stroke();
-    setFont('800 36px Archivo, Arial, sans-serif', -.02, 36); ctx.textBaseline = 'middle';
-    ctx.fillStyle = ink; ctx.fillText('Dagens', x + 62, y + 25);
-    const w = ctx.measureText('Dagens').width; ctx.fillStyle = onGreen ? '#FFFFFF' : '#0E9F5F'; ctx.fillText('rapport', x + 62 + w, y + 25);
-    ctx.textBaseline = 'top';
+    // Dagensrapport 2026: ordmärket (dr-symbol + "dagens rapport")
+    const k = 66 / 317, ox = x, oy = y - 343 * k;
+    ctx.save(); ctx.translate(ox, oy); ctx.scale(k, k); ctx.fillStyle = ink;
+    DR_WORDMARK.forEach(d => ctx.fill(new Path2D(d))); ctx.restore();
   }
   function drawTag(B, text, rightX, y, a=1, colors){
-    setFont(B.tagFont, B.tagLS, 22); const t = text.toUpperCase(); const w = ctx.measureText(t).width + 32;
-    ctx.globalAlpha = a; ctx.fillStyle = colors ? colors[0] : B.acc; rr(rightX - w, y, w, 44, B === BRANDS.ho ? 2 : 4); ctx.fill();
-    ctx.fillStyle = colors ? colors[1] : B.accInk; ctx.textBaseline = 'middle'; ctx.fillText(t, rightX - w + 16, y + 23); ctx.textBaseline = 'top'; ctx.globalAlpha = 1;
+    setFont(B.tagFont, B.tagLS, 22); const t = B.pill ? text : text.toUpperCase(); const w = ctx.measureText(t).width + (B.pill ? 40 : 32);
+    ctx.globalAlpha = a; ctx.fillStyle = colors ? colors[0] : B.acc; rr(rightX - w, y, w, B.pill ? 46 : 44, B.pill ? 23 : (B === BRANDS.ho ? 2 : 4)); ctx.fill();
+    ctx.fillStyle = colors ? colors[1] : B.accInk; ctx.textBaseline = 'middle'; ctx.fillText(t, rightX - w + (B.pill ? 20 : 16), y + 23); ctx.textBaseline = 'top'; ctx.globalAlpha = 1;
   }
   function drawHeader(B, l, tag, dark, cta){
     ctx.save(); ctx.globalAlpha = eo(prog(l,.05,.5)); ctx.translate(0, (1-eo(prog(l,.05,.5)))*16); drawLogo(B, PAD, 56, dark, cta && B.ctaLogo === 'onGreen'); ctx.restore();
@@ -609,7 +609,6 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     if (leftFn) leftFn();
     setFont(B.body(22, mode === 'car' ? 700 : 400)); ctx.fillStyle = color;
     if (mode === 'car') { if (i < n-1) { const t = 'Svep'; const w = ctx.measureText(t).width; ctx.fillText(t, W - PAD - 52 - w, H - 84); arrow(W - PAD - 38, H - 84, 34, color, 3.6); } }
-    else { const t = (i+1) + ' / ' + n; ctx.textAlign = 'right'; ctx.fillText(t, W - PAD, H - 84); ctx.textAlign = 'left'; }
     ctx.textBaseline = 'top';
   }
   function drawBrowser(B, x, y, w, maxH, img, small){
@@ -696,7 +695,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
         ctx.save(); ctx.globalAlpha = eo(pn); ctx.translate(PAD, y + numH); ctx.scale(sc, sc); ctx.translate(-PAD, -(y + numH));
         if (B.numStyle === 'box') { ctx.fillStyle = B.acc; rr(PAD, y, 170*s, 170*s, 12); ctx.fill(); setFont(`700 ${Math.round(128*s)}px "DM Sans", Arial, sans-serif`); ctx.fillStyle = B.accInk; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(String(i+1), PAD + 85*s, y + 90*s); ctx.textAlign = 'left'; ctx.textBaseline = 'top'; }
         else if (B.numStyle === 'serif') { setFont(`500 ${Math.round(220*s)}px "Noto Serif", Georgia, serif`); ctx.fillStyle = B.acc; ctx.textBaseline = 'alphabetic'; ctx.fillText(String(i+1), PAD - 6, y + numH); ctx.textBaseline = 'top'; }
-        else { setFont(`800 ${Math.round(210*s)}px Archivo, Arial, sans-serif`, -.05, 210*s); ctx.fillStyle = B.acc; ctx.textBaseline = 'alphabetic'; ctx.fillText(String(i+1), PAD - 8, y + numH); ctx.textBaseline = 'top'; }
+        else { setFont(`700 ${Math.round(210*s)}px Inter, Arial, sans-serif`, -.05, 210*s); ctx.fillStyle = B.acc; ctx.textBaseline = 'alphabetic'; ctx.fillText(String(i+1), PAD - 8, y + numH); ctx.textBaseline = 'top'; }
         ctx.restore();
         y += numH + 48*s;
         const qstep = .7 / Math.max(1, QL.words.length);
@@ -755,154 +754,164 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
   function finish(list){ let acc = 0; list.forEach(s => { s.start = acc; acc += s.dur; }); scenes = list; TOTAL = acc; $('dots').innerHTML = scenes.map(() => '<span></span>').join(''); }
   function textAt(txt, font, x, y, color, ls=0, align='left'){ setFont(font, ls, sizeOf(font)); ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = 'top'; ctx.fillText(txt, x, y); ctx.textAlign = 'left'; }
   function fitFont(txt, mk, start, min, maxW, ls=0){ let sz = start; for (;;) { setFont(mk(sz), ls, sz); if (ctx.measureText(txt).width <= maxW || sz <= min) return sz; sz -= 2; } }
+  // Dagensrapport 2026: Inter, svart/vitt, färg per rapporttyp
+  const DR_TYPES = {
+    kvartal:    { c:'#F57722', t:'#FEF1E8', l:'Kvartalsrapport' },
+    ar:         { c:'#8CD6F1', t:'#E9F7FC', l:'Årsrapport' },
+    hallbarhet: { c:'#3DB659', t:'#E7F6EB', l:'Hållbarhetsrapport' },
+    ovrigt:     { c:'#EF4E4D', t:'#FDEDED', l:'Övrig rapport' }
+  };
+  const drType = k => DR_TYPES[k] || DR_TYPES.kvartal;
+  const IF = (w, s) => `${w} ${s}px Inter, Arial, sans-serif`;
+  function drPill(text, rightX, y, bg, fg, a=1, alignLeft=false){
+    setFont(IF(700, 22), 0, 22); const w = ctx.measureText(text).width + 40, h = 46, x = alignLeft ? rightX : rightX - w;
+    ctx.save(); ctx.globalAlpha = a; ctx.fillStyle = bg; rr(x, y, w, h, h/2); ctx.fill();
+    ctx.fillStyle = fg; ctx.textBaseline = 'middle'; ctx.fillText(text, x + 20, y + h/2 + 1); ctx.textBaseline = 'top'; ctx.restore();
+    return w;
+  }
+  function drHeader(l, pillText, pillBg, pillFg, dark){
+    const p = eo(prog(l,.05,.5));
+    ctx.save(); ctx.globalAlpha = p; ctx.translate(0, (1-p)*16); drawLogo(BRANDS.dr, PAD, 44, dark); ctx.restore();
+    if (pillText) drPill(pillText, W - PAD, 60, pillBg, pillFg, eo(prog(l,.2,.5)));
+  }
+  function drFoot(color){ textAt('dagensrapport.se', IF(400, 22), PAD, H - 96, color); }
+  function drCheck(cx, cy, r, color, sc=1){
+    ctx.save(); ctx.translate(cx, cy); ctx.scale(sc, sc); ctx.fillStyle = color; ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#111111'; ctx.lineWidth = r*.14; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.moveTo(-r*.32, r*.02); ctx.lineTo(-r*.1, r*.24); ctx.lineTo(r*.34, -r*.22); ctx.stroke(); ctx.restore();
+  }
+  function drPanel(x, y, w, h, tint){ ctx.fillStyle = tint; rr(x, y, w, h, 32); ctx.fill(); }
+  function drDropCover(img, cx, top, cw, ch, l, delay, drawFn){
+    const pf = prog(l, delay, 1.2); if (pf <= 0) return;
+    const y = -1300 * (1 - bounce(pf)), rot = -7 * (1 - eo(pf)), settle = eo(prog(l, delay + 1.6, 1.8));
+    ctx.save(); ctx.translate(cx + cw/2, top + ch + y); ctx.rotate(rot*Math.PI/180); ctx.scale(1 + .025*settle, 1 + .025*settle); ctx.translate(-(cx + cw/2), -(top + ch));
+    ctx.save(); ctx.shadowColor = 'rgba(17,17,17,.22)'; ctx.shadowBlur = 50; ctx.shadowOffsetY = 22; ctx.fillStyle = '#fff'; ctx.fillRect(cx, top, cw, ch); ctx.restore();
+    ctx.save(); ctx.beginPath(); ctx.rect(cx, top, cw, ch); ctx.clip(); drawFn(cx, top, cw, ch); ctx.restore();
+    ctx.restore();
+  }
+
   function buildRapport(){
-    const B = BRANDS.dr, R = state.rp;
+    const B = BRANDS.dr, R = state.rp, TY = drType(R.rtype);
     const company = (R.company || 'Bolaget').trim(), report = (R.report || 'Rapportens namn').trim();
     const ins = linesOf(R.insights).slice(0, 5).map(glue);
     const INS = ins.length ? ins : ['Skriv en insikt per rad'];
     const tops = linesOf(R.topics).slice(0, 3).map(glue);
     const TOP = tops.length ? tops : ['Skriv ett ämne per rad'];
     const pname = (R.name || 'Namn Efternamn').trim(), ptitle = (R.title || 'vd').trim();
-    const list = [];
     const withTS = R.withTS !== false;
     const N = withTS ? 4 : 3;
-    const cardFrame = (img, w, maxH) => { const h = img ? Math.min(maxH, w * img.height / img.width) : w * 1.45; return h; };
+    const list = [];
+    const coverH = (img, w, maxH) => img ? Math.min(maxH, w * img.height / img.width) : Math.min(maxH, w * 1.414);
     function drawCover(x, y, w, h){
       if (imgs.cover) { ctx.drawImage(imgs.cover, x, y, w, h); return; }
-      ctx.fillStyle = '#E7F5EE'; ctx.fillRect(x, y, w, h);
-      const s = w / 500;
-      textAt(company.toUpperCase(), `800 ${Math.round(28*s)}px Archivo, Arial, sans-serif`, x + 40*s, y + 44*s, '#0A7A49', .04);
-      const L = layout(report, `800 ${Math.round(66*s)}px Archivo, Arial, sans-serif`, w - 80*s, 66*s*.98, -.03);
-      drawWords(L, x + 40*s, y + h*.32, '#111111');
+      ctx.fillStyle = '#FFFFFF'; ctx.fillRect(x, y, w, h); const s = w / 500;
+      textAt(company.toUpperCase(), IF(700, Math.round(24*s)), x + 40*s, y + 44*s, '#555555', .04);
+      const L = layout(report, IF(700, Math.round(60*s)), w - 80*s, 60*s*1.02, -.03); drawWords(L, x + 40*s, y + h*.32, '#111111');
     }
-    // 1. cover falls in
+    // 1. omslaget faller ner på en tonad yta
+    const TL = (() => { let sz = 76, L; do { L = layout(report, IF(700, sz), W - 2*PAD, sz*1.04, -.03); sz -= 4; } while (L.lines > 2 && sz > 44); return L; })();
+    const panelTop = 140, panelH = 1350 - 140 - (TL.h + 130) - 150, cw = 430, ch = coverH(imgs.cover, cw, panelH - 90);
     list.push({ dur:5.0, draw:(l) => {
-      ctx.fillStyle = '#111111'; ctx.fillRect(0,0,W,H);
-      const g = ctx.createRadialGradient(W/2, H, 0, W/2, H, 640); g.addColorStop(0,'rgba(14,159,95,.26)'); g.addColorStop(1,'rgba(14,159,95,0)'); ctx.fillStyle = g; ctx.fillRect(0, H-560, W, 560);
-      ctx.save(); const pl = eo(prog(l,.1,.6)); ctx.globalAlpha = pl; ctx.translate(0,(1-pl)*20); drawLogo(B, PAD, 56, true); ctx.restore();
-      ctx.save(); ctx.globalAlpha = eo(prog(l,.3,.6)); textAt('NY RAPPORT', '700 22px Archivo, Arial, sans-serif', W - PAD, 70, '#0E9F5F', .08, 'right'); ctx.restore();
-      // caption
-      const pc = eo(prog(l, 1.7, .7)); ctx.save(); ctx.globalAlpha = pc; ctx.translate(0, (1-pc)*24);
-      const capSize = fitFont('Ny rapport från ' + company, s => `700 ${s}px Archivo, Arial, sans-serif`, 34, 22, W - 2*PAD);
-      setFont(`700 ${capSize}px Archivo, Arial, sans-serif`); const a = 'Ny rapport från '; const aw = ctx.measureText(a).width;
-      setFont(`800 ${capSize}px Archivo, Arial, sans-serif`); const bw = ctx.measureText(company).width;
-      const cx0 = (W - aw - bw) / 2; textAt(a, `700 ${capSize}px Archivo, Arial, sans-serif`, cx0, 176, '#CFCFCF'); textAt(company, `800 ${capSize}px Archivo, Arial, sans-serif`, cx0 + aw, 176, '#FFFFFF');
-      ctx.restore();
-      // card
-      const cw = 500, ch = cardFrame(imgs.cover, cw, 760), top = 296, cx = (W - cw)/2;
-      const pf = prog(l, .5, 1.3), y = -1400 * (1 - bounce(pf));
-      const rot = -9 * (1 - eo(pf)) + (-2.5) * eo(pf), settle = eo(prog(l, 2.2, 1.8));
-      const ground = clamp(1 - Math.abs(y)/700);
-      if (pf > 0) { ctx.save(); ctx.globalAlpha = .25 + .75*ground; ctx.filter = 'blur(16px)'; ctx.fillStyle = 'rgba(0,0,0,.7)'; ctx.beginPath(); ctx.ellipse(W/2, top + ch + 6, 230*(.5 + .5*ground), 20, 0, 0, Math.PI*2); ctx.fill(); ctx.restore(); }
-      ctx.save(); ctx.translate(W/2, top + ch + y); ctx.rotate(rot*(1-settle)*Math.PI/180); ctx.scale(1 + .03*settle, 1 + .03*settle); ctx.translate(-W/2, -(top + ch));
-      ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 80; ctx.shadowOffsetY = 30; ctx.fillStyle = '#fff'; rr(cx, top, cw, ch, 6); ctx.fill(); ctx.restore();
-      ctx.save(); rr(cx, top, cw, ch, 6); ctx.clip(); drawCover(cx, top, cw, ch); ctx.restore();
-      ctx.restore();
-      drawFooter(B, 0, N, mode, '#FFFFFF', () => { textAt('dagensrapport.se', '400 22px Inter, Arial, sans-serif', PAD, H - 96, '#8A8A8A'); });
+      ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0,0,W,H);
+      drHeader(l, TY.l, TY.c, '#111111', false);
+      const pp = eo(prog(l, .1, .6)); ctx.save(); ctx.globalAlpha = pp; drPanel(PAD, panelTop, W - 2*PAD, panelH, TY.t); ctx.restore();
+      drDropCover(imgs.cover, (W - cw)/2, panelTop + (panelH - ch)/2, cw, ch, l, .45, drawCover);
+      const ty = panelTop + panelH + 40;
+      const pc = eo(prog(l, 1.5, .5)); ctx.save(); ctx.globalAlpha = pc; textAt(company, IF(600, 30), PAD, ty + (1-pc)*14, '#555555'); ctx.restore();
+      const pt = eo(prog(l, 1.7, .6)); ctx.save(); ctx.beginPath(); ctx.rect(0, ty + 46, W, TL.h + 16); ctx.clip(); drawWords(TL, PAD, ty + 50 + (1-pt)*TL.h, '#111111'); ctx.restore();
+      drawFooter(B, 0, N, mode, '#111111', () => drFoot('#8A8A8A'));
     }});
-    // 2. insights
+    // 2. rapportinsikter
     const F0 = .9, FSTEP = 1.0;
     let fs = 44, IL;
-    for (;;) { IL = INS.map(x => layout(x, `800 ${fs}px Archivo, Arial, sans-serif`, W - 2*PAD - 94, fs*1.12, -.025)); const tot = IL.reduce((a, L) => a + Math.max(64, L.h) + 72, 0); if (tot <= H - 340 - 150 || fs <= 30) break; fs -= 2; }
-    const hSize = fitFont('Rapportinsikter i korthet', s => `800 ${s}px Archivo, Arial, sans-serif`, 68, 40, W - 2*PAD, -.035);
+    for (;;) { IL = INS.map(x => layout(x, IF(700, fs), W - 2*PAD - 94, fs*1.14, -.02)); const tot = IL.reduce((a, L) => a + Math.max(64, L.h) + 72, 0); if (tot <= H - 340 - 150 || fs <= 30) break; fs -= 2; }
+    const hSize = fitFont('Rapportinsikter i korthet', s => IF(700, s), 68, 40, W - 2*PAD, -.03);
     list.push({ dur: F0 + INS.length*FSTEP + 1.4, draw:(l) => {
       ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0,0,W,H);
-      ctx.fillStyle = '#0E9F5F'; ctx.fillRect(0, 0, W * eo(prog(l,0,1.2)), 16);
-      drawLogo(B, PAD, 60, false);
-      const kick = report.toUpperCase(); const ks = fitFont(kick, s => `700 ${s}px Archivo, Arial, sans-serif`, 22, 14, 470, .08);
-      textAt(kick, `700 ${ks}px Archivo, Arial, sans-serif`, W - PAD, 74, '#0A7A49', .08, 'right');
+      drHeader(99, TY.l, TY.c, '#111111', false);
       const ph = eo(prog(l, .1, .7));
-      ctx.save(); ctx.beginPath(); ctx.rect(0, 160, W, hSize*1.25); ctx.clip(); ctx.translate(0, (1-ph)*hSize*1.2);
-      setFont(`800 ${hSize}px Archivo, Arial, sans-serif`, -.035, hSize); const a = 'Rapportinsikter '; const aw = ctx.measureText(a).width;
-      textAt(a, `800 ${hSize}px Archivo, Arial, sans-serif`, PAD, 170, '#111111', -.035); textAt('i korthet', `800 ${hSize}px Archivo, Arial, sans-serif`, PAD + aw, 170, '#0E9F5F', -.035);
-      ctx.restore();
-      ctx.save(); ctx.globalAlpha = eo(prog(l,.5,.6)); textAt('Enligt ' + genitive(company) + ' egna uppgifter', '400 24px Inter, Arial, sans-serif', PAD, 170 + hSize*1.12 + 14, '#8A8A8A'); ctx.restore();
+      ctx.save(); ctx.beginPath(); ctx.rect(0, 160, W, hSize*1.25); ctx.clip();
+      textAt('Rapportinsikter i korthet', IF(700, hSize), PAD, 170 + (1-ph)*hSize*1.2, '#111111', -.03); ctx.restore();
+      ctx.save(); ctx.globalAlpha = eo(prog(l,.5,.6)); textAt(report + ' · enligt ' + genitive(company) + ' egna uppgifter', IF(500, 24), PAD, 170 + hSize*1.12 + 14, '#8A8A8A'); ctx.restore();
       let y = 170 + hSize*1.12 + 14 + 60;
-      ctx.fillStyle = '#ECECEC'; ctx.fillRect(PAD, y, W - 2*PAD, 2);
+      ctx.fillStyle = '#E6E6E3'; ctx.fillRect(PAD, y, W - 2*PAD, 2);
       IL.forEach((L, i) => {
         const rowH = Math.max(64, L.h) + 72, a0 = F0 + i*FSTEP, p = eo(prog(l, a0, .55));
         ctx.save(); ctx.globalAlpha = p; ctx.translate((1-p)*-60, 0);
-        const cy = y + rowH/2, pt = prog(l, a0 + .15, .5), sc = pt < 1 ? .4 + .6*bounce(pt) : 1;
-        ctx.save(); ctx.translate(PAD + 32, cy); ctx.scale(sc, sc); ctx.fillStyle = '#0E9F5F'; ctx.beginPath(); ctx.arc(0, 0, 32, 0, Math.PI*2); ctx.fill();
-        ctx.strokeStyle = '#111111'; ctx.lineWidth = 4.4; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(-10, 1); ctx.lineTo(-3, 8); ctx.lineTo(11, -7); ctx.stroke(); ctx.restore();
-        drawWords(L, PAD + 94, cy - L.h/2, '#111111');
+        const pt = prog(l, a0 + .15, .5); drCheck(PAD + 32, y + rowH/2, 32, TY.c, pt < 1 ? .4 + .6*bounce(pt) : 1);
+        drawWords(L, PAD + 94, y + rowH/2 - L.h/2, '#111111');
         ctx.restore();
-        y += rowH; ctx.fillStyle = '#ECECEC'; ctx.fillRect(PAD, y, W - 2*PAD, 2);
+        y += rowH; ctx.fillStyle = '#E6E6E3'; ctx.fillRect(PAD, y, W - 2*PAD, 2);
       });
-      drawFooter(B, 1, N, mode, '#111111', () => { textAt('dagensrapport.se', '400 22px Inter, Arial, sans-serif', PAD, H - 96, '#8A8A8A'); });
+      drawFooter(B, 1, N, mode, '#111111', () => drFoot('#8A8A8A'));
     }});
     // 3. Tre snabba
     if (withTS) {
     const Q0 = 1.9, QSTEP = 1.0, tx = PAD + 260 + 44, tw = W - PAD - tx;
     const l1 = 'med ' + ptitle;
-    const nSize = Math.min(fitFont(l1, s => `800 ${s}px Archivo, Arial, sans-serif`, 76, 40, tw, -.035), fitFont(pname, s => `800 ${s}px Archivo, Arial, sans-serif`, 76, 40, tw, -.035));
+    const nSize = Math.min(fitFont(l1, s => IF(700, s), 76, 40, tw, -.03), fitFont(pname, s => IF(700, s), 76, 40, tw, -.03));
     let qs = 44, QLs;
-    for (;;) { QLs = TOP.map(x => layout(x, `700 ${qs}px Archivo, Arial, sans-serif`, W - 2*PAD - 120, qs*1.12, -.02)); const tot = QLs.reduce((a, L) => a + Math.max(80, L.h) + 56, 0); if (tot <= H - 600 - 140 || qs <= 30) break; qs -= 2; }
+    for (;;) { QLs = TOP.map(x => layout(x, IF(700, qs), W - 2*PAD - 120, qs*1.14, -.02)); const tot = QLs.reduce((a, L) => a + Math.max(80, L.h) + 56, 0); if (tot <= H - 600 - 140 || qs <= 30) break; qs -= 2; }
     list.push({ dur: Q0 + TOP.length*QSTEP + 1.4, draw:(l) => {
-      ctx.fillStyle = '#111111'; ctx.fillRect(0,0,W,H);
-      drawLogo(B, PAD, 56, true); textAt('TRE SNABBA', '700 22px Archivo, Arial, sans-serif', W - PAD, 70, '#0E9F5F', .08, 'right');
+      ctx.fillStyle = '#F4F4F2'; ctx.fillRect(0,0,W,H);
+      drHeader(99, 'Tre snabba', '#111111', '#FFFFFF', false);
       const pp = prog(l, 0, .9), ps = pp < 1 ? .7 + .3*bounce(pp) : 1;
       ctx.save(); ctx.globalAlpha = eo(prog(l,0,.8)); ctx.translate(PAD + 130, 180 + 130); ctx.scale(ps, ps);
-      ctx.fillStyle = '#0E9F5F'; ctx.beginPath(); ctx.arc(0, 0, 138, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#111111'; ctx.beginPath(); ctx.arc(0, 0, 136, 0, Math.PI*2); ctx.fill();
       ctx.beginPath(); ctx.arc(0, 0, 130, 0, Math.PI*2); ctx.clip();
       const z = 1.15 - .12*eo(prog(l,0,6));
       if (imgs.face) { ctx.scale(z, z); cover(imgs.face, -130, -130, 260, 260, .25); }
-      else { ctx.fillStyle = '#333'; ctx.fillRect(-130,-130,260,260); const ini = pname.split(' ').map(x => x[0] || '').join('').slice(0,2).toUpperCase(); textAt(ini, '700 96px Inter, Arial, sans-serif', 0, -52, '#FFFFFF', 0, 'center'); }
+      else { ctx.fillStyle = '#333'; ctx.fillRect(-130,-130,260,260); const ini = pname.split(' ').map(x => x[0] || '').join('').slice(0,2).toUpperCase(); textAt(ini, IF(700, 96), 0, -52, '#FFFFFF', 0, 'center'); }
       ctx.restore();
-      const pt = eo(prog(l,.3,.5)); ctx.save(); ctx.globalAlpha = pt; ctx.translate(0,(1-pt)*20);
-      setFont('800 24px Archivo, Arial, sans-serif', .06, 24); const tagW = ctx.measureText('TRE SNABBA').width + 36;
-      ctx.fillStyle = '#0E9F5F'; rr(tx, 196, tagW, 46, 6); ctx.fill(); textAt('TRE SNABBA', '800 24px Archivo, Arial, sans-serif', tx + 18, 207, '#111111', .06);
-      ctx.restore();
-      [[l1, '#FFFFFF'], [pname, '#0E9F5F']].forEach(([txt, c], k) => {
-        const yy = 262 + k*nSize*1.0, p = eo(prog(l, .45 + k*.2, .7));
-        ctx.save(); ctx.beginPath(); ctx.rect(tx, yy - 4, tw + 20, nSize*1.1); ctx.clip(); textAt(txt, `800 ${nSize}px Archivo, Arial, sans-serif`, tx, yy + (1-p)*nSize*1.1, c, -.035); ctx.restore();
+      [[l1, '#111111'], [pname, '#111111']].forEach(([txt, c], k) => {
+        const yy = 210 + k*nSize*1.02, p = eo(prog(l, .35 + k*.2, .7));
+        ctx.save(); ctx.beginPath(); ctx.rect(tx, yy - 4, tw + 20, nSize*1.12); ctx.clip(); textAt(txt, IF(700, nSize), tx, yy + (1-p)*nSize*1.1, c, -.03); ctx.restore();
       });
-      const pr = eo(prog(l,.95,.5)); ctx.save(); ctx.globalAlpha = pr; textAt(company, '400 28px Inter, Arial, sans-serif', tx, 262 + 2*nSize + 10 + (1-pr)*16, '#BDBDBD'); ctx.restore();
-      const plead = eo(prog(l,1.35,.5)); ctx.save(); ctx.globalAlpha = plead; textAt('… som bland annat berättar om:', '400 32px Inter, Arial, sans-serif', PAD, 520 + (1-plead)*16, '#BDBDBD'); ctx.restore();
+      const pr = eo(prog(l,.95,.5)); ctx.save(); ctx.globalAlpha = pr; textAt(company, IF(500, 28), tx, 210 + 2*nSize*1.02 + 12 + (1-pr)*16, '#555555'); ctx.restore();
+      const plead = eo(prog(l,1.35,.5)); ctx.save(); ctx.globalAlpha = plead; textAt('… som bland annat berättar om:', IF(500, 32), PAD, 520 + (1-plead)*16, '#555555'); ctx.restore();
       let y = 590;
       QLs.forEach((L, i) => {
         const rowH = Math.max(80, L.h) + 56, a0 = Q0 + i*QSTEP, p = eo(prog(l, a0, .6));
-        ctx.fillStyle = '#2A2A2A'; ctx.fillRect(PAD, y, W - 2*PAD, 2);
+        ctx.fillStyle = '#DCDCD8'; ctx.fillRect(PAD, y, W - 2*PAD, 2);
         ctx.save(); ctx.globalAlpha = p; ctx.translate(0, (1-p)*40);
         const pn = prog(l, a0, .7), sn = pn < 1 ? .5 + .5*bounce(pn) : 1;
-        ctx.save(); ctx.translate(PAD + 30, y + rowH/2 + 30); ctx.scale(sn, sn); textAt(String(i+1), '800 96px Archivo, Arial, sans-serif', -30, -86, '#0E9F5F', -.05); ctx.restore();
-        drawWords(L, PAD + 120, y + (rowH - L.h)/2, '#FFFFFF');
+        ctx.save(); ctx.translate(PAD + 34, y + rowH/2); ctx.scale(sn, sn); ctx.fillStyle = TY.c; ctx.beginPath(); ctx.arc(0, 0, 34, 0, Math.PI*2); ctx.fill();
+        setFont(IF(700, 36)); ctx.fillStyle = '#111111'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(String(i+1), 0, 2); ctx.restore(); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        drawWords(L, PAD + 110, y + (rowH - L.h)/2, '#111111');
         ctx.restore();
         y += rowH;
       });
-      drawFooter(B, 2, N, mode, '#FFFFFF', () => { textAt('dagensrapport.se', '400 22px Inter, Arial, sans-serif', PAD, H - 96, '#8A8A8A'); });
+      drawFooter(B, 2, N, mode, '#111111', () => drFoot('#8A8A8A'));
     }});
     }
     // 4. Läs mer
-    list.push(outroScene('Läs mer på', imgs.cover, drawCover));
+    list.push(outroScene('Läs mer på', imgs.cover, drawCover, TY));
     finish(list);
   }
 
-  function outroScene(headline, coverImg, drawCoverFn){
-    const B = BRANDS.dr;
-    const cardFrame = (img, w, maxH) => { const h = img ? Math.min(maxH, w * img.height / img.width) : w * 1.45; return h; };
+  function outroScene(headline, coverImg, drawCoverFn, TY){
+    TY = TY || DR_TYPES.kvartal;
     return { dur:5.5, draw:(l) => {
-      ctx.fillStyle = '#0E9F5F'; ctx.fillRect(0,0,W,H);
-      setFont('800 30px Archivo, Arial, sans-serif', -.02, 30); textAt('Dagensrapport', '800 30px Archivo, Arial, sans-serif', PAD, 64, '#111111', -.02);
-      textAt('LÄS MER', '700 22px Archivo, Arial, sans-serif', W - PAD, 70, '#111111', .08, 'right');
-      const mw = 220, mh = cardFrame(coverImg, mw, 330), pm = prog(l, .3, 1.1);
-      ctx.save(); ctx.translate(W - PAD - mw/2, 150 + mh/2 + (-700*(1-bounce(pm)))); ctx.rotate((6 + 10*(1-eo(pm)))*Math.PI/180);
-      ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.3)'; ctx.shadowBlur = 50; ctx.shadowOffsetY = 20; ctx.fillStyle = '#fff'; rr(-mw/2, -mh/2, mw, mh, 4); ctx.fill(); ctx.restore();
-      ctx.save(); rr(-mw/2, -mh/2, mw, mh, 4); ctx.clip(); drawCoverFn(-mw/2, -mh/2, mw, mh); ctx.restore(); ctx.restore();
-      const hs = fitFont(headline, s => `800 ${s}px Archivo, Arial, sans-serif`, 150, 80, W - 2*PAD, -.045), hy = 520, ph = eo(prog(l,.1,.7));
-      ctx.save(); ctx.beginPath(); ctx.rect(0, hy - 10, W, hs*1.08); ctx.clip(); textAt(headline, `800 ${hs}px Archivo, Arial, sans-serif`, PAD, hy + (1-ph)*hs*1.1, '#111111', -.045); ctx.restore();
-      const url = 'DagensRapport.se', us = fitFont(url, s => `800 ${s}px Archivo, Arial, sans-serif`, 76, 40, W - 2*PAD - 150, -.03);
-      setFont(`800 ${us}px Archivo, Arial, sans-serif`, -.03, us); const uw = ctx.measureText(url).width;
-      const py = hy + hs + 40, pw = uw + 60 + 90, phh = us + 40, pu = prog(l, .8, .7), sc = pu < 1 ? .85 + .15*bounce(pu) : 1;
+      ctx.fillStyle = '#111111'; ctx.fillRect(0,0,W,H);
+      drHeader(99, 'Läs mer', '#FFFFFF', '#111111', true);
+      const mw = 260, mh = coverImg ? Math.min(360, mw * coverImg.height / coverImg.width) : mw * 1.414, pm = prog(l, .3, 1.1);
+      ctx.save(); ctx.translate(W - PAD - mw/2 - 20, 170 + mh/2 + 20 + (-700*(1-bounce(pm)))); ctx.rotate((5 + 10*(1-eo(pm)))*Math.PI/180);
+      ctx.fillStyle = TY.t; rr(-mw/2 - 24, -mh/2 - 24, mw + 48, mh + 48, 24); ctx.fill();
+      ctx.save(); ctx.beginPath(); ctx.rect(-mw/2, -mh/2, mw, mh); ctx.clip(); drawCoverFn(-mw/2, -mh/2, mw, mh); ctx.restore(); ctx.restore();
+      const hs = fitFont(headline, s => IF(700, s), 140, 80, W - 2*PAD, -.04), hy = 640, ph = eo(prog(l,.1,.7));
+      ctx.save(); ctx.beginPath(); ctx.rect(0, hy - 10, W, hs*1.15); ctx.clip(); textAt(headline, IF(700, hs), PAD, hy + (1-ph)*hs*1.1, '#FFFFFF', -.04); ctx.restore();
+      const url = 'DagensRapport.se', us = fitFont(url, s => IF(700, s), 64, 36, W - 2*PAD - 150, -.02);
+      setFont(IF(700, us), -.02, us); const uw = ctx.measureText(url).width;
+      const py = hy + hs*1.15 + 30, pw = uw + 60 + 84, phh = us + 44, pu = prog(l, .8, .7), sc = pu < 1 ? .85 + .15*bounce(pu) : 1;
       ctx.save(); ctx.globalAlpha = eo(pu); ctx.translate(PAD, py + phh/2); ctx.scale(sc, sc); ctx.translate(-PAD, -(py + phh/2));
-      ctx.fillStyle = '#111111'; rr(PAD, py, pw, phh, phh/2); ctx.fill();
-      ctx.textBaseline = 'middle'; setFont(`800 ${us}px Archivo, Arial, sans-serif`, -.03, us); ctx.fillStyle = '#FFFFFF'; ctx.fillText(url, PAD + 30, py + phh/2 + 2); ctx.textBaseline = 'top';
+      ctx.fillStyle = '#FFFFFF'; rr(PAD, py, pw, phh, phh/2); ctx.fill();
+      ctx.textBaseline = 'middle'; setFont(IF(700, us), -.02, us); ctx.fillStyle = '#111111'; ctx.fillText(url, PAD + 30, py + phh/2 + 2); ctx.textBaseline = 'top';
       const wob = l > 1.6 ? Math.max(0, Math.sin((l - 1.6) * Math.PI * 1.25)) * 12 : 0;
-      arrow(PAD + 30 + uw + 24 + wob, py + phh/2, 46, '#0E9F5F', 6); ctx.restore();
-      const pb = eo(prog(l, 1.2, .7)); const bh = 170;
-      ctx.save(); ctx.translate(0, (1-pb)*bh); ctx.fillStyle = '#111111'; ctx.fillRect(0, H - bh, W, bh);
-      textAt('Vill ert bolag också synas?', '700 28px Archivo, Arial, sans-serif', PAD, H - bh + 50, '#FFFFFF');
-      textAt('Vi gör din rapport synlig.', '400 22px Inter, Arial, sans-serif', PAD, H - bh + 92, '#BDBDBD');
+      arrow(PAD + 30 + uw + 22 + wob, py + phh/2, 42, '#111111', 5.5); ctx.restore();
+      const pb = eo(prog(l, 1.2, .7)), bh = 160;
+      ctx.save(); ctx.globalAlpha = pb; ctx.fillStyle = '#2A2A2A'; ctx.fillRect(PAD, H - bh - 10, W - 2*PAD, 2);
+      textAt('Vill ert bolag också synas?', IF(700, 28), PAD, H - bh + 26, '#FFFFFF');
+      textAt('Vi gör din rapport synlig.', IF(400, 22), PAD, H - bh + 66, '#BDBDBD');
       ctx.restore();
     }};
   }
@@ -992,7 +1001,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
             ctx.save(); ctx.translate(PAD + 40, cy); ctx.scale(sn, sn);
             if (B.numStyle === 'box') { ctx.fillStyle = B.acc; rr(-40, -40, 80, 80, 8); ctx.fill(); setFont('700 56px "DM Sans", Arial, sans-serif'); ctx.fillStyle = B.accInk; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(String(i+1), 0, 3); }
             else if (B.numStyle === 'serif') { setFont('500 104px "Noto Serif", Georgia, serif'); ctx.fillStyle = B.acc; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(String(i+1), 0, 4); }
-            else { setFont('800 100px Archivo, Arial, sans-serif'); ctx.fillStyle = B.acc; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(String(i+1), 0, 4); }
+            else { setFont('700 100px Inter, Arial, sans-serif'); ctx.fillStyle = B.acc; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(String(i+1), 0, 4); }
             ctx.restore(); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
             drawWords(L, PAD + 130, cy - L.h/2, B.ink);
             ctx.restore();
@@ -1036,7 +1045,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
         drawHeader(B, 99, label, dark);
         const pm = prog(l, 0, .7), sm = pm < 1 ? .4 + .6*bounce(pm) : 1;
         ctx.save(); ctx.globalAlpha = eo(pm); ctx.translate(PAD, qTop + 190); ctx.scale(sm, sm);
-        setFont(`700 300px ${B === BRANDS.ho ? '"Noto Serif", Georgia, serif' : (B === BRANDS.dm ? '"DM Sans", Arial, sans-serif' : 'Archivo, Arial, sans-serif')}`); ctx.fillStyle = B === BRANDS.dm ? '#111111' : B.acc; ctx.textBaseline = 'alphabetic'; ctx.fillText('”', -10, 0); ctx.restore(); ctx.textBaseline = 'top';
+        setFont(`700 300px ${B === BRANDS.ho ? '"Noto Serif", Georgia, serif' : (B === BRANDS.dm ? '"DM Sans", Arial, sans-serif' : 'Inter, Arial, sans-serif')}`); ctx.fillStyle = B === BRANDS.dm ? '#111111' : B.acc; ctx.textBaseline = 'alphabetic'; ctx.fillText('”', -10, 0); ctx.restore(); ctx.textBaseline = 'top';
         if (B === BRANDS.dm) { ctx.save(); ctx.globalAlpha = eo(pm); ctx.fillStyle = B.acc; ctx.fillRect(PAD, qTop + 140, 120 * eo(prog(l,.2,.5)), 12); ctx.restore(); }
         const y0 = qTop + 170;
         drawWords(QL, PAD, y0, ink, k => eo(prog(l, .7 + k/6, .35)));
@@ -1087,88 +1096,80 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
   function isoWeek(d = new Date()){ const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); const y0 = new Date(Date.UTC(t.getUTCFullYear(),0,1)); return Math.ceil(((t - y0) / 86400000 + 1) / 7); }
   function coverBox(img, x, y, w, h, company, report){
     if (img) { ctx.drawImage(img, x, y, w, h); return; }
-    ctx.fillStyle = '#E7F5EE'; ctx.fillRect(x, y, w, h); const s = w / 500;
-    textAt((company || 'Bolag').toUpperCase(), `800 ${Math.max(10, Math.round(26*s))}px Archivo, Arial, sans-serif`, x + 36*s, y + 40*s, '#0A7A49', .04);
+    ctx.fillStyle = '#FFFFFF'; ctx.fillRect(x, y, w, h); const s = w / 500;
+    textAt((company || 'Bolag').toUpperCase(), IF(700, Math.max(10, Math.round(24*s))), x + 36*s, y + 40*s, '#555555', .04);
     const txt = report || 'Rapport', longest = txt.split(/\s+/).sort((a, b) => b.length - a.length)[0] || txt;
-    const fz = fitFont(longest, z => `800 ${z}px Archivo, Arial, sans-serif`, Math.max(12, Math.round(58*s)), 10, w - 72*s, -.03);
-    const L = layout(txt, `800 ${fz}px Archivo, Arial, sans-serif`, w - 72*s, fz, -.03); drawWords(L, x + 36*s, y + h*.32, '#111111');
+    const fz = fitFont(longest, z => IF(700, z), Math.max(12, Math.round(56*s)), 10, w - 72*s, -.03);
+    const L = layout(txt, IF(700, fz), w - 72*s, fz*1.02, -.03); drawWords(L, x + 36*s, y + h*.32, '#111111');
   }
   function buildVeckan(){
     const B = BRANDS.dr, K = state.wk;
     const week = (K.week || String(isoWeek())).replace(/^v\.?\s*/i, '');
     const head = K.title || 'Veckans rapporter';
     const items = K.items.slice(0, 8);
-    const ITEMS = items.length ? items : [{ company:'Bolag', report:'Rapportens namn', insight:'' }];
+    const ITEMS = items.length ? items : [{ company:'Bolag', report:'Rapportens namn', insight:'', type:'kvartal' }];
     const IM = items.length ? imgs.wk.slice(0, 8) : [null];
     const n = ITEMS.length, N = n + 2, list = [];
     const ar = i => IM[i] ? IM[i].height / IM[i].width : 1.414;
-    // 1. intro: covers rain into a grid
+    // 1. intro: omslagen faller ner, var och en på sin tonade yta
     const cols = n <= 4 ? n : 4, rows = Math.ceil(n / cols);
-    const gap = 28, cw = Math.min(300, (W - 2*PAD - gap*(cols-1)) / cols);
+    const gap = 26, cw = Math.min(280, (W - 2*PAD - gap*(cols-1)) / cols);
     const chMax = Math.min(cw * 1.414, (600 - gap*(rows-1)) / rows), cwF = Math.min(cw, chMax / 1.414);
-    const gridW = cols*cwF + (cols-1)*gap, gridH = rows*chMax + (rows-1)*gap, gx0 = (W - gridW)/2, gy0 = 160 + (700 - gridH)/2;
+    const gridW = cols*cwF + (cols-1)*gap, gridH = rows*chMax + (rows-1)*gap, gx0 = (W - gridW)/2, gy0 = 170 + (680 - gridH)/2;
+    const hs = fitFont(head, s => IF(700, s), 112, 56, W - 2*PAD, -.04);
     list.push({ dur: 2.6 + n*.18 + 1.6, draw:(l) => {
-      ctx.fillStyle = '#111111'; ctx.fillRect(0,0,W,H);
-      const g = ctx.createRadialGradient(W/2, H, 0, W/2, H, 640); g.addColorStop(0,'rgba(14,159,95,.26)'); g.addColorStop(1,'rgba(14,159,95,0)'); ctx.fillStyle = g; ctx.fillRect(0, H-560, W, 560);
-      ctx.save(); ctx.globalAlpha = eo(prog(l,.1,.6)); drawLogo(B, PAD, 56, true); ctx.restore();
-      ctx.save(); ctx.globalAlpha = eo(prog(l,.3,.6)); textAt('VECKA ' + week, '700 22px Archivo, Arial, sans-serif', W - PAD, 70, '#0E9F5F', .08, 'right'); ctx.restore();
+      ctx.fillStyle = '#F4F4F2'; ctx.fillRect(0,0,W,H);
+      drHeader(l, 'Vecka ' + week, '#111111', '#FFFFFF', false);
       ITEMS.forEach((it, i) => {
         const c = i % cols, r = Math.floor(i / cols);
         const h = Math.min(cwF * ar(i), chMax), x = gx0 + c*(cwF + gap), y = gy0 + r*(chMax + gap) + (chMax - h);
         const pf = prog(l, .4 + i*.18, 1.0); if (pf <= 0) return;
         const dy = -1300 * (1 - bounce(pf)), rot = ((i*37) % 9 - 4) * (1 - .6*eo(pf));
         ctx.save(); ctx.translate(x + cwF/2, y + h + dy); ctx.rotate(rot*Math.PI/180); ctx.translate(-(x + cwF/2), -(y + h));
-        ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.5)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 18; ctx.fillStyle = '#fff'; ctx.fillRect(x, y, cwF, h); ctx.restore();
-        coverBox(IM[i], x, y, cwF, h, it.company, it.report); ctx.restore();
+        ctx.save(); ctx.shadowColor = 'rgba(17,17,17,.22)'; ctx.shadowBlur = 36; ctx.shadowOffsetY = 16; ctx.fillStyle = '#fff'; ctx.fillRect(x, y, cwF, h); ctx.restore();
+        coverBox(IM[i], x, y, cwF, h, it.company, it.report);
+        const TYi = drType(it.type); ctx.fillStyle = TYi.c; ctx.beginPath(); ctx.arc(x + cwF - 18, y + 18, 10, 0, Math.PI*2); ctx.fill();
+        ctx.restore();
       });
-      const hs = fitFont(head, s => `800 ${s}px Archivo, Arial, sans-serif`, 120, 60, W - 2*PAD, -.04);
-      const words = head.split(' '); const last = words.pop(); const first = words.join(' ');
-      const ty = 880, pt = eo(prog(l, 1.3 + n*.1, .7));
-      ctx.save(); ctx.beginPath(); ctx.rect(0, ty - 10, W, hs*2.1); ctx.clip(); ctx.translate(0, (1-pt)*hs*2);
-      if (first) { textAt(first, `800 ${hs}px Archivo, Arial, sans-serif`, PAD, ty, '#FFFFFF', -.04); textAt(last, `800 ${hs}px Archivo, Arial, sans-serif`, PAD, ty + hs*.98, '#0E9F5F', -.04); }
-      else textAt(last, `800 ${hs}px Archivo, Arial, sans-serif`, PAD, ty, '#0E9F5F', -.04);
-      ctx.restore();
+      const ty = 900, pt = eo(prog(l, 1.3 + n*.1, .7));
+      const words = head.split(' '), L = layout(head, IF(700, hs), W - 2*PAD, hs*1.0, -.04);
+      ctx.save(); ctx.beginPath(); ctx.rect(0, ty - 10, W, L.h + 20); ctx.clip(); drawWords(L, PAD, ty + (1-pt)*L.h, '#111111'); ctx.restore();
       const ps = eo(prog(l, 1.7 + n*.1, .5)); ctx.save(); ctx.globalAlpha = ps;
-      textAt('Vecka ' + week + ' · ' + n + (n === 1 ? ' ny rapport' : ' nya rapporter'), '400 30px Inter, Arial, sans-serif', PAD, ty + (first ? hs*2 : hs) + 18, '#BDBDBD'); ctx.restore();
-      drawFooter(B, 0, N, mode, '#FFFFFF', () => { textAt('dagensrapport.se', '400 22px Inter, Arial, sans-serif', PAD, H - 96, '#8A8A8A'); });
+      textAt('Vecka ' + week + ' · ' + n + (n === 1 ? ' ny rapport' : ' nya rapporter'), IF(500, 30), PAD, ty + L.h + 20, '#555555'); ctx.restore();
+      drawFooter(B, 0, N, mode, '#111111', () => drFoot('#8A8A8A'));
     }});
-    // 2. one slide per report
+    // 2. en bild per rapport
     ITEMS.forEach((it, i) => {
+      const TYi = drType(it.type);
       const comp = (it.company || 'Bolag').trim(), rpt = (it.report || '').trim(), ins = glue((it.insight || '').trim());
-      const cS = fitFont(comp, s => `800 ${s}px Archivo, Arial, sans-serif`, 76, 44, W - 2*PAD, -.035);
-      const RL = layout(rpt, '400 34px Inter, Arial, sans-serif', W - 2*PAD, 34*1.3);
-      const IL = ins ? layout(ins, '700 40px Archivo, Arial, sans-serif', W - 2*PAD - 84, 40*1.15, -.02) : null;
-      const textH = cS*1.05 + 14 + RL.h + (IL ? 44 + Math.max(56, IL.h) : 0);
-      const maxCH = H - 190 - 60 - textH - 150, chI = Math.max(240, Math.min(440 * ar(i), maxCH, 660)), cwR = chI / ar(i), cx = (W - cwR)/2;
-      const cy = Math.max(170, 150 + ((H - 150 - 140) - (chI + 60 + textH)) / 2);
+      const RL = (() => { let sz = 64, L; do { L = layout(rpt || comp, IF(700, sz), W - 2*PAD, sz*1.04, -.03); sz -= 4; } while (L.lines > 2 && sz > 40); return L; })();
+      const IL = ins ? layout(ins, IF(500, 34), W - 2*PAD - 76, 34*1.3, -.01) : null;
+      const textH = 40 + RL.h + (IL ? 40 + Math.max(52, IL.h) : 0);
+      const panelTop = 140, panelH = Math.max(420, H - panelTop - 40 - textH - 150);
+      const chI = Math.min(panelH - 80, 520 * ar(i)), cwR = chI / ar(i), cx = (W - cwR)/2, cy = panelTop + (panelH - chI)/2;
       list.push({ dur: 3.2, draw:(l) => {
         ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0,0,W,H);
-        ctx.fillStyle = '#0E9F5F'; ctx.fillRect(0, 0, W * eo(prog(l,0,1)), 16);
-        drawLogo(B, PAD, 60, false);
-        textAt('VECKA ' + week + '  ·  ' + (i+1) + ' / ' + n, '700 22px Archivo, Arial, sans-serif', W - PAD, 74, '#0A7A49', .08, 'right');
-        const pf = prog(l, .05, .9), dy = -900 * (1 - bounce(pf)), rot = -5 * (1 - eo(pf));
-        ctx.save(); ctx.translate(W/2, cy + chI + dy); ctx.rotate(rot*Math.PI/180); ctx.translate(-W/2, -(cy + chI));
-        ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.28)'; ctx.shadowBlur = 50; ctx.shadowOffsetY = 22; ctx.fillStyle = '#fff'; ctx.fillRect(cx, cy, cwR, chI); ctx.restore();
-        coverBox(IM[i], cx, cy, cwR, chI, comp, rpt); ctx.restore();
-        let y = cy + chI + 60;
-        const pc = eo(prog(l, .6, .55)); ctx.save(); ctx.beginPath(); ctx.rect(0, y - 6, W, cS*1.15); ctx.clip(); textAt(comp, `800 ${cS}px Archivo, Arial, sans-serif`, PAD, y + (1-pc)*cS*1.1, '#111111', -.035); ctx.restore();
-        y += cS*1.05 + 14;
-        const pr = eo(prog(l, .85, .5)); drawWords(RL, PAD, y + (1-pr)*14, '#555555', () => pr); y += RL.h;
+        drHeader(99, TYi.l, TYi.c, '#111111', false);
+        drPanel(PAD, panelTop, W - 2*PAD, panelH, TYi.t);
+        drDropCover(IM[i], cx, cy, cwR, chI, l, .05, (x, y, w, h) => coverBox(IM[i], x, y, w, h, comp, rpt));
+        let y = panelTop + panelH + 36;
+        const pc = eo(prog(l, .55, .5)); ctx.save(); ctx.globalAlpha = pc; textAt(comp + '  ·  Vecka ' + week, IF(600, 28), PAD, y + (1-pc)*12, '#555555'); ctx.restore();
+        y += 44;
+        const pr = eo(prog(l, .7, .55)); ctx.save(); ctx.beginPath(); ctx.rect(0, y - 6, W, RL.h + 12); ctx.clip(); drawWords(RL, PAD, y + (1-pr)*RL.h, '#111111'); ctx.restore();
+        y += RL.h;
         if (IL) {
-          y += 44; const pq = prog(l, 1.15, .5), pi = eo(pq), sc = pq < 1 ? .4 + .6*bounce(pq) : 1;
-          const cyy = y + Math.max(56, IL.h)/2;
-          ctx.save(); ctx.globalAlpha = pi; ctx.translate(PAD + 28, cyy); ctx.scale(sc, sc); ctx.fillStyle = '#0E9F5F'; ctx.beginPath(); ctx.arc(0, 0, 28, 0, Math.PI*2); ctx.fill();
-          ctx.strokeStyle = '#111'; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(-9, 1); ctx.lineTo(-3, 7); ctx.lineTo(10, -6); ctx.stroke(); ctx.restore();
-          drawWords(IL, PAD + 84, cyy - IL.h/2 + (1-pi)*12, '#111111', () => pi);
+          y += 40; const pq = prog(l, 1.05, .5), pi = eo(pq);
+          const cyy = y + Math.max(52, IL.h)/2;
+          ctx.save(); ctx.globalAlpha = pi; drCheck(PAD + 26, cyy, 26, TYi.c, pq < 1 ? .4 + .6*bounce(pq) : 1); ctx.restore();
+          drawWords(IL, PAD + 76, cyy - IL.h/2 + (1-pi)*12, '#111111', () => pi);
         }
-        drawFooter(B, i+1, N, mode, '#111111', () => { textAt('dagensrapport.se', '400 22px Inter, Arial, sans-serif', PAD, H - 96, '#8A8A8A'); });
+        drawFooter(B, i+1, N, mode, '#111111', () => drFoot('#8A8A8A'));
       }});
     });
-    // 3. outro
-    list.push(outroScene('Alla rapporter på', IM[0], (x, y, w, h) => coverBox(IM[0], x, y, w, h, ITEMS[0].company, ITEMS[0].report)));
+    // 3. avslut
+    list.push(outroScene('Alla rapporter på', IM[0], (x, y, w, h) => coverBox(IM[0], x, y, w, h, ITEMS[0].company, ITEMS[0].report), drType(ITEMS[0].type)));
     finish(list);
   }
-
 
   function renderAt(t){
     ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,W,H);
@@ -1268,7 +1269,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
         else if (/^image\//.test(f.type)) src = await shrink(await fileToDataURL(f), 1400);
         else continue;
       } catch(e) { status('Kunde inte läsa ' + f.name + '. Prova en bild av omslaget i stället.', true); continue; }
-      state.wk.items.push({ cover: src, company: guessCompany(f.name), report: '', insight: '' });
+      state.wk.items.push({ cover: src, company: guessCompany(f.name), report: /h[åa]llbarhet/i.test(f.name) ? 'Hållbarhetsrapport' : (/[åa]rsredovisning|[åa]rsrapport|annual/i.test(f.name) ? 'Årsredovisning' : ''), insight: '', type: /h[åa]llbarhet/i.test(f.name) ? 'hallbarhet' : (/[åa]rsredovisning|[åa]rsrapport|annual/i.test(f.name) ? 'ar' : 'kvartal') });
       imgs.wk.push(await loadImg(src));
     }
     status(''); renderWkList(); save(); buildScenes(); draw();
@@ -1323,16 +1324,16 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     if (key === 'wk') {
       state.kind = 'veckan';
       state.wk = { week: String(isoWeek()), title:'', items:[
-        { cover: SAMPLE_IMG.rpCover, company:'ISOCELL Sverige', report:'Isolera med ansvar', insight:'1 kg cellulosa tar bort 1,42 kg CO₂ ur atmosfären' },
-        { cover: null, company:'Exempelbolaget AB', report:'Delårsrapport Q3 2026', insight:'' },
-        { cover: null, company:'Bolag Två AB', report:'Hållbarhetsrapport 2025', insight:'' } ] };
+        { cover: SAMPLE_IMG.rpCover, company:'ISOCELL Sverige', report:'Isolera med ansvar', insight:'1 kg cellulosa tar bort 1,42 kg CO₂ ur atmosfären', type:'hallbarhet' },
+        { cover: null, company:'Exempelbolaget AB', report:'Delårsrapport Q3 2026', insight:'', type:'kvartal' },
+        { cover: null, company:'Bolag Två AB', report:'Årsredovisning 2025', insight:'', type:'ar' } ] };
       imgs.wk = await Promise.all(state.wk.items.map(it => loadImg(it.cover)));
       writeForm(); save(); t = 0; slide = 0; buildScenes(); draw(); if (mode === 'film') play();
       return;
     }
     if (key === 'rp') {
       state.kind = 'rapport'; state.cover = SAMPLE_IMG.rpCover; state.face = SAMPLE_IMG.rpFace;
-      state.rp = { withTS:true, company:'ISOCELL Sverige', report:'Isolera med ansvar', name:'Erik Holmvall', title:'vd',
+      state.rp = { withTS:true, rtype:'hallbarhet', company:'ISOCELL Sverige', report:'Isolera med ansvar', name:'Erik Holmvall', title:'vd',
         insights:['1 kg cellulosa tar bort 1,42 kg CO₂ ur atmosfären','Tillverkningen kräver 92 % mindre energi än EPS','30 cm cellulosa skyddar huset i 90 minuter vid brand','Isoleringen sjunker inte ihop – ser ut som ny efter 30 år','Uttjänt isolering kan bli gödning för nya träd'].join('\n'),
         topics:['Var i klimatkalkylen cellulosan gör störst skillnad','Vad som krävs för att cellulosa ska gå från nisch till norm','Varför ”obrännbart” inte alltid är bäst vid brand'].join('\n') };
       imgs.cover = await loadImg(state.cover); imgs.face = await loadImg(state.face);
@@ -1424,7 +1425,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
   window.__studio = { renderAt:(v)=>{ playing=false; mode='film'; buildScenes(); t=v; renderAt(v); }, slide:(i)=>{ playing=false; mode='car'; buildScenes(); renderSlide(i); }, info:()=>({ duration:TOTAL, n:scenes.length }), sample:applySample };
   (async () => {
     imgs.dmLogo = await loadImg(DM_LOGO_SRC);
-    try { await Promise.all(['700 40px "DM Sans"','400 40px "DM Sans"','400 40px "Noto Serif"','500 40px "Noto Serif"','600 40px "Noto Serif"','italic 400 40px "Noto Serif"','400 40px Inter','600 40px Inter','700 40px Inter','800 40px Archivo'].map(f => document.fonts.load(f))); } catch(e) {}
+    try { await Promise.all(['700 40px "DM Sans"','400 40px "DM Sans"','400 40px "Noto Serif"','500 40px "Noto Serif"','600 40px "Noto Serif"','italic 400 40px "Noto Serif"','400 40px Inter','600 40px Inter','700 40px Inter','700 40px Inter'].map(f => document.fonts.load(f))); } catch(e) {}
     if (restore() && (state.name || state.shot || state.paste || state.rp.company || state.cover || state.wk.items.length || state.ar.title)) { imgs.shot = await loadImg(state.shot); imgs.face = await loadImg(state.face); imgs.cover = await loadImg(state.cover); imgs.wk = await Promise.all(state.wk.items.map(it => loadImg(it.cover))); imgs.arImg = await loadImg(state.arImg); imgs.arFace = await loadImg(state.arFace); writeForm(); report(null); buildScenes(); draw(); }
     else { await applySample('dm'); }
     const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;

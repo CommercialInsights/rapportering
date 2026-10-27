@@ -10,6 +10,7 @@
 :root{
   --bg:#F7F6F2;--surface:#FFFFFF;--border:#E2DED7;--ink:#1C1B18;--ink-soft:#6B6860;--ink-faint:#A8A59E;
   --dm:#1a3a5c;--dm-light:#E6EFF8;--ho:#2E5D4B;--ho-light:#E5F0EC;
+  --dr:#8B1A1A;--dr-light:#F8EDED;
   --red:#B53A2F;--red-light:#FAEAE9;--green:#2E5D4B;--green-light:#E5F0EC;
   --yellow:#9A6F00;--yellow-light:#FEF7E0;
   --sans:'DM Sans',system-ui,sans-serif;
@@ -45,6 +46,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
 .sajt-opt input[value=dmkron]:checked + label .dot{background:var(--dm)}
 .sajt-opt input[value=horep]:checked + label{border-color:var(--ho);background:var(--ho-light);color:var(--ho)}
 .sajt-opt input[value=horep]:checked + label .dot{background:var(--ho)}
+.sajt-opt input[value=dr3]:checked + label{border-color:var(--dr);background:var(--dr-light);color:var(--dr)}
+.sajt-opt input[value=dr3]:checked + label .dot{background:var(--dr)}
 
 /* Skribent */
 .skribent-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
@@ -146,6 +149,10 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
         <input type="radio" name="sajt" id="sajtHOrep" value="horep" onchange="onParse()">
         <label for="sajtHOrep"><span class="dot"></span>HO – Reportage</label>
       </div>
+      <div class="sajt-opt">
+        <input type="radio" name="sajt" id="sajtDR3" value="dr3" onchange="onParse()">
+        <label for="sajtDR3"><span class="dot"></span>DR – Tre snabba</label>
+      </div>
     </div>
     <div class="err-msg" id="err-sajt">Välj sajt</div>
   </div>
@@ -177,11 +184,22 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
     <div class="err-msg" id="err-skribent">Välj eller ange skribent</div>
   </div>
 
+  <!-- DR app-lösenord (visas bara för dr3) -->
+  <div class="field" id="drPassFalt" style="display:none">
+    <label>DR – Applicationspassword <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--ink-faint)">(skapa i WP under Publiceringsverktyget)</span></label>
+    <input type="password" id="drPass" placeholder="xxxx xxxx xxxx xxxx xxxx xxxx"
+      style="width:100%;padding:10px 12px;font-size:14px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink);font-family:var(--sans)"
+      oninput="SITES.dr3.pass=this.value">
+  </div>
+
   <!-- Tagghint -->
   <div class="hint">
-    <strong>Taggar:</strong><br>
+    <strong>Taggar (artikel/krönika/reportage):</strong><br>
     <code>[RUBRIK]</code> <code>[INGRESS]</code> <code>[BRODTEXT]</code> <code>[UTDRAG]</code> <code>[BILD]</code> filnamn.jpg <code>[BILDTEXT]</code> bildtext<br>
     <code>[SKRIBENT]</code> <code>[KATEGORI]</code> <code>[FOKUSKW]</code> <code>[META]</code> <code>[OG_RUBRIK]</code> <code>[OG_BESKRIVNING]</code><br>
+    <strong>Taggar (DR – Tre snabba):</strong><br>
+    <code>[RUBRIK]</code> <code>[NAMN]</code> <code>[TITEL]</code> <code>[BOLAG]</code> <code>[RAPPORT_ID]</code> <code>[BILD]</code> <code>[BILDTEXT]</code><br>
+    <code>[FRAGA_1]</code> <code>[SVAR_1]</code> <code>[FRAGA_2]</code> <code>[SVAR_2]</code> <code>[FRAGA_3]</code> <code>[SVAR_3]</code><br>
     <strong>Flera artiklar:</strong> separera med <code>---</code> på egen rad
   </div>
 
@@ -238,8 +256,10 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
 // Author IDs per sajt (skribentnamn lowercase → dm_author post ID)
 // HO: Mikael=30355, Johan=30263, Kalle=okänt (null)
 // DM: Mikael=30165, Kalle=37570, Johan=okänt (null)
+// DR: author IDs okända ännu – null tills vidare
 const HO_AUTHORS = {'johan svedberg':30263,'johan':30263,'mikael stange':30355,'mikael':30355,'kalle dixelius':null,'kalle':null};
 const DM_AUTHORS = {'johan svedberg':null,'johan':null,'mikael stange':30165,'mikael':30165,'kalle dixelius':37570,'kalle':37570};
+const DR_AUTHORS = {'johan svedberg':null,'johan':null,'mikael stange':null,'mikael':null,'kalle dixelius':null,'kalle':null};
 
 const SITES = {
   ho:{
@@ -298,6 +318,15 @@ const SITES = {
     label:'HO – Reportage',
     editBase:'https://hallbaromstallning.se/wp-admin/post.php?action=edit&post=',
   },
+  dr3:{
+    url:'https://dagensrapport.se/wp-json/wp/v2/tre-snabba',
+    mediaUrl:'https://dagensrapport.se/wp-json/wp/v2/media',
+    apiBase:'https://dagensrapport.se/wp-json/wp/v2',
+    user:'Publiceringsverktyget', pass:'16Y7 hrZa f48G vlW0 IHeR zgOV',
+    authors: DR_AUTHORS,
+    label:'DR – Tre snabba',
+    editBase:'https://dagensrapport.se/wp-admin/post.php?action=edit&post=',
+  },
 };
 
 let uploadedFiles = {};
@@ -344,7 +373,7 @@ function renderFileList() {
 }
 
 function parseTagged(raw) {
-  const tags = ['RUBRIK','INGRESS','BRODTEXT','UTDRAG','BILD','BILDTEXT','BILDBESKRIVNING','BILD_ALT','BILD_TITLE','SKRIBENT','KATEGORI','FOKUSKW','META','OG_RUBRIK','OG_BESKRIVNING'];
+  const tags = ['RUBRIK','INGRESS','BRODTEXT','UTDRAG','BILD','BILDTEXT','BILDBESKRIVNING','BILD_ALT','BILD_TITLE','SKRIBENT','KATEGORI','FOKUSKW','META','OG_RUBRIK','OG_BESKRIVNING','NAMN','TITEL','BOLAG','RAPPORT_ID','FRAGA_1','FRAGA_2','FRAGA_3','SVAR_1','SVAR_2','SVAR_3'];
   const result = {};
   const allTags = new RegExp('\\[(' + tags.join('|') + ')\\]\\s*', 'g');
   const parts = raw.split(allTags);
@@ -366,6 +395,8 @@ function onParse() {
   const sajt = document.querySelector('input[name=sajt]:checked')?.value;
   const articles = parseAll();
   renderFileList();
+  // Visa DR-lösenordsfält bara för dr3
+  document.getElementById('drPassFalt').style.display = (sajt === 'dr3') ? 'block' : 'none';
 
   const container = document.getElementById('articlesPreview');
   if (!articles.length || !sajt) { container.innerHTML=''; return; }
@@ -373,7 +404,16 @@ function onParse() {
   container.innerHTML = articles.map((a, i) => {
     const bildNavn = normFilename(a.BILD);
     const bildOk = bildNavn && uploadedFiles[bildNavn];
-    const fields = [
+    const fields = sajt === 'dr3' ? [
+      {l:'Rubrik', v:a.RUBRIK},
+      {l:'Namn', v:a.NAMN},
+      {l:'Titel', v:a.TITEL},
+      {l:'Bolag', v:a.BOLAG},
+      {l:'Fråga 1', v:a.FRAGA_1},
+      {l:'Svar 1', v:a.SVAR_1 ? a.SVAR_1.substring(0,80)+'…' : null},
+      {l:'Fråga 2', v:a.FRAGA_2},
+      {l:'Fråga 3', v:a.FRAGA_3},
+    ] : [
       {l:'Rubrik', v:a.RUBRIK},
       {l:'Ingress', v:a.INGRESS},
       {l:'Brödtext', v:a.BRODTEXT ? a.BRODTEXT.substring(0,100)+'…' : null},
@@ -499,14 +539,47 @@ async function publishOne(article, site, index, skribentOverride) {
     }
   }
 
-  // Steg 2: Skapa inlägg
+  // Steg 2: DR Tre snabba — hämta/skapa bolag-taxonomi
+  let bolagTermIds = [];
+  if (site === 'dr3' && article.BOLAG) {
+    setCard(index, 'running',
+      `<span class="spinner"></span> Artikel ${index+1} — Hämtar bolag-taxonomi…`,
+      '');
+    try {
+      // Sök efter befintligt bolag-term
+      const bolagSearch = await fetch(
+        `${s.apiBase}/bolag?search=${encodeURIComponent(article.BOLAG)}&per_page=5`,
+        { headers }
+      );
+      const bolagData = await bolagSearch.json();
+      const existing = Array.isArray(bolagData)
+        ? bolagData.find(t => t.name.toLowerCase() === article.BOLAG.toLowerCase())
+        : null;
+      if (existing) {
+        bolagTermIds = [existing.id];
+      } else {
+        // Skapa nytt bolag-term
+        const newBolag = await fetch(`${s.apiBase}/bolag`, {
+          method: 'POST',
+          headers: { ...headers, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: article.BOLAG }),
+        });
+        if (newBolag.ok) {
+          const newBolagData = await newBolag.json();
+          bolagTermIds = [newBolagData.id];
+        }
+      }
+    } catch(e) { console.warn('Bolag-taxonomi misslyckades:', e); }
+  }
+
+  // Steg 3: Skapa inlägg
   setCard(index, 'running',
     `<span class="spinner"></span> Artikel ${index+1} — Skapar inlägg…`,
     '');
 
   const skribentNamn = skribentOverride || article.SKRIBENT || '';
   const authorId = s.authors[skribentNamn.toLowerCase()] ?? null;
-  const isTreSnabba = site === 'ho3' || site === 'dm3';
+  const isTreSnabba = site === 'ho3' || site === 'dm3' || site === 'dr3';
   const content = isTreSnabba ? buildHtmlTreSnabba(article.BRODTEXT) : buildHtml(article.BRODTEXT);
   // DM Tre snabba: rubrik ska börja med "Med " inte "Tre snabba med "
   let title = article.RUBRIK || '';
@@ -530,14 +603,31 @@ async function publishOne(article, site, index, skribentOverride) {
   if (article.UTDRAG) body.excerpt = article.UTDRAG;
   else if (article.INGRESS) body.excerpt = article.INGRESS;
 
-  const meta = {};
-  if (article.FOKUSKW)       meta['_yoast_wpseo_focuskw']               = article.FOKUSKW;
-  if (article.META)          meta['_yoast_wpseo_metadesc']              = article.META;
-  if (article.OG_RUBRIK)     meta['_yoast_wpseo_opengraph-title']       = article.OG_RUBRIK;
-  if (article.OG_RUBRIK)     meta['_yoast_wpseo_opengraph_title']       = article.OG_RUBRIK;
-  if (article.OG_BESKRIVNING)meta['_yoast_wpseo_opengraph-description'] = article.OG_BESKRIVNING;
-  if (article.OG_BESKRIVNING)meta['_yoast_wpseo_opengraph_description'] = article.OG_BESKRIVNING;
-  if (Object.keys(meta).length) body.meta = meta;
+  if (site === 'dr3') {
+    // DR Tre snabba: meta-fält för frågor/svar/namn/titel + bolag-taxonomi
+    const meta = {};
+    if (article.NAMN)      meta['dr_fragor_namn']  = article.NAMN;
+    if (article.TITEL)     meta['dr_fragor_titel'] = article.TITEL;
+    if (article.FRAGA_1)   meta['dr_fraga_1']      = article.FRAGA_1;
+    if (article.FRAGA_2)   meta['dr_fraga_2']      = article.FRAGA_2;
+    if (article.FRAGA_3)   meta['dr_fraga_3']      = article.FRAGA_3;
+    if (article.SVAR_1)    meta['dr_svar_1']       = article.SVAR_1;
+    if (article.SVAR_2)    meta['dr_svar_2']       = article.SVAR_2;
+    if (article.SVAR_3)    meta['dr_svar_3']       = article.SVAR_3;
+    if (article.RAPPORT_ID)meta['dr_rapport_id']   = article.RAPPORT_ID;
+    if (Object.keys(meta).length) body.meta = meta;
+    if (bolagTermIds.length) body.bolag = bolagTermIds;
+  } else {
+    // Yoast SEO (ej DR)
+    const meta = {};
+    if (article.FOKUSKW)       meta['_yoast_wpseo_focuskw']               = article.FOKUSKW;
+    if (article.META)          meta['_yoast_wpseo_metadesc']              = article.META;
+    if (article.OG_RUBRIK)     meta['_yoast_wpseo_opengraph-title']       = article.OG_RUBRIK;
+    if (article.OG_RUBRIK)     meta['_yoast_wpseo_opengraph_title']       = article.OG_RUBRIK;
+    if (article.OG_BESKRIVNING)meta['_yoast_wpseo_opengraph-description'] = article.OG_BESKRIVNING;
+    if (article.OG_BESKRIVNING)meta['_yoast_wpseo_opengraph_description'] = article.OG_BESKRIVNING;
+    if (Object.keys(meta).length) body.meta = meta;
+  }
   if (mediaId) body.featured_media = mediaId;
 
   const postRes = await fetch(s.url, {

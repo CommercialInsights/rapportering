@@ -184,14 +184,6 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
     <div class="err-msg" id="err-skribent">Välj eller ange skribent</div>
   </div>
 
-  <!-- DR app-lösenord (visas bara för dr3) -->
-  <div class="field" id="drPassFalt" style="display:none">
-    <label>DR – Applicationspassword <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--ink-faint)">(skapa i WP under Publiceringsverktyget)</span></label>
-    <input type="password" id="drPass" placeholder="xxxx xxxx xxxx xxxx xxxx xxxx"
-      style="width:100%;padding:10px 12px;font-size:14px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink);font-family:var(--sans)"
-      oninput="SITES.dr3.pass=this.value">
-  </div>
-
   <!-- Tagghint -->
   <div class="hint">
     <strong>Taggar (artikel/krönika/reportage):</strong><br>
@@ -395,8 +387,6 @@ function onParse() {
   const sajt = document.querySelector('input[name=sajt]:checked')?.value;
   const articles = parseAll();
   renderFileList();
-  // Visa DR-lösenordsfält bara för dr3
-  document.getElementById('drPassFalt').style.display = (sajt === 'dr3') ? 'block' : 'none';
 
   const container = document.getElementById('articlesPreview');
   if (!articles.length || !sajt) { container.innerHTML=''; return; }

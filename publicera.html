@@ -108,6 +108,22 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
 .prog-link:hover{text-decoration:underline}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--yellow);border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
+.login-box{border:1px solid var(--border);border-radius:10px;margin-bottom:20px;background:var(--bg)}
+.login-box summary{padding:12px 16px;cursor:pointer;font-size:13px;font-weight:600}
+.login-box .login-body{padding:0 16px 16px;display:grid;gap:10px}
+.login-row{display:grid;grid-template-columns:150px 1fr 1fr;gap:8px;align-items:center;font-size:13px}
+.login-row input,.login-kod input{padding:8px 10px;border:1px solid var(--border);border-radius:6px;font:inherit;font-size:13px;width:100%;box-sizing:border-box}
+.login-kod{display:grid;grid-template-columns:150px 1fr;gap:8px;align-items:center;font-size:13px}
+.login-note{font-size:12px;color:var(--ink-soft);line-height:1.5}
+.login-ok{color:var(--ho);font-weight:600}
+.login-btn{justify-self:start;padding:8px 14px;border:0;border-radius:6px;background:#111;color:#fff;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.kontakt-box{margin-top:10px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:12.5px;line-height:1.5}
+.mejl-box{margin-top:10px;border:1px solid var(--border);border-radius:8px;background:#fff;padding:10px 12px}
+.mejl-box textarea{width:100%;box-sizing:border-box;min-height:150px;border:1px solid var(--border);border-radius:6px;padding:8px;font:inherit;font-size:13px;line-height:1.5}
+.mejl-knappar{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.mejl-knappar button,.mejl-knappar a{padding:7px 12px;border-radius:6px;border:1px solid #111;background:#fff;color:#111;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;text-decoration:none}
+.mejl-knappar .prim{background:#111;color:#fff}
+@media (max-width:640px){.login-row,.login-kod{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -116,6 +132,19 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
     <h1>Publicera artikel</h1>
     <p>Klistra in en eller flera artiklar från ChatGPT, ladda upp bilderna och publicera direkt till WordPress. Separera flera artiklar med <strong>---</strong> på en egen rad.</p>
   </div>
+
+  <!-- Inloggning: sparas bara i den här webbläsaren, aldrig i koden -->
+  <details class="login-box" id="loginBox">
+    <summary id="loginSummary">Inloggning</summary>
+    <div class="login-body">
+      <p class="login-note">Applikationslösenorden sparas bara i den här webbläsaren. Skapa dem i WordPress under Användare → (kontot) → Applikationslösenord. Fyll bara i de sajter du publicerar till.</p>
+      <div class="login-row"><span>Hållbar Omställning</span><input id="cred-ho-user" placeholder="Användarnamn" autocomplete="off"><input id="cred-ho-pass" type="password" placeholder="Applikationslösenord" autocomplete="new-password"></div>
+      <div class="login-row"><span>Dagens Medarbetare</span><input id="cred-dm-user" placeholder="Användarnamn" autocomplete="off"><input id="cred-dm-pass" type="password" placeholder="Applikationslösenord" autocomplete="new-password"></div>
+      <div class="login-row"><span>Dagens Rapport</span><input id="cred-dr-user" placeholder="Användarnamn" autocomplete="off"><input id="cred-dr-pass" type="password" placeholder="Applikationslösenord" autocomplete="new-password"></div>
+      <div class="login-kod"><span>Teamkod (Redaktion + leads)</span><input id="cred-kod" type="password" placeholder="Samma kod som i Redaktion + leads" autocomplete="off"></div>
+      <button type="button" class="login-btn" onclick="saveCreds()">Spara inloggning</button>
+    </div>
+  </details>
 
   <!-- Sajt -->
   <div class="field">
@@ -192,6 +221,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
     <strong>Taggar (DR – Tre snabba):</strong><br>
     <code>[RUBRIK]</code> <code>[NAMN]</code> <code>[TITEL]</code> <code>[BOLAG]</code> <code>[RAPPORT_ID]</code> <code>[BILD]</code> <code>[BILDTEXT]</code><br>
     <code>[FRAGA_1]</code> <code>[SVAR_1]</code> <code>[FRAGA_2]</code> <code>[SVAR_2]</code> <code>[FRAGA_3]</code> <code>[SVAR_3]</code><br>
+    <strong>Kontaktperson (alla format):</strong> <code>[KONTAKT]</code> klistra in kontaktuppgifterna från pressmeddelandet (namn, roll, telefon, mejl). Flera kontakter: lämna en tom rad emellan. Alla artiklar läggs in i Redaktion + leads.<br>
     <strong>Flera artiklar:</strong> separera med <code>---</code> på egen rad
   </div>
 
@@ -244,6 +274,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
   <div class="progress-section" id="progressSection"></div>
 </div>
 
+<script src="https://commercialinsights.github.io/redaktion/kontakt-parser.js"></script>
 <script>
 // Author IDs per sajt (skribentnamn lowercase → dm_author post ID)
 // HO: Mikael=30355, Johan=30263, Kalle=okänt (null)
@@ -255,66 +286,66 @@ const DR_AUTHORS = {'johan svedberg':null,'johan':null,'mikael stange':null,'mik
 
 const SITES = {
   ho:{
+    cred:'ho', pub:'HO', format:'Nyhet',
     url:'https://hallbaromstallning.se/wp-json/wp/v2/posts',
     mediaUrl:'https://hallbaromstallning.se/wp-json/wp/v2/media',
-    user:'application', pass:'IzvY d11c q7Nf UNfm xAnv 76y9',
     authors: HO_AUTHORS,
     label:'Hållbar Omställning',
     editBase:'https://hallbaromstallning.se/wp-admin/post.php?action=edit&post=',
   },
   dm:{
+    cred:'dm', pub:'DM', format:'Nyhet',
     url:'https://dagensmedarbetare.se/wp-json/wp/v2/posts',
     mediaUrl:'https://dagensmedarbetare.se/wp-json/wp/v2/media',
-    user:'application', pass:'4vC6 IHpQ XXja jK6v DzBw 7aAj',
     authors: DM_AUTHORS,
     label:'Dagens Medarbetare',
     editBase:'https://dagensmedarbetare.se/wp-admin/post.php?action=edit&post=',
   },
   ho3:{
+    cred:'ho', pub:'HO', format:'Tre snabba',
     url:'https://hallbaromstallning.se/wp-json/wp/v2/featured-article',
     mediaUrl:'https://hallbaromstallning.se/wp-json/wp/v2/media',
-    user:'application', pass:'IzvY d11c q7Nf UNfm xAnv 76y9',
     authors: HO_AUTHORS,
     label:'HO – Tre snabba',
     editBase:'https://hallbaromstallning.se/wp-admin/post.php?action=edit&post=',
   },
   dm3:{
+    cred:'dm', pub:'DM', format:'Tre snabba',
     url:'https://dagensmedarbetare.se/wp-json/wp/v2/quick-three',
     mediaUrl:'https://dagensmedarbetare.se/wp-json/wp/v2/media',
-    user:'application', pass:'4vC6 IHpQ XXja jK6v DzBw 7aAj',
     authors: DM_AUTHORS,
     label:'DM – Tre snabba',
     editBase:'https://dagensmedarbetare.se/wp-admin/post.php?action=edit&post=',
   },
   hokron:{
+    cred:'ho', pub:'HO', format:'Annat',
     url:'https://hallbaromstallning.se/wp-json/wp/v2/chronicle',
     mediaUrl:'https://hallbaromstallning.se/wp-json/wp/v2/media',
-    user:'application', pass:'IzvY d11c q7Nf UNfm xAnv 76y9',
     authors: HO_AUTHORS,
     label:'HO – Krönika',
     editBase:'https://hallbaromstallning.se/wp-admin/post.php?action=edit&post=',
   },
   dmkron:{
+    cred:'dm', pub:'DM', format:'Annat',
     url:'https://dagensmedarbetare.se/wp-json/wp/v2/featured-article',
     mediaUrl:'https://dagensmedarbetare.se/wp-json/wp/v2/media',
-    user:'application', pass:'4vC6 IHpQ XXja jK6v DzBw 7aAj',
     authors: DM_AUTHORS,
     label:'DM – Krönika',
     editBase:'https://dagensmedarbetare.se/wp-admin/post.php?action=edit&post=',
   },
   horep:{
+    cred:'ho', pub:'HO', format:'Reportage',
     url:'https://hallbaromstallning.se/wp-json/wp/v2/report',
     mediaUrl:'https://hallbaromstallning.se/wp-json/wp/v2/media',
-    user:'application', pass:'IzvY d11c q7Nf UNfm xAnv 76y9',
     authors: HO_AUTHORS,
     label:'HO – Reportage',
     editBase:'https://hallbaromstallning.se/wp-admin/post.php?action=edit&post=',
   },
   dr3:{
+    cred:'dr', pub:'DR', format:'Tre snabba',
     url:'https://dagensrapport.se/wp-json/wp/v2/tre-snabba',
     mediaUrl:'https://dagensrapport.se/wp-json/wp/v2/media',
     apiBase:'https://dagensrapport.se/wp-json/wp/v2',
-    user:'mikaelstange', pass:'EkfE 9TRo 76Hm m174 V1UE dcUU',
     authors: DR_AUTHORS,
     label:'DR – Tre snabba',
     editBase:'https://dagensrapport.se/wp-admin/post.php?action=edit&post=',
@@ -322,6 +353,112 @@ const SITES = {
 };
 
 let uploadedFiles = {};
+
+/* ---------- Inloggning (localStorage, aldrig i koden) ---------- */
+const REDAKTION_URL = 'https://script.google.com/macros/s/AKfycbwWrUI3n6-lybzHv_d5rStkyjcplXP1bP1NZ0F2un5Zpdp5nFnnYaVRRXiMDrRGpkXHKw/exec';
+const LS_KOD = 'redaktion.kod'; // samma nyckel som Redaktion + leads, så koden delas
+function lsGet(k){ try { return localStorage.getItem(k) || ''; } catch(e) { return ''; } }
+function lsSet(k,v){ try { if (v) localStorage.setItem(k,v); else localStorage.removeItem(k); } catch(e) {} }
+function getCreds(c){ return { user: lsGet('publicera.'+c+'.user'), pass: lsGet('publicera.'+c+'.pass') }; }
+function loadCreds(){
+  ['ho','dm','dr'].forEach(c => {
+    const cr = getCreds(c);
+    document.getElementById('cred-'+c+'-user').value = cr.user;
+    document.getElementById('cred-'+c+'-pass').value = cr.pass;
+  });
+  document.getElementById('cred-kod').value = lsGet(LS_KOD);
+  const klara = ['ho','dm','dr'].filter(c => getCreds(c).user && getCreds(c).pass).map(c => c.toUpperCase());
+  document.getElementById('loginSummary').innerHTML = klara.length
+    ? 'Inloggning <span class="login-ok">✓ ' + klara.join(', ') + (lsGet(LS_KOD) ? ' · Redaktion + leads' : '') + '</span>'
+    : 'Inloggning – <span style="color:var(--red)">fyll i innan du publicerar</span>';
+  if (!klara.length) document.getElementById('loginBox').open = true;
+}
+function saveCreds(){
+  ['ho','dm','dr'].forEach(c => {
+    lsSet('publicera.'+c+'.user', document.getElementById('cred-'+c+'-user').value.trim());
+    lsSet('publicera.'+c+'.pass', document.getElementById('cred-'+c+'-pass').value.trim());
+  });
+  lsSet(LS_KOD, document.getElementById('cred-kod').value.trim());
+  loadCreds();
+  document.getElementById('loginBox').open = false;
+}
+document.addEventListener('DOMContentLoaded', loadCreds);
+
+/* ---------- Kontaktpersoner ---------- */
+function parseKontakter(text){
+  if (!text || typeof window.tolkaKontakt !== 'function') return [];
+  return text.split(/\n\s*\n/).map(b => b.trim()).filter(Boolean)
+    .map(b => window.tolkaKontakt(b))
+    .filter(k => k.namn || k.mejl || k.telefon);
+}
+function esc(t){ return String(t||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function kontaktHtml(list){
+  if (!list.length) return '';
+  return '<div class="kontakt-box"><strong>Kontakt → Redaktion + leads</strong><br>' + list.map(k =>
+    [k.namn, k.roll, k.foretag, k.telefon, k.mejl].filter(Boolean).map(esc).join(' · ')).join('<br>') + '</div>';
+}
+
+/* ---------- Redaktion + leads ---------- */
+const ANSVARIGA = ['Mikael','Kalle','Johan'];
+async function sendToRedaktion(article, site, post, skribent){
+  const kod = lsGet(LS_KOD);
+  if (!kod) return { ok:false, fel:'Ingen teamkod ifylld under Inloggning – artikeln lades inte in i Redaktion + leads.' };
+  const s = SITES[site];
+  const kontakter = parseKontakter(article.KONTAKT);
+  const fornamn = (skribent || '').split(' ')[0];
+  const rad = {
+    publikation: s.pub,
+    rubrik: article.RUBRIK || '',
+    format: s.format,
+    ansvarig: ANSVARIGA.includes(fornamn) ? fornamn : '',
+    typ: 'Redaktionell',
+    status: 'Granskas',
+    url: post.link || '',
+    bolag: article.BOLAG || (kontakter[0] && kontakter[0].foretag) || '',
+    kontakter: kontakter,
+  };
+  try {
+    const res = await fetch(REDAKTION_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action:'add', kod, tabell:'artiklar', rad }),
+      redirect: 'follow',
+    });
+    const svar = await res.json();
+    if (!svar.ok) return { ok:false, fel: svar.fel === 'fel_kod' ? 'Fel teamkod – artikeln lades inte in i Redaktion + leads.' : (svar.fel || 'Okänt fel') };
+    return { ok:true, kontakter };
+  } catch(e) {
+    return { ok:false, fel:'Kunde inte nå Redaktion + leads: ' + e.message };
+  }
+}
+
+/* ---------- Färdig text till kontaktpersonen ---------- */
+const MEJLMALL = 'Hej {fornamn}!\n\nTack för pressmeddelandet. Vi har skrivit en artikel utifrån det på {publikation}:\n{url}\n\nDela den gärna i era kanaler, och säg till om något ser konstigt ut.\n\nVänliga hälsningar\n{avsandare}';
+const PUBNAMN = { HO:'Hållbar Omställning', DM:'Dagens Medarbetare', DR:'Dagens Rapport' };
+let mejlData = {};
+function mejlHtml(i, article, site, post, kontakter, skribent){
+  const k = kontakter[0] || {};
+  const fornamn = (k.namn || '').split(' ')[0];
+  const text = MEJLMALL
+    .replace('{fornamn}', fornamn || '')
+    .replace('Hej !', 'Hej!')
+    .replace('{publikation}', PUBNAMN[SITES[site].pub] || '')
+    .replace('{url}', post.link || '')
+    .replace('{avsandare}', (skribent || '').split(' ')[0]);
+  mejlData[i] = { till: kontakter.map(x => x.mejl).filter(Boolean).join(','), amne: 'Vi skrev om er nyhet: ' + (article.RUBRIK || '') };
+  return `<div class="mejl-box"><strong style="font-size:12.5px">Text till kontaktpersonen</strong> <span style="font-size:12px;color:var(--ink-soft)">– skicka när artikeln är publicerad</span>
+    <textarea id="mejltext-${i}">${esc(text)}</textarea>
+    <div class="mejl-knappar"><button type="button" class="prim" onclick="kopieraMejl(${i}, this)">Kopiera text</button><button type="button" onclick="oppnaMejl(${i})">Öppna i mejl</button></div></div>`;
+}
+function kopieraMejl(i, btn){
+  const t = document.getElementById('mejltext-'+i).value;
+  navigator.clipboard.writeText(t).then(() => { btn.textContent = '✓ Kopierad'; setTimeout(() => btn.textContent = 'Kopiera text', 1800); });
+}
+function oppnaMejl(i){
+  const d = mejlData[i] || {};
+  const t = document.getElementById('mejltext-'+i).value;
+  location.href = 'mailto:' + encodeURIComponent(d.till || '').replace(/%2C/g, ',') + '?subject=' + encodeURIComponent(d.amne || '') + '&body=' + encodeURIComponent(t);
+}
 
 function normFilename(name) {
   return (name||'').toLowerCase()
@@ -365,7 +502,7 @@ function renderFileList() {
 }
 
 function parseTagged(raw) {
-  const tags = ['RUBRIK','INGRESS','BRODTEXT','UTDRAG','BILD','BILDTEXT','BILDBESKRIVNING','BILD_ALT','BILD_TITLE','SKRIBENT','KATEGORI','FOKUSKW','META','OG_RUBRIK','OG_BESKRIVNING','NAMN','TITEL','BOLAG','RAPPORT_ID','FRAGA_1','FRAGA_2','FRAGA_3','SVAR_1','SVAR_2','SVAR_3'];
+  const tags = ['RUBRIK','INGRESS','BRODTEXT','UTDRAG','BILD','BILDTEXT','BILDBESKRIVNING','BILD_ALT','BILD_TITLE','SKRIBENT','KATEGORI','FOKUSKW','META','OG_RUBRIK','OG_BESKRIVNING','NAMN','TITEL','BOLAG','RAPPORT_ID','FRAGA_1','FRAGA_2','FRAGA_3','SVAR_1','SVAR_2','SVAR_3','KONTAKT'];
   const result = {};
   const allTags = new RegExp('\\[(' + tags.join('|') + ')\\]\\s*', 'g');
   const parts = raw.split(allTags);
@@ -419,6 +556,7 @@ function onParse() {
       </div>
       <div class="art-card-body">
         ${fields.map(f=>`<div class="pfield"><div class="plabel">${f.l}</div><div class="pval${f.v?'':' missing'}">${f.v||'saknas'}</div></div>`).join('')}
+        ${kontaktHtml(parseKontakter(a.KONTAKT))}
       </div>
     </div>`;
   }).join('');
@@ -473,7 +611,9 @@ function setCard(id, state, title, body) {
 
 async function publishOne(article, site, index, skribentOverride) {
   const s = SITES[site];
-  const creds = btoa(`${s.user}:${s.pass}`);
+  const cr = getCreds(s.cred);
+  if (!cr.user || !cr.pass) throw new Error('Inloggning till ' + s.label + ' saknas. Fyll i den under Inloggning högst upp.');
+  const creds = btoa(unescape(encodeURIComponent(`${cr.user}:${cr.pass}`)));
   const headers = { 'Authorization': `Basic ${creds}` };
 
   // Steg 1: Bilduppladdning (om bild finns)
@@ -670,9 +810,19 @@ async function publishAll() {
     try {
       const post = await publishOne(articles[i], sajt, i, skribent);
       const editUrl = s.editBase + post.id;
+      const skrib = skribent || articles[i].SKRIBENT || '';
+      let extra = '';
+      const r = await sendToRedaktion(articles[i], sajt, post, skrib);
+      if (r.ok) {
+        extra = `<br>✓ Inlagd i Redaktion + leads (status Granskas)` + (r.kontakter.length
+          ? ` med ${r.kontakter.length} kontakt${r.kontakter.length > 1 ? 'er' : ''}.` + mejlHtml(i, articles[i], sajt, post, r.kontakter, skrib)
+          : ' – utan kontaktperson. Lägg till [KONTAKT] nästa gång, eller fyll i den i Redaktion + leads.');
+      } else {
+        extra = `<br><span style="color:var(--red)">⚠ ${esc(r.fel)}</span>`;
+      }
       setCard(i, 'ok',
         `✓ Artikel ${i+1} — ${(articles[i].RUBRIK||'').substring(0,50)}`,
-        `Sparat som utkast. <a class="prog-link" href="${editUrl}" target="_blank">Öppna i WordPress →</a>`
+        `Sparat som utkast. <a class="prog-link" href="${editUrl}" target="_blank">Öppna i WordPress →</a>${extra}`
       );
     } catch(e) {
       allOk = false;

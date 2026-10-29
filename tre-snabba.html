@@ -265,7 +265,7 @@ canvas#cv{width:100%;height:100%;display:block}
         <textarea id="paste" rows="11" placeholder="Markera hela Tre snabba på sajten, kopiera och klistra in här"></textarea>
       </label>
       <p class="found" id="found" role="status"></p>
-      <label class="f"><span>Vad berättar personen om? <small>en punkt per rad, max tre – fylls i från svaren, skriv gärna om</small></span>
+      <label class="f"><span>Vad berättar personen om? <small>en punkt per rad, max tre, högst 60 tecken – fylls i från svaren och ska alltid kortas och skrivas om till rubriker</small></span>
         <textarea id="topics" rows="4" placeholder="Skriv en punkt per rad, max tre"></textarea>
       </label>
     </fieldset>
@@ -285,7 +285,7 @@ canvas#cv{width:100%;height:100%;display:block}
       <label class="f"><span>Länktext i slutet <small>tomt = sajtens adress</small></span><input type="text" id="url" placeholder="Tomt = sajtens adress"></label>
     </fieldset>
 
-    <fieldset id="qaSet">
+    <fieldset id="qaSet" hidden>
       <legend>Tre snabba</legend>
       <p class="tip">Fylls i automatiskt från det inklistrade. Svaret avslutas med "…" för att locka till klick.</p>
     </fieldset>
@@ -499,7 +499,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
   function answerToBullet(a){
     a = (a || '').replace(/^[–-]\s*/, '').trim(); if (!a) return '';
     let t = (sentences(a)[0] || a).replace(/[.!…\s]+$/, '');
-    if (t.length > 90) { const c = t.lastIndexOf(',', 90); t = c > 40 ? t.slice(0, c) : t.slice(0, 86).replace(/\s+\S*$/, '') + '…'; }
+    if (t.length > 60) { const c = t.lastIndexOf(',', 60); t = c > 25 ? t.slice(0, c) : t.slice(0, 58).replace(/\s+\S*$/, '') + '…'; }
     return t[0].toUpperCase() + t.slice(1);
   }
   function parseArticle(raw){

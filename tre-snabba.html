@@ -674,17 +674,17 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     list.push({ dur:4.4, draw:(l) => {
       ctx.fillStyle = B.cover(ctx); ctx.fillRect(0,0,W,H);
       if (coverDark) { const g = ctx.createRadialGradient(W/2, H, 0, W/2, H, 700); g.addColorStop(0,'rgba(14,159,95,.25)'); g.addColorStop(1,'rgba(14,159,95,0)'); ctx.fillStyle = g; ctx.fillRect(0,0,W,H); }
-      drawHeader(B, l, 'Tre snabba', coverDark);
+      drawHeader(B, 99, 'Tre snabba', coverDark);
       const avail = H - 160 - 52 - 120 - TL.h - SL.h - 40;
-      const pf = prog(l, .25, 1.15), y = -1300 * (1 - bounce(pf)), rot = -6 * (1 - eo(pf)), s = 1 + .02*eo(prog(l,1.6,2.6));
+      const pf = prog(l, 0, 1.0), y = -1300 * (1 - bounce(pf)), rot = -6 * (1 - eo(pf)), s = 1 + .02*eo(prog(l,1.6,2.6));
       const bh = Math.min(avail, 700);
       ctx.save(); ctx.translate(W/2, 154 + bh); ctx.rotate(rot*Math.PI/180); ctx.scale(s, s); ctx.translate(-W/2, -(154 + bh) + y);
       const realH = drawBrowser(B, PAD, 154, W - 2*PAD, bh, imgs.shot, false); ctx.restore();
       const ty = 154 + Math.min(realH, bh) + 60;
-      const pt = eo(prog(l, 1.2, .6));
+      const pt = eo(prog(l, .6, .55));
       ctx.save(); ctx.beginPath(); ctx.rect(0, ty - 10, W, TL.h + 20); ctx.clip();
       drawWords(TL, PAD, ty + (1-pt)*TL.h, cInk); ctx.restore();
-      const ps = eo(prog(l, 1.5, .5)); drawWords(SL, PAD, ty + TL.h + 20 + (1-ps)*16, cMute, () => ps);
+      const ps = eo(prog(l, .85, .5)); drawWords(SL, PAD, ty + TL.h + 20 + (1-ps)*16, cMute, () => ps);
       drawFooter(B, 0, N, mode, coverDark ? '#FFFFFF' : B.ink, () => { setFont(B.body(22)); ctx.fillStyle = cMute; ctx.fillText(B.host, PAD, H - 84); });
     }});
 
@@ -833,12 +833,12 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     const panelTop = 140, panelH = 1350 - 140 - (TL.h + 130) - 150, cw = 430, ch = coverH(imgs.cover, cw, panelH - 90);
     list.push({ dur:3.9, draw:(l) => {
       ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0,0,W,H);
-      drHeader(l, TY.l, TY.c, '#111111', false);
-      const pp = eo(prog(l, .1, .6)); ctx.save(); ctx.globalAlpha = pp; drPanel(PAD, panelTop, W - 2*PAD, panelH, TY.t); ctx.restore();
-      drDropCover(imgs.cover, (W - cw)/2, panelTop + (panelH - ch)/2, cw, ch, l, .25, drawCover);
+      drHeader(99, TY.l, TY.c, '#111111', false);
+      const pp = 1; ctx.save(); ctx.globalAlpha = pp; drPanel(PAD, panelTop, W - 2*PAD, panelH, TY.t); ctx.restore();
+      drDropCover(imgs.cover, (W - cw)/2, panelTop + (panelH - ch)/2, cw, ch, l, 0, drawCover);
       const ty = panelTop + panelH + 40;
-      const pc = eo(prog(l, 1.15, .45)); ctx.save(); ctx.globalAlpha = pc; textAt(company, IF(600, 30), PAD, ty + (1-pc)*14, '#555555'); ctx.restore();
-      const pt = eo(prog(l, 1.3, .55)); ctx.save(); ctx.beginPath(); ctx.rect(0, ty + 46, W, TL.h + 16); ctx.clip(); drawWords(TL, PAD, ty + 50 + (1-pt)*TL.h, '#111111'); ctx.restore();
+      const pc = eo(prog(l, .5, .45)); ctx.save(); ctx.globalAlpha = pc; textAt(company, IF(600, 30), PAD, ty + (1-pc)*14, '#555555'); ctx.restore();
+      const pt = eo(prog(l, .65, .55)); ctx.save(); ctx.beginPath(); ctx.rect(0, ty + 46, W, TL.h + 16); ctx.clip(); drawWords(TL, PAD, ty + 50 + (1-pt)*TL.h, '#111111'); ctx.restore();
       drawFooter(B, 0, N, mode, '#111111', () => drFoot('#8A8A8A'));
     }});
     // 2. rapportinsikter
@@ -981,18 +981,18 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
       const i0 = idx++;
       list.push({ dur:4.6, draw:(l) => {
         ctx.fillStyle = B.q(ctx); ctx.fillRect(0,0,W,H);
-        drawHeader(B, l, label, false);
-        const pw = eio(prog(l, .15, .9));
+        drawHeader(B, 99, label, false);
+        const pw = eio(prog(l, 0, .6));
         ctx.save(); ctx.beginPath(); ctx.rect(0, 150, W, imgH * pw); ctx.clip();
         if (imgs.arImg) { const z = 1.1 - .1*eo(prog(l, 0, 5)); ctx.translate(W/2, 150 + imgH/2); ctx.scale(z, z); ctx.translate(-W/2, -(150 + imgH/2)); cover(imgs.arImg, 0, 150, W, imgH, .78); }
         else { ctx.fillStyle = B === BRANDS.ho ? '#DCDCDC' : '#EADCF0'; ctx.fillRect(0, 150, W, imgH); setFont('600 28px Inter, Arial, sans-serif'); ctx.fillStyle = '#8A8A90'; ctx.textAlign = 'center'; ctx.fillText('Lägg in en bild från reportaget', W/2, 150 + imgH/2 - 14); ctx.textAlign = 'left'; }
         ctx.restore();
         let y = 150 + imgH + 56;
         const qstep = .7 / Math.max(1, TL.words.length);
-        drawWords(TL, PAD, y, B.ink, k => eo(prog(l, .9 + k*qstep, .4)));
+        drawWords(TL, PAD, y, B.ink, k => eo(prog(l, .45 + k*qstep, .4)));
         y += TL.h + 18;
-        if (LL) { const pl = eo(prog(l, 1.7, .5)); drawWords(LL, PAD, y + (1-pl)*12, B.mute, () => pl); y += LL.h + 18; }
-        if (byline) { const pb = eo(prog(l, 2.0, .5)); ctx.save(); ctx.globalAlpha = pb; setFont(B.body(22, 600)); ctx.fillStyle = B.ink; ctx.textBaseline = 'top'; ctx.fillText(byline, PAD, y + 6); ctx.restore(); }
+        if (LL) { const pl = eo(prog(l, 1.1, .5)); drawWords(LL, PAD, y + (1-pl)*12, B.mute, () => pl); y += LL.h + 18; }
+        if (byline) { const pb = eo(prog(l, 1.3, .5)); ctx.save(); ctx.globalAlpha = pb; setFont(B.body(22, 600)); ctx.fillStyle = B.ink; ctx.textBaseline = 'top'; ctx.fillText(byline, PAD, y + 6); ctx.restore(); }
         drawFooter(B, i0, N, mode, B.ink, host);
       }});
       // R2: tre saker
@@ -1039,15 +1039,15 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
         ctx.fillStyle = B.cover(ctx); ctx.fillRect(0,0,W,H);
         if (B.coverDark) { const g = ctx.createRadialGradient(W/2, H, 0, W/2, H, 700); g.addColorStop(0,'rgba(14,159,95,.25)'); g.addColorStop(1,'rgba(14,159,95,0)'); ctx.fillStyle = g; ctx.fillRect(0,0,W,H); }
         const dark = !!B.coverDark, ink = dark ? '#FFFFFF' : B.ink, mute = dark ? '#BDBDBD' : B.mute;
-        drawHeader(B, l, label, dark);
+        drawHeader(B, 99, label, dark);
         portrait(PAD, 190, 150, l, imgs.arFace);
         const tx = PAD + 300 + 44;
-        const pn = eo(prog(l, .4, .6)); ctx.save(); ctx.beginPath(); ctx.rect(tx, 250, W - tx, nS*1.25); ctx.clip();
+        const pn = eo(prog(l, .2, .5)); ctx.save(); ctx.beginPath(); ctx.rect(tx, 250, W - tx, nS*1.25); ctx.clip();
         setFont(B.head(nS), B.headLS, nS); ctx.fillStyle = ink; ctx.textBaseline = 'top'; ctx.fillText(qName || 'Krönikörens namn', tx, 262 + (1-pn)*nS*1.2); ctx.restore();
         const pt = eo(prog(l, .7, .5)); ctx.save(); ctx.globalAlpha = pt; setFont(B.body(26)); ctx.fillStyle = mute; ctx.fillText(qTitle, tx, 262 + nS*1.2 + 8); ctx.restore();
         const y = 600, qstep = .9 / Math.max(1, TL.words.length);
-        drawWords(TL, PAD, y, ink, k => eo(prog(l, 1.0 + k*qstep, .4)));
-        if (lead) { const LL = layout(lead, B.body(30), W - 2*PAD, 30*1.35); const pl = eo(prog(l, 2.0, .5)); if (y + TL.h + 30 + LL.h < H - 150) drawWords(LL, PAD, y + TL.h + 30 + (1-pl)*12, mute, () => pl); }
+        drawWords(TL, PAD, y, ink, k => eo(prog(l, .55 + k*qstep, .4)));
+        if (lead) { const LL = layout(lead, B.body(30), W - 2*PAD, 30*1.35); const pl = eo(prog(l, 1.3, .5)); if (y + TL.h + 30 + LL.h < H - 150) drawWords(LL, PAD, y + TL.h + 30 + (1-pl)*12, mute, () => pl); }
         drawFooter(B, i0, N, mode, ink, () => { setFont(B.body(22)); ctx.fillStyle = mute; ctx.textBaseline = 'top'; ctx.fillText(B.host, PAD, H - 96); });
       }});
     }
@@ -1139,11 +1139,11 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     const hs = fitFont(head, s => IF(700, s), 112, 56, W - 2*PAD, -.04);
     list.push({ dur: 2.6 + n*.18 + 1.6, draw:(l) => {
       ctx.fillStyle = '#F4F4F2'; ctx.fillRect(0,0,W,H);
-      drHeader(l, 'Vecka ' + week, '#111111', '#FFFFFF', false);
+      drHeader(99, 'Vecka ' + week, '#111111', '#FFFFFF', false);
       ITEMS.forEach((it, i) => {
         const c = i % cols, r = Math.floor(i / cols);
         const h = Math.min(cwF * ar(i), chMax), x = gx0 + c*(cwF + gap), y = gy0 + r*(chMax + gap) + (chMax - h);
-        const pf = prog(l, .4 + i*.18, 1.0); if (pf <= 0) return;
+        const pf = prog(l, i*.15, 1.0); if (pf <= 0) return;
         const dy = -1300 * (1 - bounce(pf)), rot = ((i*37) % 9 - 4) * (1 - .6*eo(pf));
         ctx.save(); ctx.translate(x + cwF/2, y + h + dy); ctx.rotate(rot*Math.PI/180); ctx.translate(-(x + cwF/2), -(y + h));
         ctx.save(); ctx.shadowColor = 'rgba(17,17,17,.22)'; ctx.shadowBlur = 36; ctx.shadowOffsetY = 16; ctx.fillStyle = '#fff'; ctx.fillRect(x, y, cwF, h); ctx.restore();
@@ -1151,10 +1151,10 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
         const TYi = drType(it.type); ctx.fillStyle = TYi.c; ctx.beginPath(); ctx.arc(x + cwF - 18, y + 18, 10, 0, Math.PI*2); ctx.fill();
         ctx.restore();
       });
-      const ty = 900, pt = eo(prog(l, 1.3 + n*.1, .7));
+      const ty = 900, pt = eo(prog(l, .7 + n*.1, .7));
       const words = head.split(' '), L = layout(head, IF(700, hs), W - 2*PAD, hs*1.0, -.04);
       ctx.save(); ctx.beginPath(); ctx.rect(0, ty - 10, W, L.h + 20); ctx.clip(); drawWords(L, PAD, ty + (1-pt)*L.h, '#111111'); ctx.restore();
-      const ps = eo(prog(l, 1.7 + n*.1, .5)); ctx.save(); ctx.globalAlpha = ps;
+      const ps = eo(prog(l, 1.0 + n*.1, .5)); ctx.save(); ctx.globalAlpha = ps;
       textAt('Vecka ' + week + ' · ' + n + (n === 1 ? ' ny rapport' : ' nya rapporter'), IF(500, 30), PAD, ty + L.h + 20, '#555555'); ctx.restore();
       drawFooter(B, 0, N, mode, '#111111', () => drFoot('#8A8A8A'));
     }});
@@ -1436,7 +1436,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     };
     recording = true; setBusy(true); $('rec').hidden = false; status('Spelar in filmen i realtid (' + Math.round(TOTAL) + ' s). Låt fliken vara öppen.');
     recorder.start(250);
-    setTimeout(play, 120);
+    requestAnimationFrame(() => play());
   });
   function stopRec(){ setTimeout(() => { try { recorder && recorder.state !== 'inactive' && recorder.stop(); } catch(e) {} }, 250); }
   function setBusy(b){ ['dlFilm','dlPdf','mFilm','mCar','play','exDm','exHo','exRp','exWk','exAr','clear'].forEach(id => $(id).disabled = b); scrub.disabled = b; }

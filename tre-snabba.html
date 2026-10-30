@@ -280,7 +280,7 @@ canvas#cv{width:100%;height:100%;display:block}
         <label class="f"><span>Titel och bolag</span><input type="text" id="role" placeholder="Titel och bolag"></label>
       </div>
       <label class="f"><span>Kort bolagsnamn <small>visas under porträttet</small></span><input type="text" id="roleShort" placeholder="Bolagets namn"></label>
-      <label class="f"><span>Rubrik på omslaget <small>tomt = "Tre snabba med" + namn</small></span><input type="text" id="title" placeholder="Tomt = Tre snabba med + namn"></label>
+      <label class="f"><span>Rubrik på omslaget <small>tomt = "Tre snabba med" + namn, titel och bolag</small></span><input type="text" id="title" placeholder="Tomt = Tre snabba med + namn"></label>
       <label class="f"><span>Underrubrik på omslaget <small>tomt = titel och bolag</small></span><input type="text" id="lead" placeholder="Tomt = titel och bolag"></label>
       <label class="f"><span>Länktext i slutet <small>tomt = sajtens adress</small></span><input type="text" id="url" placeholder="Tomt = sajtens adress"></label>
     </fieldset>
@@ -659,7 +659,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     if (state.kind === 'artikel') return buildArtikel();
     const B = BRANDS[state.site];
     const name = state.name || 'Namn Efternamn';
-    const title = state.title || ('Tre snabba med ' + name);
+    const title = state.title || ('Tre snabba med ' + name + (state.role ? ', ' + state.role : ''));
     const sub = state.lead || state.role;
     const qa = state.qa.filter(([q,a]) => q || a);
     const QA = qa.length ? qa : [['Frågan skrivs här','Början av svaret']];

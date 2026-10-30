@@ -438,8 +438,10 @@
   }
 
   // Set today as default start date
-  document.getElementById('f-fran').valueAsDate = new Date();
+  { const f = document.getElementById('f-fran'); if (f) f.valueAsDate = new Date(); }
 
+</script>
+<script>
 // Textinstruktioner: varje fil i mappen instruktioner/ visas automatiskt
 (async function(){
   const grid = document.getElementById('instrGrid');

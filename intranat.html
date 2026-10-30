@@ -315,6 +315,14 @@
     </div>
   </div>
 
+  <!-- Textinstruktioner: listas automatiskt från mappen instruktioner/ i GitHub -->
+  <div>
+    <div class="section-label">Textinstruktioner</div>
+    <div class="tool-grid" id="instrGrid">
+      <div class="tool-card"><div class="tool-desc">Hämtar instruktionerna…</div></div>
+    </div>
+  </div>
+
   <!-- PR-bearbetning per kund -->
   <div>
     <div class="section-label">PR-bearbetning</div>
@@ -431,6 +439,32 @@
 
   // Set today as default start date
   document.getElementById('f-fran').valueAsDate = new Date();
+
+// Textinstruktioner: varje fil i mappen instruktioner/ visas automatiskt
+(async function(){
+  const grid = document.getElementById('instrGrid');
+  const REPO = 'commercialinsights/rapportering', DIR = 'instruktioner';
+  const LABELS = {
+    'Textinstruktion-WordPress.txt': ['📝', 'Texttvätt och WordPress', 'Format för artiklar, Tre snabba och krönikor på HO, DM och DR'],
+    'LinkedIn-filmer.md': ['🎬', 'LinkedIn-filmer', 'Skrivmanual för LinkedIn-studion: film, karusell och inläggstext']
+  };
+  const esc = t => String(t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  try {
+    const files = (await fetch('https://api.github.com/repos/' + REPO + '/contents/' + DIR).then(r => r.json())).filter(f => f.type === 'file');
+    if (!files.length) { grid.innerHTML = '<div class="tool-card"><div class="tool-desc">Inga instruktioner ännu.</div></div>'; return; }
+    const dates = await Promise.all(files.map(f => fetch('https://api.github.com/repos/' + REPO + '/commits?per_page=1&path=' + encodeURIComponent(f.path)).then(r => r.json()).then(c => c[0] ? new Date(c[0].commit.committer.date) : null).catch(() => null)));
+    grid.innerHTML = files.map((f, i) => {
+      const [icon, name, desc] = LABELS[f.name] || ['📄', f.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' '), ''];
+      const d = dates[i] ? 'Uppdaterad ' + dates[i].toLocaleDateString('sv-SE') : '';
+      return '<a href="' + esc(f.download_url) + '" download="' + esc(f.name) + '" class="tool-card">'
+        + '<div class="tool-icon">' + icon + '</div><div class="tool-name">' + esc(name) + '</div>'
+        + '<div class="tool-desc">' + esc(desc) + (desc && d ? '<br>' : '') + esc(d) + '</div>'
+        + '<div class="tool-desc">⬇ Ladda ner ' + esc(f.name) + '</div></a>';
+    }).join('');
+  } catch (e) {
+    grid.innerHTML = '<a class="tool-card" href="https://github.com/' + REPO + '/tree/main/' + DIR + '" target="_blank"><div class="tool-name">Öppna mappen</div><div class="tool-desc">Kunde inte hämta listan just nu</div></a>';
+  }
+})();
 </script>
 </body>
 </html>

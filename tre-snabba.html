@@ -719,7 +719,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
         if (RL) { const pr = eo(prog(l,.75,.5)); drawWords(RL, tx, nameY + nSize*1.12 + 12 + (1-pr)*14, B.mute, () => pr); }
         // [Förnamn] berättar bland annat om
         const leadTxt = '…berättar bland annat om:', lSize = fitFont(leadTxt, s => B.head(s), 46, 30, W - 2*PAD, B.headLS);
-        const plead = eo(prog(l,1.2,.5)); ctx.save(); ctx.globalAlpha = plead; setFont(B.head(lSize), B.headLS, lSize); ctx.fillStyle = B.ink; ctx.textBaseline = 'top'; ctx.fillText(leadTxt, PAD, 500 + (1-plead)*16); ctx.restore();
+        const plead = eo(prog(l,1.2,.5)); ctx.save(); ctx.globalAlpha = plead; setFont(B.head(lSize), B.headLS, lSize); ctx.fillStyle = B.ink; ctx.textBaseline = 'top'; ctx.fillText(leadTxt, PAD, 500 + (1-plead)*16); const uw = ctx.measureText(leadTxt).width; ctx.fillStyle = B.acc; ctx.fillRect(PAD, 500 + lSize*1.2 + (1-plead)*16, uw * eo(prog(l,1.45,.6)), 6); ctx.restore();
         let y = 590;
         QLs.forEach((L, i) => {
           const rowH = Math.max(84, L.h) + 56, a0 = Q0 + i*QSTEP, p = eo(prog(l, a0, .6));

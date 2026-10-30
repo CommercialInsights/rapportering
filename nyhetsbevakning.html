@@ -16,8 +16,8 @@
     --ink-faint: #999890;
     --green: #2d6a4f;
     --green-light: #e8f4ee;
-    --andreas: #1a3a4a;
-    --andreas-light: #e6f1fb;
+    --johan: #1a3a4a;
+    --johan-light: #e6f1fb;
     --bernardo: #4a1a3a;
     --bernardo-light: #f5e6f1;
   }
@@ -62,9 +62,9 @@
     transition: all 0.15s;
   }
 
-  .tab-btn.active-andreas {
-    background: var(--andreas-light);
-    color: var(--andreas);
+  .tab-btn.active-johan {
+    background: var(--johan-light);
+    color: var(--johan);
     border-color: #b8d4e8;
   }
 
@@ -74,7 +74,7 @@
     border-color: #e8b8d4;
   }
 
-  .tab-btn:not(.active-andreas):not(.active-bernardo):hover {
+  .tab-btn:not(.active-johan):not(.active-bernardo):hover {
     background: var(--bg);
     border-color: var(--border);
   }
@@ -384,7 +384,7 @@
     font-weight: 500;
   }
 
-  .badge-andreas { background: var(--andreas-light); color: var(--andreas); }
+  .badge-johan { background: var(--johan-light); color: var(--johan); }
   .badge-bernardo { background: var(--bernardo-light); color: var(--bernardo); }
 </style>
 </head>
@@ -393,22 +393,22 @@
 <header>
   <span class="logo">Commercial Insights — Nyhetsbevakning</span>
   <div class="tab-nav">
-    <button class="tab-btn active-andreas" onclick="switchTab('andreas')">Andreas</button>
+    <button class="tab-btn active-johan" onclick="switchTab('johan')">Johan</button>
     <button class="tab-btn" onclick="switchTab('bernardo')">Bernardo</button>
   </div>
 </header>
 
 <div class="main">
 
-  <!-- Andreas -->
-  <div class="tab-content active" id="tab-andreas">
+  <!-- Johan -->
+  <div class="tab-content active" id="tab-johan">
     <div class="section-head">
       <div>
-        <div class="section-title">Dina kunder <span class="user-badge badge-andreas">Andreas</span></div>
+        <div class="section-title">Dina kunder <span class="user-badge badge-johan">Johan</span></div>
         <div class="section-sub">Klicka på Besök för att kolla om det kommit något nytt — rapportera om du hittar en nyhet.</div>
       </div>
     </div>
-    <div class="customer-grid" id="grid-andreas"></div>
+    <div class="customer-grid" id="grid-johan"></div>
 
     <div class="report-panel">
       <div class="report-title">Rapportera en nyhet</div>
@@ -426,7 +426,7 @@
         <label>Kort kommentar (valfritt)</label>
         <textarea id="a-kommentar" placeholder="Vad handlar artikeln om?"></textarea>
       </div>
-      <button class="btn-send" onclick="sendReport('andreas')">Skicka till Mikael</button>
+      <button class="btn-send" onclick="sendReport('johan')">Skicka till Mikael</button>
       <div class="success-msg" id="a-success">✓ Skickat! Mikael får ett mejl nu.</div>
     </div>
 
@@ -441,7 +441,7 @@
           <label>Nyhetssida (URL)</label>
           <input type="url" id="a-add-url" placeholder="https://foretag.se/nyheter">
         </div>
-        <button class="btn-add" onclick="addCustomer('andreas')">Lägg till</button>
+        <button class="btn-add" onclick="addCustomer('johan')">Lägg till</button>
       </div>
     </div>
   </div>
@@ -518,7 +518,7 @@
 const MIKAEL_EMAIL = 'mikael@commercialinsights.se';
 
 const DEFAULT_CUSTOMERS = {
-  andreas: [
+  johan: [
     { name: 'Wallenius SOL', url: 'https://wallenius-sol.com/en/news' },
     { name: 'Foria', url: 'https://www.foria.se' },
     { name: 'Volvo Penta', url: 'https://www.volvopenta.com/en/pressroom/' },
@@ -552,10 +552,11 @@ const DEFAULT_CUSTOMERS = {
 };
 
 let editTarget = null;
-let currentTab = 'andreas';
+let currentTab = 'johan';
 
 function loadCustomers(user) {
   const key = 'ci_customers_' + user;
+  if (user === 'johan' && !localStorage.getItem(key) && localStorage.getItem('ci_customers_andreas')) localStorage.setItem(key, localStorage.getItem('ci_customers_andreas'));
   const stored = localStorage.getItem(key);
   if (stored) return JSON.parse(stored);
   const defaults = DEFAULT_CUSTOMERS[user];
@@ -570,7 +571,7 @@ function saveCustomers(user, list) {
 function renderGrid(user) {
   const customers = loadCustomers(user);
   const grid = document.getElementById('grid-' + user);
-  const select = document.getElementById((user === 'andreas' ? 'a' : 'b') + '-kund');
+  const select = document.getElementById((user === 'johan' ? 'a' : 'b') + '-kund');
 
   grid.innerHTML = '';
   select.innerHTML = '<option value="">Välj kund...</option>';
@@ -595,8 +596,8 @@ function renderGrid(user) {
 }
 
 function addCustomer(user) {
-  const nameEl = document.getElementById((user === 'andreas' ? 'a' : 'b') + '-add-name');
-  const urlEl = document.getElementById((user === 'andreas' ? 'a' : 'b') + '-add-url');
+  const nameEl = document.getElementById((user === 'johan' ? 'a' : 'b') + '-add-name');
+  const urlEl = document.getElementById((user === 'johan' ? 'a' : 'b') + '-add-url');
   const name = nameEl.value.trim();
   const url = urlEl.value.trim();
   if (!name || !url) return;
@@ -643,11 +644,11 @@ function closeModal() {
 }
 
 function sendReport(user) {
-  const prefix = user === 'andreas' ? 'a' : 'b';
+  const prefix = user === 'johan' ? 'a' : 'b';
   const kund = document.getElementById(prefix + '-kund').value;
   const urlRaw = document.getElementById(prefix + '-url').value.trim();
   const kommentar = document.getElementById(prefix + '-kommentar').value.trim();
-  const saljare = user === 'andreas' ? 'Andreas' : 'Bernardo';
+  const saljare = user === 'johan' ? 'Johan' : 'Bernardo';
 
   if (!kund || !urlRaw) {
     alert('Välj kund och klistra in minst en URL.');
@@ -679,7 +680,7 @@ function switchTab(user) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   document.getElementById('tab-' + user).classList.add('active');
   document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.classList.remove('active-andreas', 'active-bernardo');
+    btn.classList.remove('active-johan', 'active-bernardo');
   });
   const activeBtn = [...document.querySelectorAll('.tab-btn')].find(b => b.textContent.toLowerCase() === user);
   if (activeBtn) activeBtn.classList.add('active-' + user);
@@ -691,10 +692,10 @@ const userParam = urlParams.get('user');
 if (userParam === 'bernardo') {
   switchTab('bernardo');
 } else {
-  switchTab('andreas');
+  switchTab('johan');
 }
 
-renderGrid('andreas');
+renderGrid('johan');
 renderGrid('bernardo');
 </script>
 </body>

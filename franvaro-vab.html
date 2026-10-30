@@ -16,8 +16,8 @@
     --ink-faint: #999890;
     --green: #2d6a4f;
     --green-light: #e8f4ee;
-    --andreas: #1a3a4a;
-    --andreas-light: #e6f1fb;
+    --johan: #1a3a4a;
+    --johan-light: #e6f1fb;
     --bernardo: #4a1a3a;
     --bernardo-light: #f5e6f1;
     --mikael: #2d6a4f;
@@ -59,7 +59,7 @@
     margin-bottom: 8px;
   }
 
-  .badge-andreas { background: var(--andreas-light); color: var(--andreas); }
+  .badge-johan { background: var(--johan-light); color: var(--johan); }
   .badge-bernardo { background: var(--bernardo-light); color: var(--bernardo); }
   .badge-mikael { background: var(--mikael-light); color: var(--mikael); }
   .badge-default { background: var(--bg); color: var(--ink-soft); border: 1px solid var(--border); }
@@ -326,7 +326,7 @@
     <label>Ditt namn</label>
     <select id="namn" onchange="onNamnChange()">
       <option value="">Välj ditt namn...</option>
-      <option value="Andreas">Andreas</option>
+      <option value="Johan">Johan</option>
       <option value="Bernardo">Bernardo</option>
       <option value="Johan">Johan</option>
       <option value="Mikael">Mikael</option>
@@ -491,7 +491,7 @@ function onNamnChange() {
   const badge = document.getElementById('nameBadge');
   badge.textContent = namn || '—';
   badge.className = 'name-badge';
-  if (namn === 'Andreas') badge.classList.add('badge-andreas');
+  if (namn === 'Johan') badge.classList.add('badge-johan');
   else if (namn === 'Bernardo') badge.classList.add('badge-bernardo');
   else if (namn === 'Mikael') badge.classList.add('badge-mikael');
   else badge.classList.add('badge-default');

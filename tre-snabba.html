@@ -122,6 +122,20 @@ canvas#cv{width:100%;height:100%;display:block}
   </header>
 
   <form id="form" autocomplete="off" onsubmit="return false">
+    <fieldset id="aiSet">
+      <legend>Klistra in från ChatGPT eller Claude</legend>
+      <label class="f"><span>Svaret med taggar <small>[FORMAT], [SAJT], [PUNKT_1] … – format, sajt och alla fält fylls i automatiskt</small></span>
+        <textarea id="ai" rows="6" placeholder="Be ChatGPT eller Claude följa manualen LinkedIn-filmer och klistra in hela svaret här"></textarea>
+      </label>
+      <p class="found" id="aiFound" role="status"></p>
+      <div id="aiPostBox" hidden>
+        <label class="f"><span>Inläggstext till LinkedIn <small>kopiera och klistra in i inlägget</small></span>
+          <textarea id="aiPost" rows="7" readonly></textarea>
+        </label>
+        <div class="acts"><button class="btn" type="button" id="aiCopy">Kopiera inläggstexten</button></div>
+      </div>
+    </fieldset>
+
     <fieldset>
       <legend>Vad vill du göra?</legend>
       <div class="seg" role="group" aria-label="Typ" id="kindSeg">
@@ -535,6 +549,79 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     state.qa = [0,1,2].map(k => r.qa[k] || ['','']); state.topics = r.topics;
     writeFields(); report(r);
   }
+  // ---------- Inklistrat svar från ChatGPT/Claude (taggar) ----------
+  const AI_TAGS = ['FORMAT','SAJT','RUBRIK','INGRESS','BYLINE','NAMN','TITEL','BOLAG','RAPPORTTYP','RAPPORT','VECKA','CITAT','INLAGG',
+    'PUNKT_1','PUNKT_2','PUNKT_3','INSIKT_1','INSIKT_2','INSIKT_3','INSIKT_4','INSIKT_5',
+    'FRAGA_1','FRAGA_2','FRAGA_3','SVAR_1','SVAR_2','SVAR_3',
+    'RAPPORT_1','RAPPORT_2','RAPPORT_3','RAPPORT_4','RAPPORT_5','RAPPORT_6','RAPPORT_7','RAPPORT_8'];
+  function parseAI(raw){
+    const clean = (raw || '').replace(/\r/g, '').replace(/\*\*/g, '').replace(/^#{1,6}\s+/gm, '');
+    const parts = clean.split(new RegExp('\\[(' + AI_TAGS.join('|') + ')\\]', 'g'));
+    const T = {};
+    for (let i = 1; i < parts.length; i += 2) {
+      const v = (parts[i+1] || '').replace(/^\s*[:–-]?\s*/, '').trim();
+      if (v) T[parts[i]] = v;
+    }
+    return T;
+  }
+  const AI_TYPES = { kvartal:/kvartal|delår|halvår|bokslut|q[1-4]/i, ar:/^år|årsr|årsred|annual/i, hallbarhet:/hållbar|hallbar/i };
+  function rtypeOf(x){ x = (x || '').trim(); for (const [k, re] of Object.entries(AI_TYPES)) if (re.test(x)) return k; return x ? 'ovrigt' : ''; }
+  function applyAI(){
+    const raw = $('ai').value, f = $('aiFound'), T = parseAI(raw);
+    $('aiPostBox').hidden = !T.INLAGG; $('aiPost').value = T.INLAGG || '';
+    if (!raw.trim()) { f.textContent = ''; f.className = 'found'; return; }
+    if (!Object.keys(T).length) { f.className = 'found warn'; f.textContent = 'Hittade inga taggar. Svaret ska innehålla [FORMAT], [SAJT], [PUNKT_1] osv. Be AI:n följa manualen LinkedIn-filmer.'; return; }
+    const fmt = (T.FORMAT || '').toLowerCase();
+    let kind = state.kind, arType = state.ar.type;
+    if (/vecka/.test(fmt)) kind = 'veckan';
+    else if (/snabba/.test(fmt)) kind = 'snabba';
+    else if (/kr[öo]nika/.test(fmt)) { kind = 'artikel'; arType = 'kronika'; }
+    else if (/reportage/.test(fmt)) { kind = 'artikel'; arType = 'reportage'; }
+    else if (/rapport/.test(fmt)) kind = 'rapport';
+    const sj = (T.SAJT || '').toLowerCase();
+    if (/^dm|medarbetare/.test(sj)) state.site = 'dm'; else if (/^ho|hållbar|hallbar/.test(sj)) state.site = 'ho'; else if (/^dr|rapport/.test(sj)) state.site = 'dr';
+    const unq = x => (x || '').replace(/^["”“»«']+|["”“»«']+$/g, '').trim();
+    const P = [1,2,3].map(n => T['PUNKT_' + n]).filter(Boolean);
+    if (kind === 'snabba') {
+      state.name = T.NAMN || ''; state.roleShort = T.BOLAG || '';
+      state.role = T.TITEL ? T.TITEL + (T.BOLAG ? ' på ' + T.BOLAG : '') : (T.BOLAG || '');
+      state.lead = T.INGRESS || ''; state.title = ''; state.url = ''; state.topics = P.join('\n');
+      if (T.FRAGA_1 || T.SVAR_1) state.qa = [1,2,3].map(n => [T['FRAGA_' + n] || '', shortAns(T['SVAR_' + n] || '')]);
+      state.paste = '';
+    } else if (kind === 'rapport') {
+      Object.assign(state.rp, { company: T.BOLAG || '', report: T.RAPPORT || '', insights: [1,2,3,4,5].map(n => T['INSIKT_' + n]).filter(Boolean).join('\n'),
+        name: T.NAMN || '', title: T.TITEL || '', topics: P.join('\n'), withTS: !!(T.NAMN || P.length) });
+      const rt = rtypeOf(T.RAPPORTTYP); if (rt) state.rp.rtype = rt;
+    } else if (kind === 'veckan') {
+      if (T.VECKA) state.wk.week = T.VECKA.replace(/\D/g, '');
+      for (let n = 1; n <= 8; n++) {
+        const v = T['RAPPORT_' + n]; if (!v) continue;
+        const [company, report, typ, insight] = v.split('|').map(x => (x || '').trim());
+        if (!state.wk.items[n-1]) { state.wk.items[n-1] = { cover: null, company: '', report: '', insight: '', type: 'kvartal' }; imgs.wk[n-1] = null; }
+        Object.assign(state.wk.items[n-1], { company: company || '', report: report || '', insight: insight || '', type: rtypeOf(typ) || state.wk.items[n-1].type });
+      }
+      state.wk.items = state.wk.items.filter(Boolean); imgs.wk = imgs.wk.slice(0, state.wk.items.length);
+    } else if (kind === 'artikel') {
+      state.ar.type = arType;
+      Object.assign(state.ar, { title: T.RUBRIK || '', lead: T.INGRESS || '', byline: T.BYLINE || '', points: P.join('\n'), quote: unq(T.CITAT),
+        qName: T.NAMN || '', qTitle: [T.TITEL, T.BOLAG].filter(Boolean).join(', '), url: '' });
+    }
+    state.kind = kind;
+    writeForm(); save(); t = 0; slide = 0; buildScenes(); draw(); if (mode === 'film') play();
+    const names = { snabba:'Tre snabba', rapport:'Rapportfilm', veckan:'Veckans rapporter', artikel: arType === 'kronika' ? 'Krönika' : 'Reportage' };
+    const siteN = { dm:'Dagens Medarbetare', ho:'Hållbar Omställning', dr:'Dagensrapport' };
+    const warn = [];
+    const saknas = Object.entries(T).filter(([k, v]) => /\[?SAKNAS\]?/i.test(v)).map(([k]) => k);
+    if (saknas.length) warn.push('[SAKNAS] i ' + saknas.join(', ') + ' – fyll i eller töm innan du exporterar');
+    const lang = Object.entries(T).filter(([k, v]) => /^(PUNKT|INSIKT)_/.test(k) && v.length > 60).map(([k]) => k);
+    if (lang.length) warn.push(lang.join(', ') + ' är längre än 60 tecken');
+    if (kind === 'veckan' && state.wk.items.some(it => !it.cover)) warn.push('lägg till omslagen för rapporterna');
+    f.className = 'found' + (warn.length ? ' warn' : '');
+    f.innerHTML = 'Ifyllt: <b>' + names[kind] + '</b>' + (kind === 'snabba' || kind === 'artikel' ? ' · <b>' + siteN[state.site] + '</b>' : '') +
+      (warn.length ? '. Obs: ' + escapeHtml(warn.join('; ')) + '.' : '. Lägg till bilderna och kontrollera texterna.');
+  }
+  $('ai').addEventListener('input', () => { clearTimeout(applyAI.t); applyAI.t = setTimeout(applyAI, 250); });
+  $('aiCopy').addEventListener('click', e => { navigator.clipboard.writeText($('aiPost').value).then(() => { e.target.textContent = '✓ Kopierad'; setTimeout(() => e.target.textContent = 'Kopiera inläggstexten', 1800); }); });
   function report(r){
     const f = $('found'); if (!state.paste.trim()) { f.textContent = ''; f.className = 'found'; return; }
     const n = r ? r.qa.length : state.qa.filter(x => x[0]).length;
@@ -1374,6 +1461,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
   $('exWk').addEventListener('click', () => applySample('wk'));
   $('exAr').addEventListener('click', () => applySample('ar'));
   $('clear').addEventListener('click', async () => {
+    $('ai').value = ''; applyAI();
     if (state.kind === 'artikel') { state.ar = { type: state.ar.type, title:'', lead:'', byline:'', points:'', quote:'', qName:'', qTitle:'', url:'' }; state.arImg = null; state.arFace = null; imgs.arImg = null; imgs.arFace = null; writeForm(); save(); t = 0; buildScenes(); draw(); return; }
     if (state.kind === 'veckan') { state.wk = { week:'', title:'', items:[] }; imgs.wk = []; writeForm(); save(); t = 0; buildScenes(); draw(); return; }
     if (state.kind === 'rapport') { state.rp = { company:'', report:'', insights:'', name:'', title:'', topics:'', withTS:true }; state.cover = null; imgs.cover = null; state.face = null; imgs.face = null; setThumb('thFace', null); writeForm(); save(); t = 0; buildScenes(); draw(); return; }

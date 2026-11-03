@@ -1,6 +1,6 @@
 # LinkedIn-filmer – skrivmanual
 
-Instruktion för dig som AI-assistent (Claude, ChatGPT) när du skriver texter till Commercial Insights LinkedIn-filmer och karuseller. Texterna läggs in i LinkedIn-studion (commercialinsights.github.io/rapportering/tre-snabba.html), som gör film (MP4, 4:5) och karusell (PDF).
+Instruktion för dig som AI-assistent (Claude, ChatGPT) när du skriver texter till Commercial Insights LinkedIn-filmer och karuseller. Texterna läggs in i LinkedIn-studion (commercialinsights.github.io/rapportering/tre-snabba.html), som gör film (MP4, 4:5) och karusell (PDF). **Svara alltid i taggformatet i avsnitt 9**, så att svaret kan klistras rakt in i studion.
 
 Sajter: **Dagens Medarbetare** (DagensMedarbetare.se), **Hållbar Omställning** (HallbarOmstallning.se) och **Dagensrapport** (DagensRapport.se).
 
@@ -178,14 +178,113 @@ Filmen har tre bilder: krönikören med rubrik, citat och "Läs hela krönikan p
 
 Klistra in källtexten (artikeln, intervjun eller rapportens sammanfattning) och skriv:
 
-> "Följ manualen LinkedIn-filmer. Format: [Tre snabba-intervju / Rapportfilm / Veckans rapporter / Reportage / Krönika]. Sajt: [DM / HO / Dagensrapport]. Ge mig fälten färdiga att klistra in i studion, plus en inläggstext."
+> "Följ manualen LinkedIn-filmer. Format: [Tre snabba / Rapportfilm / Veckans rapporter / Reportage / Krönika]. Sajt: [DM / HO / Dagensrapport]."
 
-**Svaret ska komma i den här ordningen**, så att det går att kopiera rakt in i studion:
-1. Fälten i samma ordning som i studion, ett fält per rad med fältnamn i fetstil.
-2. Punkter och insikter en per rad, utan numrering och utan punkt på slutet.
-3. Inläggstexten.
-4. Sist en rad med det som inte gick att belägga i källtexten, märkt [SAKNAS].
-
-**För Tre snabba-intervju** räcker de tre punkterna och inläggstexten, eftersom verktyget fyller i resten självt när intervjun klistras in.
+Svaret klistras in **i sin helhet** i fältet *Klistra in från ChatGPT eller Claude* högst upp i studion. Format, sajt och alla textfält fylls då i automatiskt, och inläggstexten visas med en kopieringsknapp. Bilderna läggs till för hand.
 
 **Fält märkta [SAKNAS] fylls i eller töms innan filmen exporteras.**
+
+---
+
+## 9. Svarsformat – taggar (gäller dig som AI)
+
+Svara **bara** med taggarna nedan, en tagg per rad, i den ordning de står. Ingen inledning, ingen avslutning, inga kommentarer.
+
+**Regler för taggarna:**
+- Skriv taggarna exakt som här: versaler, hakparenteser, understreck före siffran, inga å, ä eller ö. Till exempel `[PUNKT_1]`, aldrig `[Punkt 1]` eller `[PUNKT1]`.
+- Ingen fetstil, inga rubriker och inga kodblock runt svaret.
+- Texten skrivs direkt efter taggen på samma rad. Bara `[INLAGG]` får gå över flera rader och ska alltid stå sist.
+- Följ teckengränserna i avsnitt 1–5: punkter och insikter högst 60 tecken, ingress och citat högst 140 tecken.
+- Går något inte att belägga i källtexten: skriv `[SAKNAS]` som värde. Hitta aldrig på.
+- Utelämna valfria taggar som inte behövs hellre än att lämna dem tomma.
+- `[FORMAT]` är alltid ett av: Tre snabba, Rapportfilm, Veckans rapporter, Reportage, Krönika.
+- `[SAJT]` är alltid ett av: DM, HO, DR.
+
+### Tre snabba
+
+```
+[FORMAT] Tre snabba
+[SAJT] DM
+[NAMN] Förnamn Efternamn
+[TITEL] titel med liten bokstav, t.ex. kommunikationschef
+[BOLAG] Bolagets namn
+[INGRESS] Underrubrik på omslaget, en mening, högst 140 tecken
+[PUNKT_1] Första punkten efter "…berättar bland annat om:"
+[PUNKT_2] Andra punkten
+[PUNKT_3] Tredje punkten
+[FRAGA_1] Första frågan, ordagrant ur intervjun
+[SVAR_1] Början av svaret, ordagrant, en till två meningar
+[FRAGA_2] Andra frågan
+[SVAR_2] Början av svaret
+[FRAGA_3] Tredje frågan
+[SVAR_3] Början av svaret
+[INLAGG] Inläggstexten enligt avsnitt 7
+```
+
+### Rapportfilm
+
+`[NAMN]`, `[TITEL]` och `[PUNKT_1–3]` utelämnas om rapporten saknar Tre snabba.
+
+```
+[FORMAT] Rapportfilm
+[SAJT] DR
+[BOLAG] Bolagets namn
+[RAPPORT] Rapportens namn, t.ex. Delårsrapport Q3 2026
+[RAPPORTTYP] Kvartalsrapport, Årsrapport, Hållbarhetsrapport eller Övrig rapport
+[INSIKT_1] Starkaste insikten, gärna med siffra
+[INSIKT_2] …
+[INSIKT_3] …
+[INSIKT_4] …
+[INSIKT_5] …
+[NAMN] Förnamn Efternamn
+[TITEL] titel med liten bokstav, t.ex. vd
+[PUNKT_1] Vad personen berättar om
+[PUNKT_2] …
+[PUNKT_3] …
+[INLAGG] Inläggstexten
+```
+
+### Veckans rapporter
+
+En `[RAPPORT_n]`-rad per rapport, högst 8, i samma ordning som omslagen läggs in. Fälten skiljs åt med lodstreck: **Bolag | Rapport | Rapporttyp | Insikt**. Insikten får lämnas tom.
+
+```
+[FORMAT] Veckans rapporter
+[SAJT] DR
+[VECKA] 45
+[RAPPORT_1] Volvo | Delårsrapport Q3 2026 | Kvartalsrapport | Orderingången ökade 36 % till 23,2 miljarder
+[RAPPORT_2] SSAB | Hållbarhetsrapport 2025 | Hållbarhetsrapport |
+[INLAGG] Inläggstexten
+```
+
+### Reportage
+
+```
+[FORMAT] Reportage
+[SAJT] HO
+[RUBRIK] Artikelns rubrik som den står på sajten
+[INGRESS] Första meningen, högst 140 tecken
+[BYLINE] Text: Förnamn Efternamn
+[PUNKT_1] Första av tre saker från reportaget
+[PUNKT_2] …
+[PUNKT_3] …
+[CITAT] Ordagrant citat, högst 140 tecken, utan citattecken
+[NAMN] Den som säger citatet, för- och efternamn
+[TITEL] titel med liten bokstav, t.ex. vd
+[BOLAG] Bolagets namn
+[INLAGG] Inläggstexten
+```
+
+### Krönika
+
+```
+[FORMAT] Krönika
+[SAJT] DM
+[RUBRIK] Krönikans rubrik
+[INGRESS] Valfri, högst 140 tecken
+[CITAT] Den mening som bäst fångar krönikans tes, ordagrant
+[NAMN] Krönikörens för- och efternamn
+[TITEL] titel med liten bokstav
+[BOLAG] Bolagets namn
+[INLAGG] Inläggstexten
+```

@@ -473,6 +473,8 @@ function parseTagged(raw) {
   const tags = ['RUBRIK','INGRESS','BRODTEXT','UTDRAG','BILD','BILDTEXT','BILDBESKRIVNING','BILD_ALT','BILD_TITLE','SKRIBENT','KATEGORI','FOKUSKW','META','OG_RUBRIK','OG_BESKRIVNING','NAMN','TITEL','BOLAG','RAPPORT_ID','FRAGA_1','FRAGA_2','FRAGA_3','SVAR_1','SVAR_2','SVAR_3','KONTAKT'];
   const result = {};
   const allTags = new RegExp('\\[(' + tags.join('|') + ')\\]\\s*', 'g');
+  // Markdown från kopieringsknappen i ChatGPT/Claude: ta bort \ i radslut och framför tecken
+  raw = raw.replace(/\\([\\`*_{}\[\]()#+\-.!|>~,:;"'])/g, '$1').replace(/\\[ \t]*$/gm, '');
   const parts = raw.split(allTags);
   for (let i = 1; i < parts.length; i += 2) {
     const key = parts[i];

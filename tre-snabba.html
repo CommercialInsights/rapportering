@@ -555,7 +555,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     'FRAGA_1','FRAGA_2','FRAGA_3','SVAR_1','SVAR_2','SVAR_3',
     'RAPPORT_1','RAPPORT_2','RAPPORT_3','RAPPORT_4','RAPPORT_5','RAPPORT_6','RAPPORT_7','RAPPORT_8'];
   function parseAI(raw){
-    const clean = (raw || '').replace(/\r/g, '').replace(/\*\*/g, '').replace(/^#{1,6}\s+/gm, '');
+    const clean = (raw || '').replace(/\r/g, '').replace(/\\([\\`*_{}\[\]()#+\-.!|>~,:;"'])/g, '$1').replace(/\\[ \t]*$/gm, '').replace(/\*\*/g, '').replace(/^#{1,6}\s+/gm, '');
     const parts = clean.split(new RegExp('\\[(' + AI_TAGS.join('|') + ')\\]', 'g'));
     const T = {};
     for (let i = 1; i < parts.length; i += 2) {

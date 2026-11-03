@@ -628,7 +628,13 @@ async function publishOne(article, site, index, skribentOverride) {
 
   const kontakter = parseKontakter(article.KONTAKT);
   setCard(index, 'running', `<span class="spinner"></span> Artikel ${index+1} — Skapar inlägg…`, '');
-  const res = await fetch(REDAKTION_URL, {
+  // Stanna efter 2 minuter i stället för att snurra för evigt
+  const avbryt = new AbortController();
+  const timer = setTimeout(() => avbryt.abort(), 120000);
+  let res;
+  try {
+  res = await fetch(REDAKTION_URL, {
+    signal: avbryt.signal,
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify({
@@ -640,6 +646,10 @@ async function publishOne(article, site, index, skribentOverride) {
     }),
     redirect: 'follow',
   });
+  } catch(e) {
+    if (e.name === 'AbortError') throw new Error(SITES[site].label + ' svarade inte på 2 minuter. Kolla i WordPress om utkastet ändå skapades innan du försöker igen, så att det inte blir dubbletter.');
+    throw new Error('Kunde inte nå publiceringstjänsten: ' + e.message);
+  } finally { clearTimeout(timer); }
   let svar;
   try { svar = await res.json(); } catch(e) { throw new Error('Oväntat svar från servern (' + res.status + ')'); }
   if (!svar.ok) throw new Error(svar.fel === 'fel_kod' ? 'Fel teamkod.' : (svar.fel || 'Okänt fel'));

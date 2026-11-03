@@ -553,7 +553,7 @@ function buildHtml(brodtext) {
   return html.trim();
 }
 
-function buildHtmlTreSnabba(brodtext) {
+function buildHtmlTreSnabba(brodtext, site) {
   // Tre snabba: rader som börjar med "Fråga" blir bold, svarsrader blir vanliga stycken
   // "Svar:" och "Svar: " stripps bort från svarsrader
   let html = '';
@@ -561,7 +561,9 @@ function buildHtmlTreSnabba(brodtext) {
   const lines = brodtext.split(/\n/).map(l=>l.trim()).filter(Boolean);
   lines.forEach(line => {
     if (/^Fråga\s*\d+/i.test(line)) {
-      html += `<p><strong>${line}</strong></p>\n`;
+      // DM: "Fråga 1:" skrivs som "1."
+      const q = site === 'dm3' ? line.replace(/^Fråga\s*(\d+)\s*[:.–-]?\s*/i, '$1. ') : line;
+      html += `<p><strong>${q}</strong></p>\n`;
     } else {
       // Strippa "Svar:" eller "Svar: " i början
       const cleaned = line.replace(/^Svar:\s*/i, '');
@@ -587,7 +589,7 @@ async function publishOne(article, site, index, skribentOverride) {
   const skribentNamn = skribentOverride || article.SKRIBENT || '';
   const authorId = s.authors[skribentNamn.toLowerCase()] ?? null;
   const isTreSnabba = site === 'ho3' || site === 'dm3' || site === 'dr3';
-  const content = isTreSnabba ? buildHtmlTreSnabba(article.BRODTEXT) : buildHtml(article.BRODTEXT);
+  const content = isTreSnabba ? buildHtmlTreSnabba(article.BRODTEXT, site) : buildHtml(article.BRODTEXT);
   // DM Tre snabba: rubrik ska börja med "...med " inte "Tre snabba med "
   let title = article.RUBRIK || '';
   if (site === 'dm3') {

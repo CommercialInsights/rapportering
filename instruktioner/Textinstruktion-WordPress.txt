@@ -17,6 +17,8 @@ VIKTIGT OM FORMATERING
 - Separera stycken med en tom rad.
 - Om flera artiklar levereras i samma svar: separera dem med --- på en egen rad.
 - Skriv ALDRIG taggar som [BILD_ALT], [BILD_TITLE] eller [BILDBESKRIVNING] – dessa används inte.
+- Skriv INGA andra taggar än de som finns i mallarna, till exempel inte [TAGGAR], [ETIKETTER] eller [LANK].
+- Frågorna i Tre snabba numreras med siffra och punkt: "1. Frågan?", aldrig "Fråga 1:".
 - Skriv taggarna EXAKT som i mallarna: versaler, hakparenteser, inga mellanslag inuti, ingen fetstil eller markdown runt dem. Använd aldrig å, ä eller ö i en tagg (t.ex. [FRAGA_1], aldrig [FRÅGA_1]).
 
 
@@ -48,15 +50,15 @@ VIKTIGT RUBRIKFORMAT:
 
 [RUBRIK] Se rubrikformat ovan
 [INGRESS] Kort ingress (1 mening, ca 140 tecken)
-[BRODTEXT] Fråga 1: Skriv frågan här?
+[BRODTEXT] 1. Skriv frågan här?
 
 Skriv svaret här.
 
-Fråga 2: Skriv frågan här?
+2. Skriv frågan här?
 
 Skriv svaret här.
 
-Fråga 3: Skriv frågan här?
+3. Skriv frågan här?
 
 Skriv svaret här.
 

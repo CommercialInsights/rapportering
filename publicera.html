@@ -279,6 +279,11 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
 // DR: author IDs okända ännu – null tills vidare
 const HO_AUTHORS = {'johan svedberg':30263,'johan':30263,'mikael stange':30355,'mikael':30355,'kalle dixelius':null,'kalle':null};
 const DM_AUTHORS = {'johan svedberg':null,'johan':null,'mikael stange':30165,'mikael':30165,'kalle dixelius':37570,'kalle':37570};
+// WordPress-användar-ID per sajt (skribent → användare). Kalle saknar konto på HO och DM.
+const WP_USERS = {
+  ho: {'johan svedberg':4,'johan':4,'mikael stange':2,'mikael':2},
+  dm: {'johan svedberg':4,'johan':4,'mikael stange':2,'mikael':2},
+};
 const DR_AUTHORS = {'johan svedberg':null,'johan':null,'mikael stange':null,'mikael':null,'kalle dixelius':null,'kalle':null};
 
 const SITES = {
@@ -470,16 +475,25 @@ function renderFileList() {
 }
 
 function parseTagged(raw) {
-  const tags = ['RUBRIK','INGRESS','BRODTEXT','UTDRAG','BILD','BILDTEXT','BILDBESKRIVNING','BILD_ALT','BILD_TITLE','SKRIBENT','KATEGORI','FOKUSKW','META','OG_RUBRIK','OG_BESKRIVNING','NAMN','TITEL','BOLAG','RAPPORT_ID','FRAGA_1','FRAGA_2','FRAGA_3','SVAR_1','SVAR_2','SVAR_3','KONTAKT'];
+  const tags = ['RUBRIK','INGRESS','BRODTEXT','UTDRAG','BILD','BILDTEXT','BILDBESKRIVNING','BILD_ALT','BILD_TITLE','SKRIBENT','KATEGORI','FOKUSKW','META','OG_RUBRIK','OG_BESKRIVNING','NAMN','TITEL','BOLAG','RAPPORT_ID','FRAGA_1','FRAGA_2','FRAGA_3','SVAR_1','SVAR_2','SVAR_3','KONTAKT','TAGGAR','OKAND'];
+  // Fält som får ha flera stycken. Alla andra är en rad/ett stycke och kapas vid första tomma rad,
+  // så att t.ex. kontaktuppgifter eller taggar utan rätt tagg inte hamnar i SoMe-beskrivningen.
+  const FLERA_STYCKEN = ['BRODTEXT','KONTAKT','SVAR_1','SVAR_2','SVAR_3'];
   const result = {};
   const allTags = new RegExp('\\[(' + tags.join('|') + ')\\]\\s*', 'g');
   // Markdown från kopieringsknappen i ChatGPT/Claude: ta bort \ i radslut och framför tecken
-  raw = raw.replace(/\\([\\`*_{}\[\]()#+\-.!|>~,:;"'])/g, '$1').replace(/\\[ \t]*$/gm, '');
+  raw = raw.replace(/\\([\\`*_{}\[\]()#+\-.!|>~,:;"'])/g, '$1').replace(/\\[ \t]*$/gm, '').replace(/\*\*(\[[A-ZÅÄÖ_0-9 ]+\])\*\*/g, '$1');
+  // Okända taggar i början av en rad (t.ex. [TAGG], [LANK]) avslutar föregående fält och kastas
+  raw = raw.replace(/^[ \t]*\[([A-ZÅÄÖ][A-ZÅÄÖ0-9_ ]*)\]/gm, (m, t) => tags.includes(t) ? m : '[OKAND]');
   const parts = raw.split(allTags);
   for (let i = 1; i < parts.length; i += 2) {
     const key = parts[i];
-    const val = (parts[i+1] || '').trim();
-    if (val) result[key] = val;
+    let val = (parts[i+1] || '').trim();
+    if (!FLERA_STYCKEN.includes(key)) {
+      val = val.split(/\n\s*\n/)[0];
+      val = val.split(/\n\s*(?:kontakt|kontaktperson|presskontakt|för mer information|för ytterligare information)\b/i)[0].trim();
+    }
+    if (val && key !== 'OKAND') result[key] = val;
   }
   return result;
 }
@@ -560,9 +574,9 @@ function buildHtmlTreSnabba(brodtext, site) {
   if (!brodtext) return html;
   const lines = brodtext.split(/\n/).map(l=>l.trim()).filter(Boolean);
   lines.forEach(line => {
-    if (/^Fråga\s*\d+/i.test(line)) {
-      // DM: "Fråga 1:" skrivs som "1."
-      const q = site === 'dm3' ? line.replace(/^Fråga\s*(\d+)\s*[:.–-]?\s*/i, '$1. ') : line;
+    if (/^Fråga\s*\d+/i.test(line) || /^\d+[.)]\s+.*\?["”»]?\s*$/.test(line)) {
+      // DM och HO: "Fråga 1:" skrivs som "1."
+      const q = (site === 'dm3' || site === 'ho3') ? line.replace(/^Fråga\s*(\d+)\s*[:.–-]?\s*/i, '$1. ') : line;
       html += `<p><strong>${q}</strong></p>\n`;
     } else {
       // Strippa "Svar:" eller "Svar: " i början
@@ -599,6 +613,9 @@ async function publishOne(article, site, index, skribentOverride) {
 
   const post = { title, content };
   if (authorId) post.acf = { post_author: authorId };
+  // WordPress-användaren (syns som författare i admin). Saknas skribenten som användare blir det redaktörskontot.
+  const wpUser = (WP_USERS[s.cred] || {})[skribentNamn.toLowerCase()];
+  if (wpUser) post.author = wpUser;
   if (article.UTDRAG) post.excerpt = article.UTDRAG;
   else if (article.INGRESS) post.excerpt = article.INGRESS;
 

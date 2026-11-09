@@ -503,6 +503,10 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     return t[0].toUpperCase() + t.slice(1);
   }
   function parseArticle(raw){
+    // färdiga fält med etiketter, t.ex. [PUNKT_1], [NAMN], [TITEL], [BOLAG]
+    const tag = k => { const m = raw.replace(/\r/g,'').match(new RegExp('\\[' + k + '\\]\\s*\\n\\s*([^\\n\\[]+)')); return m ? m[1].trim() : ''; };
+    const givenTopics = [1,2,3].map(n => tag('PUNKT_' + n)).filter(Boolean);
+    const tName = tag('NAMN'), tTitle = tag('TITEL'), tCo = tag('BOLAG');
     let lines = raw.replace(/\r/g,'').replace(/[\u2028\u2029]/g,'\n').replace(/^\s*\[[A-ZÅÄÖ_0-9]+\]\s*$/gm,'').split(/\n+/).map(x => x.replace(/\s+/g,' ').trim()).filter(Boolean);
     // tål ihopklistrade rader: "fråga? – svar" och "– svar. Nästa fråga?"
     lines = lines.flatMap(l => l.split(/(?<=\?["”»]?)\s+(?=[–-]\s)/));
@@ -534,7 +538,8 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     });
     // an ingress that repeats "X svarar på tre frågor" is weaker than the sentence after it
     if (r.lead) { const ss = sentences(r.lead); r.lead = (ss.length > 1 && /svarar på tre frågor/i.test(ss[0]) ? ss[1] : ss[0]) || r.lead; if (r.lead.length > 140) r.lead = r.lead.slice(0, 137).replace(/\s+\S*$/, '') + '…'; }
-    r.topics = r.qa.slice(0, 3).map(o => answerToBullet(o.a)).filter(Boolean).join('\n');
+    r.topics = givenTopics.length ? givenTopics.join('\n') : r.qa.slice(0, 3).map(o => answerToBullet(o.a)).filter(Boolean).join('\n');
+    if (!r.name && tName) { r.name = tName; r.role = [tTitle, tCo].filter(Boolean).join(' på '); if (r.role) r.role = r.role[0].toUpperCase() + r.role.slice(1); r.roleShort = tCo || r.role; }
     r.qa = r.qa.slice(0, 3).map(o => [o.q, shortAns(o.a)]);
     return r;
   }

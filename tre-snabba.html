@@ -503,7 +503,16 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     return t[0].toUpperCase() + t.slice(1);
   }
   function parseArticle(raw){
-    const lines = raw.replace(/\r/g,'').split(/\n+/).map(x => x.replace(/\s+/g,' ').trim()).filter(Boolean);
+    let lines = raw.replace(/\r/g,'').replace(/[\u2028\u2029]/g,'\n').replace(/^\s*\[[A-ZÅÄÖ_0-9]+\]\s*$/gm,'').split(/\n+/).map(x => x.replace(/\s+/g,' ').trim()).filter(Boolean);
+    // tål ihopklistrade rader: "fråga? – svar" och "– svar. Nästa fråga?"
+    lines = lines.flatMap(l => l.split(/(?<=\?["”»]?)\s+(?=[–-]\s)/));
+    lines = lines.flatMap((l, k, all) => {
+      if (/^[–-]\s/.test(l) && /\?["”»]?$/.test(l)) {
+        const ss = sentences(l);
+        if (ss.length > 1) { let j = ss.length - 1; while (j > 1 && !/[.!…]["”»]?$/.test(ss[j-1]) ) j--; return [ss.slice(0, j).join(' '), ss.slice(j).join(' ')]; }
+      }
+      return [l];
+    });
     const r = { name:'', role:'', roleShort:'', lead:'', qa:[] };
     let i = lines.findIndex(l => /^(?:\.{3}|…)?\s*med\s+\S/i.test(l));
     if (i >= 0) {
@@ -541,7 +550,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     const nm = r ? r.name : state.name;
     if (!n) { f.className = 'found warn'; f.textContent = 'Hittade inga frågor. Kontrollera att varje fråga står på en egen rad och slutar med frågetecken.'; return; }
     f.className = 'found';
-    f.innerHTML = 'Hittade <b>' + (nm ? escapeHtml(nm) : 'inget namn') + '</b>' + ((r ? r.roleShort : state.roleShort) ? ' · ' + escapeHtml(r ? r.roleShort : state.roleShort) : '') + ' · <b>' + n + ' ' + (n === 1 ? 'svar' : 'svar') + '</b>' + (nm ? '' : '. Rubriken ska börja med "…med Namn, titel".') + (n < 3 ? '. Saknas en fråga? Den ska sluta med frågetecken.' : '. Punkterna nedan är hämtade ur svaren – skriv om dem så att de blir korta rubriker.');
+    f.innerHTML = 'Hittade <b>' + (nm ? escapeHtml(nm) : 'inget namn') + '</b>' + ((r ? r.roleShort : state.roleShort) ? ' · ' + escapeHtml(r ? r.roleShort : state.roleShort) : '') + ' · <b>' + n + ' ' + (n === 1 ? 'svar' : 'svar') + '</b>' + (nm ? '' : '. Rubriken ska börja med "…med Namn, titel"') + (n < 3 ? '. Saknas en fråga? Den ska sluta med frågetecken.' : '. Punkterna nedan är hämtade ur svaren – skriv om dem så att de blir korta rubriker.');
   }
   function escapeHtml(x){ return x.replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
 

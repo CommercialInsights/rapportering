@@ -122,6 +122,20 @@ canvas#cv{width:100%;height:100%;display:block}
   </header>
 
   <form id="form" autocomplete="off" onsubmit="return false">
+    <fieldset id="aiSet">
+      <legend>Klistra in från ChatGPT eller Claude</legend>
+      <label class="f"><span>Svaret med taggar <small>[FORMAT], [SAJT], [PUNKT_1] … – format, sajt och alla fält fylls i automatiskt</small></span>
+        <textarea id="ai" rows="6" placeholder="Be ChatGPT eller Claude följa manualen LinkedIn-filmer och klistra in hela svaret här"></textarea>
+      </label>
+      <p class="found" id="aiFound" role="status"></p>
+      <div id="aiPostBox" hidden>
+        <label class="f"><span>Inläggstext till LinkedIn <small>kopiera och klistra in i inlägget</small></span>
+          <textarea id="aiPost" rows="7" readonly></textarea>
+        </label>
+        <div class="acts"><button class="btn" type="button" id="aiCopy">Kopiera inläggstexten</button></div>
+      </div>
+    </fieldset>
+
     <fieldset>
       <legend>Vad vill du göra?</legend>
       <div class="seg" role="group" aria-label="Typ" id="kindSeg">
@@ -280,7 +294,7 @@ canvas#cv{width:100%;height:100%;display:block}
         <label class="f"><span>Titel och bolag</span><input type="text" id="role" placeholder="Titel och bolag"></label>
       </div>
       <label class="f"><span>Kort bolagsnamn <small>visas under porträttet</small></span><input type="text" id="roleShort" placeholder="Bolagets namn"></label>
-      <label class="f"><span>Rubrik på omslaget <small>tomt = "…med" + namn</small></span><input type="text" id="title" placeholder="Tomt = …med + namn"></label>
+      <label class="f"><span>Rubrik på omslaget <small>tomt = "Tre snabba med" + namn, titel och bolag</small></span><input type="text" id="title" placeholder="Tomt = Tre snabba med + namn"></label>
       <label class="f"><span>Underrubrik på omslaget <small>tomt = titel och bolag</small></span><input type="text" id="lead" placeholder="Tomt = titel och bolag"></label>
       <label class="f"><span>Länktext i slutet <small>tomt = sajtens adress</small></span><input type="text" id="url" placeholder="Tomt = sajtens adress"></label>
     </fieldset>
@@ -503,17 +517,13 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     return t[0].toUpperCase() + t.slice(1);
   }
   function parseArticle(raw){
-    // färdiga fält med etiketter, t.ex. [PUNKT_1], [NAMN], [TITEL], [BOLAG]
-    const tag = k => { const m = raw.replace(/\r/g,'').match(new RegExp('\\[' + k + '\\]\\s*\\n\\s*([^\\n\\[]+)')); return m ? m[1].trim() : ''; };
-    const givenTopics = [1,2,3].map(n => tag('PUNKT_' + n)).filter(Boolean);
-    const tName = tag('NAMN'), tTitle = tag('TITEL'), tCo = tag('BOLAG');
     let lines = raw.replace(/\r/g,'').replace(/[\u2028\u2029]/g,'\n').replace(/^\s*\[[A-ZÅÄÖ_0-9]+\]\s*$/gm,'').split(/\n+/).map(x => x.replace(/\s+/g,' ').trim()).filter(Boolean);
     // tål ihopklistrade rader: "fråga? – svar" och "– svar. Nästa fråga?"
     lines = lines.flatMap(l => l.split(/(?<=\?["”»]?)\s+(?=[–-]\s)/));
-    lines = lines.flatMap((l, k, all) => {
+    lines = lines.flatMap(l => {
       if (/^[–-]\s/.test(l) && /\?["”»]?$/.test(l)) {
         const ss = sentences(l);
-        if (ss.length > 1) { let j = ss.length - 1; while (j > 1 && !/[.!…]["”»]?$/.test(ss[j-1]) ) j--; return [ss.slice(0, j).join(' '), ss.slice(j).join(' ')]; }
+        if (ss.length > 1) { let j = ss.length - 1; while (j > 1 && !/[.!…]["”»]?$/.test(ss[j-1])) j--; return [ss.slice(0, j).join(' '), ss.slice(j).join(' ')]; }
       }
       return [l];
     });
@@ -538,8 +548,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     });
     // an ingress that repeats "X svarar på tre frågor" is weaker than the sentence after it
     if (r.lead) { const ss = sentences(r.lead); r.lead = (ss.length > 1 && /svarar på tre frågor/i.test(ss[0]) ? ss[1] : ss[0]) || r.lead; if (r.lead.length > 140) r.lead = r.lead.slice(0, 137).replace(/\s+\S*$/, '') + '…'; }
-    r.topics = givenTopics.length ? givenTopics.join('\n') : r.qa.slice(0, 3).map(o => answerToBullet(o.a)).filter(Boolean).join('\n');
-    if (!r.name && tName) { r.name = tName; r.role = [tTitle, tCo].filter(Boolean).join(' på '); if (r.role) r.role = r.role[0].toUpperCase() + r.role.slice(1); r.roleShort = tCo || r.role; }
+    r.topics = r.qa.slice(0, 3).map(o => answerToBullet(o.a)).filter(Boolean).join('\n');
     r.qa = r.qa.slice(0, 3).map(o => [o.q, shortAns(o.a)]);
     return r;
   }
@@ -549,13 +558,86 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     state.qa = [0,1,2].map(k => r.qa[k] || ['','']); state.topics = r.topics;
     writeFields(); report(r);
   }
+  // ---------- Inklistrat svar från ChatGPT/Claude (taggar) ----------
+  const AI_TAGS = ['FORMAT','SAJT','RUBRIK','INGRESS','BYLINE','NAMN','TITEL','BOLAG','RAPPORTTYP','RAPPORT','VECKA','CITAT','INLAGG',
+    'PUNKT_1','PUNKT_2','PUNKT_3','INSIKT_1','INSIKT_2','INSIKT_3','INSIKT_4','INSIKT_5',
+    'FRAGA_1','FRAGA_2','FRAGA_3','SVAR_1','SVAR_2','SVAR_3',
+    'RAPPORT_1','RAPPORT_2','RAPPORT_3','RAPPORT_4','RAPPORT_5','RAPPORT_6','RAPPORT_7','RAPPORT_8'];
+  function parseAI(raw){
+    const clean = (raw || '').replace(/\r/g, '').replace(/\\([\\`*_{}\[\]()#+\-.!|>~,:;"'])/g, '$1').replace(/\\[ \t]*$/gm, '').replace(/\*\*/g, '').replace(/^#{1,6}\s+/gm, '');
+    const parts = clean.split(new RegExp('\\[(' + AI_TAGS.join('|') + ')\\]', 'g'));
+    const T = {};
+    for (let i = 1; i < parts.length; i += 2) {
+      const v = (parts[i+1] || '').replace(/^\s*[:–-]?\s*/, '').trim();
+      if (v) T[parts[i]] = v;
+    }
+    return T;
+  }
+  const AI_TYPES = { kvartal:/kvartal|delår|halvår|bokslut|q[1-4]/i, ar:/^år|årsr|årsred|annual/i, hallbarhet:/hållbar|hallbar/i };
+  function rtypeOf(x){ x = (x || '').trim(); for (const [k, re] of Object.entries(AI_TYPES)) if (re.test(x)) return k; return x ? 'ovrigt' : ''; }
+  function applyAI(){
+    const raw = $('ai').value, f = $('aiFound'), T = parseAI(raw);
+    $('aiPostBox').hidden = !T.INLAGG; $('aiPost').value = T.INLAGG || '';
+    if (!raw.trim()) { f.textContent = ''; f.className = 'found'; return; }
+    if (!Object.keys(T).length) { f.className = 'found warn'; f.textContent = 'Hittade inga taggar. Svaret ska innehålla [FORMAT], [SAJT], [PUNKT_1] osv. Be AI:n följa manualen LinkedIn-filmer.'; return; }
+    const fmt = (T.FORMAT || '').toLowerCase();
+    let kind = state.kind, arType = state.ar.type;
+    if (/vecka/.test(fmt)) kind = 'veckan';
+    else if (/snabba/.test(fmt)) kind = 'snabba';
+    else if (/kr[öo]nika/.test(fmt)) { kind = 'artikel'; arType = 'kronika'; }
+    else if (/reportage/.test(fmt)) { kind = 'artikel'; arType = 'reportage'; }
+    else if (/rapport/.test(fmt)) kind = 'rapport';
+    const sj = (T.SAJT || '').toLowerCase();
+    if (/^dm|medarbetare/.test(sj)) state.site = 'dm'; else if (/^ho|hållbar|hallbar/.test(sj)) state.site = 'ho'; else if (/^dr|rapport/.test(sj)) state.site = 'dr';
+    const unq = x => (x || '').replace(/^["”“»«']+|["”“»«']+$/g, '').trim();
+    const P = [1,2,3].map(n => T['PUNKT_' + n]).filter(Boolean);
+    if (kind === 'snabba') {
+      state.name = T.NAMN || ''; state.roleShort = T.BOLAG || '';
+      state.role = T.TITEL ? T.TITEL + (T.BOLAG ? ' på ' + T.BOLAG : '') : (T.BOLAG || '');
+      state.lead = T.INGRESS || ''; state.title = ''; state.url = ''; state.topics = P.join('\n');
+      if (T.FRAGA_1 || T.SVAR_1) state.qa = [1,2,3].map(n => [T['FRAGA_' + n] || '', shortAns(T['SVAR_' + n] || '')]);
+      state.paste = '';
+    } else if (kind === 'rapport') {
+      Object.assign(state.rp, { company: T.BOLAG || '', report: T.RAPPORT || '', insights: [1,2,3,4,5].map(n => T['INSIKT_' + n]).filter(Boolean).join('\n'),
+        name: T.NAMN || '', title: T.TITEL || '', topics: P.join('\n'), withTS: !!(T.NAMN || P.length) });
+      const rt = rtypeOf(T.RAPPORTTYP); if (rt) state.rp.rtype = rt;
+    } else if (kind === 'veckan') {
+      if (T.VECKA) state.wk.week = T.VECKA.replace(/\D/g, '');
+      for (let n = 1; n <= 8; n++) {
+        const v = T['RAPPORT_' + n]; if (!v) continue;
+        const [company, report, typ, insight] = v.split('|').map(x => (x || '').trim());
+        if (!state.wk.items[n-1]) { state.wk.items[n-1] = { cover: null, company: '', report: '', insight: '', type: 'kvartal' }; imgs.wk[n-1] = null; }
+        Object.assign(state.wk.items[n-1], { company: company || '', report: report || '', insight: insight || '', type: rtypeOf(typ) || state.wk.items[n-1].type });
+      }
+      state.wk.items = state.wk.items.filter(Boolean); imgs.wk = imgs.wk.slice(0, state.wk.items.length);
+    } else if (kind === 'artikel') {
+      state.ar.type = arType;
+      Object.assign(state.ar, { title: T.RUBRIK || '', lead: T.INGRESS || '', byline: T.BYLINE || '', points: P.join('\n'), quote: unq(T.CITAT),
+        qName: T.NAMN || '', qTitle: [T.TITEL, T.BOLAG].filter(Boolean).join(', '), url: '' });
+    }
+    state.kind = kind;
+    writeForm(); save(); t = 0; slide = 0; buildScenes(); draw(); if (mode === 'film') play();
+    const names = { snabba:'Tre snabba', rapport:'Rapportfilm', veckan:'Veckans rapporter', artikel: arType === 'kronika' ? 'Krönika' : 'Reportage' };
+    const siteN = { dm:'Dagens Medarbetare', ho:'Hållbar Omställning', dr:'Dagensrapport' };
+    const warn = [];
+    const saknas = Object.entries(T).filter(([k, v]) => /\[?SAKNAS\]?/i.test(v)).map(([k]) => k);
+    if (saknas.length) warn.push('[SAKNAS] i ' + saknas.join(', ') + ' – fyll i eller töm innan du exporterar');
+    const lang = Object.entries(T).filter(([k, v]) => /^(PUNKT|INSIKT)_/.test(k) && v.length > 60).map(([k]) => k);
+    if (lang.length) warn.push(lang.join(', ') + ' är längre än 60 tecken');
+    if (kind === 'veckan' && state.wk.items.some(it => !it.cover)) warn.push('lägg till omslagen för rapporterna');
+    f.className = 'found' + (warn.length ? ' warn' : '');
+    f.innerHTML = 'Ifyllt: <b>' + names[kind] + '</b>' + (kind === 'snabba' || kind === 'artikel' ? ' · <b>' + siteN[state.site] + '</b>' : '') +
+      (warn.length ? '. Obs: ' + escapeHtml(warn.join('; ')) + '.' : '. Lägg till bilderna och kontrollera texterna.');
+  }
+  $('ai').addEventListener('input', () => { clearTimeout(applyAI.t); applyAI.t = setTimeout(applyAI, 250); });
+  $('aiCopy').addEventListener('click', e => { navigator.clipboard.writeText($('aiPost').value).then(() => { e.target.textContent = '✓ Kopierad'; setTimeout(() => e.target.textContent = 'Kopiera inläggstexten', 1800); }); });
   function report(r){
     const f = $('found'); if (!state.paste.trim()) { f.textContent = ''; f.className = 'found'; return; }
     const n = r ? r.qa.length : state.qa.filter(x => x[0]).length;
     const nm = r ? r.name : state.name;
     if (!n) { f.className = 'found warn'; f.textContent = 'Hittade inga frågor. Kontrollera att varje fråga står på en egen rad och slutar med frågetecken.'; return; }
     f.className = 'found';
-    f.innerHTML = 'Hittade <b>' + (nm ? escapeHtml(nm) : 'inget namn') + '</b>' + ((r ? r.roleShort : state.roleShort) ? ' · ' + escapeHtml(r ? r.roleShort : state.roleShort) : '') + ' · <b>' + n + ' ' + (n === 1 ? 'svar' : 'svar') + '</b>' + (nm ? '' : '. Rubriken ska börja med "…med Namn, titel"') + (n < 3 ? '. Saknas en fråga? Den ska sluta med frågetecken.' : '. Punkterna nedan är hämtade ur svaren – skriv om dem så att de blir korta rubriker.');
+    f.innerHTML = 'Hittade <b>' + (nm ? escapeHtml(nm) : 'inget namn') + '</b>' + ((r ? r.roleShort : state.roleShort) ? ' · ' + escapeHtml(r ? r.roleShort : state.roleShort) : '') + ' · <b>' + n + ' ' + (n === 1 ? 'svar' : 'svar') + '</b>' + (nm ? '' : '. Rubriken ska börja med "…med Namn, titel".') + (n < 3 ? '. Saknas en fråga? Den ska sluta med frågetecken.' : '. Punkterna nedan är hämtade ur svaren – skriv om dem så att de blir korta rubriker.');
   }
   function escapeHtml(x){ return x.replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
 
@@ -670,7 +752,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     if (state.kind === 'artikel') return buildArtikel();
     const B = BRANDS[state.site];
     const name = state.name || 'Namn Efternamn';
-    const title = state.title || ('…med ' + name);
+    const title = state.title || ('Tre snabba med ' + name + (state.role ? ', ' + state.role : ''));
     const sub = state.lead || state.role;
     const qa = state.qa.filter(([q,a]) => q || a);
     const QA = qa.length ? qa : [['Frågan skrivs här','Början av svaret']];
@@ -680,7 +762,10 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     // cover
     const coverDark = !!B.coverDark;
     const cInk = coverDark ? '#FFFFFF' : B.ink, cMute = coverDark ? '#BDBDBD' : B.mute;
-    let tSize = 96, TL; do { TL = layout(title, B.head(tSize), W - 2*PAD, tSize*1.04, B.headLS); tSize -= 4; } while (TL.lines > 2 && tSize > 56);
+    const hiTS = /^tre\s+snabba\b/i.test(title);
+    let tSize = 96, TL, hiPad = 0; do { hiPad = hiTS ? Math.round(tSize*.2) : 0; TL = layout(title, B.head(tSize), W - 2*PAD - 2*hiPad, tSize*1.04, B.headLS); tSize -= 4; } while (TL.lines > 2 && tSize > 56);
+    const hiSize = tSize + 4;
+    if (hiTS && TL.words.length > 1 && TL.words[1].y === 0) { TL.words.forEach((w, k) => { if (w.y === 0) w.x += k < 2 ? hiPad : 1.6*hiPad; }); } else hiPad = 0;
     const SL = layout(sub, B.body(34), W - 2*PAD, 34*1.3);
     list.push({ dur:4.4, draw:(l) => {
       ctx.fillStyle = B.cover(ctx); ctx.fillRect(0,0,W,H);
@@ -694,7 +779,13 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
       const ty = 154 + Math.min(realH, bh) + 60;
       const pt = eo(prog(l, .6, .55));
       ctx.save(); ctx.beginPath(); ctx.rect(0, ty - 10, W, TL.h + 20); ctx.clip();
-      drawWords(TL, PAD, ty + (1-pt)*TL.h, cInk); ctx.restore();
+      if (hiPad) {
+        const w0 = TL.words[0], w1 = TL.words[1], oy = ty + (1-pt)*TL.h, bx = PAD + w0.x - hiPad, bw = w1.x + w1.w - w0.x + 2*hiPad;
+        ctx.fillStyle = B.acc; rr(bx, oy - hiSize*.06, bw, hiSize*1.12, B.pill ? hiSize*.56 : (B === BRANDS.ho ? 2 : 6)); ctx.fill();
+        const rest = { ...TL, words: TL.words.slice(2) }, hi = { ...TL, words: TL.words.slice(0, 2) };
+        drawWords(hi, PAD, oy, B.accInk); drawWords(rest, PAD, oy, cInk);
+      } else drawWords(TL, PAD, ty + (1-pt)*TL.h, cInk);
+      ctx.restore();
       const ps = eo(prog(l, .85, .5)); drawWords(SL, PAD, ty + TL.h + 20 + (1-ps)*16, cMute, () => ps);
       drawFooter(B, 0, N, mode, coverDark ? '#FFFFFF' : B.ink, () => { setFont(B.body(22)); ctx.fillStyle = cMute; ctx.fillText(B.host, PAD, H - 84); });
     }});
@@ -705,9 +796,9 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
       const TOP = tops.length ? tops : ['Skriv ett ämne per rad'];
       const role = state.roleShort || state.role || '';
       const tx = PAD + 260 + 48, tw = W - PAD - tx;
-      const l1 = 'Tre snabba med';
-      const nSize = Math.min(fitFont(l1, s => B.head(s), 64, 34, tw, B.headLS), fitFont(name, s => B.head(s), 72, 34, tw, B.headLS));
-      const RL = role ? layout(role, B.body(26), tw, 26*1.3) : null;
+      const nSize = fitFont(name, s => B.head(s), 84, 40, tw, B.headLS);
+      const RL = role ? layout(role, B.body(34, 500), tw, 34*1.3) : null;
+      const nameY = 250 - (RL ? 20 : 0);
       const Q0 = 1.9, QSTEP = 1.0;
       let qs = 46, QLs;
       for (;;) { QLs = TOP.map(x => layout(x, B.qHead(qs), W - 2*PAD - 124, qs*1.14, B.headLS)); const tot = QLs.reduce((a, L) => a + Math.max(84, L.h) + 56, 0); if (tot <= H - 600 - 150 || qs <= 30) break; qs -= 2; }
@@ -724,14 +815,13 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
         else { ctx.fillStyle = '#333'; ctx.fillRect(-130,-130,260,260); const ini = name.split(' ').map(x => x[0] || '').join('').slice(0,2).toUpperCase(); setFont('700 96px Inter, Arial, sans-serif'); ctx.fillStyle = '#FFFFFF'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(ini, 0, 4); ctx.textAlign = 'left'; ctx.textBaseline = 'top'; }
         ctx.restore();
         // namn
-        [[l1, B.mute], [name, B.ink]].forEach(([txt, c], k) => {
-          const yy = 200 + k*nSize*1.08, p = eo(prog(l, .35 + k*.2, .7));
-          ctx.save(); ctx.beginPath(); ctx.rect(tx, yy - 6, tw + 20, nSize*1.2); ctx.clip();
-          setFont(B.head(nSize), B.headLS, nSize); ctx.fillStyle = c; ctx.textBaseline = 'top'; ctx.fillText(txt, tx, yy + (1-p)*nSize*1.1); ctx.restore();
-        });
-        if (RL) { const pr = eo(prog(l,.95,.5)); drawWords(RL, tx, 200 + 2*nSize*1.08 + 14 + (1-pr)*14, B.mute, () => pr); }
-        // som bland annat berättar om
-        const plead = eo(prog(l,1.35,.5)); ctx.save(); ctx.globalAlpha = plead; setFont(B.body(32, 500)); ctx.fillStyle = B.mute; ctx.textBaseline = 'top'; ctx.fillText('… som bland annat berättar om:', PAD, 520 + (1-plead)*16); ctx.restore();
+        { const p = eo(prog(l, .35, .7));
+          ctx.save(); ctx.beginPath(); ctx.rect(tx, nameY - 6, tw + 20, nSize*1.2); ctx.clip();
+          setFont(B.head(nSize), B.headLS, nSize); ctx.fillStyle = B.ink; ctx.textBaseline = 'top'; ctx.fillText(name, tx, nameY + (1-p)*nSize*1.1); ctx.restore(); }
+        if (RL) { const pr = eo(prog(l,.75,.5)); drawWords(RL, tx, nameY + nSize*1.12 + 12 + (1-pr)*14, B.mute, () => pr); }
+        // [Förnamn] berättar bland annat om
+        const leadTxt = '…berättar bland annat om:', lSize = fitFont(leadTxt, s => B.head(s), 46, 30, W - 2*PAD, B.headLS);
+        const plead = eo(prog(l,1.2,.5)); ctx.save(); ctx.globalAlpha = plead; setFont(B.head(lSize), B.headLS, lSize); ctx.fillStyle = B.ink; ctx.textBaseline = 'top'; ctx.fillText(leadTxt, PAD, 500 + (1-plead)*16); const uw = ctx.measureText(leadTxt).width; ctx.fillStyle = B.acc; ctx.fillRect(PAD, 500 + lSize*1.2 + (1-plead)*16, uw * eo(prog(l,1.45,.6)), 6); ctx.restore();
         let y = 590;
         QLs.forEach((L, i) => {
           const rowH = Math.max(84, L.h) + 56, a0 = Q0 + i*QSTEP, p = eo(prog(l, a0, .6));
@@ -1386,6 +1476,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
   $('exWk').addEventListener('click', () => applySample('wk'));
   $('exAr').addEventListener('click', () => applySample('ar'));
   $('clear').addEventListener('click', async () => {
+    $('ai').value = ''; applyAI();
     if (state.kind === 'artikel') { state.ar = { type: state.ar.type, title:'', lead:'', byline:'', points:'', quote:'', qName:'', qTitle:'', url:'' }; state.arImg = null; state.arFace = null; imgs.arImg = null; imgs.arFace = null; writeForm(); save(); t = 0; buildScenes(); draw(); return; }
     if (state.kind === 'veckan') { state.wk = { week:'', title:'', items:[] }; imgs.wk = []; writeForm(); save(); t = 0; buildScenes(); draw(); return; }
     if (state.kind === 'rapport') { state.rp = { company:'', report:'', insights:'', name:'', title:'', topics:'', withTS:true }; state.cover = null; imgs.cover = null; state.face = null; imgs.face = null; setThumb('thFace', null); writeForm(); save(); t = 0; buildScenes(); draw(); return; }

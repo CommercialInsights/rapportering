@@ -406,7 +406,7 @@ function filTillBase64(fil){
 }
 
 /* ---------- Färdig text till kontaktpersonen ---------- */
-const MEJLMALL = 'Hej {fornamn}!\n\nVi har skrivit en nyhetsartikel på vår sajt {publikation} utifrån ert pressmeddelande. Ni hittar texten via länken: {url}\n\nDela gärna vidare i era kanaler, och uppmärksamma oss gärna om det är något som inte ser helt korrekt ut.\n\nMed vänliga hälsningar\n{avsandare}';
+const MEJLMALL = 'Hej {fornamn}!\n\nVi har skrivit en nyhetsartikel på vår sajt {publikation} utifrån ert pressmeddelande. Ni hittar texten via länken: {url}\n\nDela gärna vidare i era kanaler, och uppmärksamma oss gärna om det är något som inte ser helt korrekt ut.\n\nMed vänliga hälsningar\n{avsandare}\n\nPS. Vi är alltid öppna för krönikor eller andra intressanta nyheter som är relevanta för våra kanaler.';
 const PUBNAMN = { HO:'Hållbar Omställning', DM:'Dagens Medarbetare', DR:'Dagens Rapport' };
 let mejlData = {};
 function mejlHtml(i, article, site, post, kontakter, skribent){

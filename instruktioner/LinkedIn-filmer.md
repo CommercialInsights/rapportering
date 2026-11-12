@@ -102,23 +102,35 @@ Lämna insikten tom hellre än att skriva en svag.
 
 ### Reportage
 
-Filmen har fyra bilder: bild och rubrik, tre saker, citat och "Läs hela reportaget på …".
+Filmen har fyra till fem bilder:
+1. Omslag: bild, rubrik och ingress. Valfri nyhetsflash.
+2. Tre saker från reportaget.
+3. Citat 1 med stort porträtt.
+4. Citat 2 med eget porträtt (valfritt, hoppas över om fältet är tomt).
+5. "Läs hela reportaget på …".
 
 | Fält i verktyget | Regel |
 |---|---|
-| Bild från reportaget | Huvudbilden eller en skärmdump. Den används stort på första bilden och infälld på de andra. |
-| Porträtt på den som citeras | Valfritt. Visas vid citatet. |
+| Bild från reportaget | Huvudbilden från artikeln, helst utan text och sajtens meny runt. En ren bild ger ett lugnare omslag än en skärmdump. Den används stort på första bilden och infälld på de andra. |
+| Porträtt på den som citeras | Valfritt. Visas stort vid citat 1. |
 | Rubrik | Artikelns rubrik som den står på sajten. |
 | Ingress | Första meningen, högst 140 tecken. |
-| Byline | "Text: Förnamn Efternamn". |
+| Byline | Valfri: "Text: Förnamn Efternamn". Lämna tom om skribentens namn inte ska synas. |
+| Nyhetsflash på omslaget | Bocka i för rena nyheter (t.ex. namnbyten, förvärv, utnämningar). Lägger en "⚡ NYHET"-etikett på omslagsbilden. Inte för reportage eller krönikor. |
 | **Tre saker från reportaget** | **3 punkter, högst 60 tecken var.** Det viktigaste läsaren tar med sig. Egna sammanfattningar, inte citat. Tomt fält hoppar över bilden. |
 | **Citat** | **Ordagrant, högst 140 tecken.** Välj det mest tankeväckande eller oväntade, inte det mest allmänna. Tomt fält hoppar över bilden. |
 | Vem säger det | För- och efternamn. |
 | Titel och bolag | Titel med liten bokstav plus bolag, till exempel "vd, Blastiq". |
+| **Citat 2** | Valfritt. **Ordagrant, högst 140 tecken.** Helst en annan person än citat 1, och ett citat som tillför något nytt. Används i längre texter. Tomt fält hoppar över bilden. |
+| Vem säger det (citat 2) | För- och efternamn. |
+| Titel och bolag (citat 2) | Titel med liten bokstav plus bolag, till exempel "styrelseordförande, Wallenius Link". |
+| Porträtt till citat 2 | Valfritt. Visas stort vid citat 2. |
 | Länktext i slutet | Tomt fält ger sajtens adress. Lämna tomt. |
 
 Bra citat: *RFID ses fortfarande som en teknikfråga, men egentligen handlar det om affärsutveckling.*
+Bra citat: *Det nya namnet, Wallenius Link, speglar oss som organisation.* (förklarar nyheten)
 Svagt citat: *Vi är väldigt glada över satsningen.*
+Svagt citat: *För ingen bransch klarar sig på egen hand.* (allmän fras som kunde stått i vilken text som helst)
 
 ### Krönika
 
@@ -259,9 +271,12 @@ En `[RAPPORT_n]`-rad per rapport, högst 8, i samma ordning som omslagen läggs 
 
 ### Reportage
 
+`[BYLINE]`, `[NYHET]` och `[CITAT_2]`–`[TITEL_2]` är valfria. Ta med `[NYHET] ja` bara för rena nyheter. Ta med ett andra citat när texten är längre och har ett till starkt citat, helst från en annan person. `[TITEL_2]` skrivs med bolaget.
+
 ```
 [FORMAT] Reportage
 [SAJT] HO
+[NYHET] ja
 [RUBRIK] Artikelns rubrik som den står på sajten
 [INGRESS] Första meningen, högst 140 tecken
 [BYLINE] Text: Förnamn Efternamn
@@ -272,6 +287,9 @@ En `[RAPPORT_n]`-rad per rapport, högst 8, i samma ordning som omslagen läggs 
 [NAMN] Den som säger citatet, för- och efternamn
 [TITEL] titel med liten bokstav, t.ex. vd
 [BOLAG] Bolagets namn
+[CITAT_2] Ett andra ordagrant citat, högst 140 tecken, utan citattecken
+[NAMN_2] Den som säger citat 2, för- och efternamn
+[TITEL_2] titel med liten bokstav plus bolag, t.ex. styrelseordförande, Wallenius Link
 [INLAGG] Inläggstexten
 ```
 

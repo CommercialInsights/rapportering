@@ -1174,7 +1174,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     function quoteScene(quote, qName, qTitle, face, alt){
       const iq = idx++;
       let qs = 76, QL; for (;;) { QL = layout(quote, B.ans(qs), W - 2*PAD, qs*1.28); if (QL.h <= 600 || qs <= 36) break; qs -= 3; }
-      const blockH = 170 + QL.h + 70 + 96, qTop = Math.max(170, 150 + ((H - 150 - 140) - blockH) / 2);
+      const FR = face ? 118 : 0, blockH = 170 + QL.h + 70 + Math.max(96, 2*FR + 16), qTop = Math.max(170, 150 + ((H - 150 - 140) - blockH) / 2);
       const dur = 1.0 + QL.words.length / 6 + 2.0;
       list.push({ dur, draw:(l) => {
         const dark = alt ? false : !!B.coverDark, bg = alt ? B.q(ctx) : B.cover(ctx);
@@ -1188,12 +1188,12 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
         const y0 = qTop + 170;
         drawWords(QL, PAD, y0, ink, k => eo(prog(l, .7 + k/6, .35)));
         const pa = eo(prog(l, .7 + QL.words.length/6 + .2, .5));
-        const ay = Math.min(H - 300, y0 + QL.h + 70);
+        const ay = Math.min(face ? H - 170 - 2*FR - 16 : H - 300, y0 + QL.h + 70);
         ctx.save(); ctx.globalAlpha = pa; ctx.translate(0, (1-pa)*16);
-        if (face) portrait(PAD, ay, 48, 99, face);
-        const nx = face ? PAD + 96 + 30 : PAD;
-        setFont(B.body(30, 700)); ctx.fillStyle = ink; ctx.textBaseline = 'top'; ctx.fillText(qName, nx, ay + (face ? 14 : 0));
-        setFont(B.body(24)); ctx.fillStyle = mute; ctx.fillText(qTitle, nx, ay + (face ? 54 : 40));
+        if (face) portrait(PAD + 8, ay + 8, FR, 99, face);
+        const nx = face ? PAD + 2*FR + 50 : PAD, ny = face ? ay + 8 + FR - 40 : ay;
+        setFont(B.body(32, 700)); ctx.fillStyle = ink; ctx.textBaseline = 'top'; ctx.fillText(qName, nx, ny);
+        setFont(B.body(25)); ctx.fillStyle = mute; ctx.fillText(qTitle, nx, ny + 44);
         ctx.restore();
         if (!isK && imgs.arImg) { const iw = 280, ih = Math.min(iw * imgs.arImg.height / imgs.arImg.width, iw * 1.25) + 26; inset(W - PAD - iw + 10, Math.min(ay - 30, H - 175 - ih), iw, -4, l, .5 + QL.words.length/6); }
         drawFooter(B, iq, N, mode, ink, () => { setFont(B.body(22)); ctx.fillStyle = mute; ctx.textBaseline = 'top'; ctx.fillText(B.host, PAD, H - 96); });

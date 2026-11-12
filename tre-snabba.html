@@ -245,6 +245,7 @@ canvas#cv{width:100%;height:100%;display:block}
       <label class="f"><span>Rubrik</span><input type="text" id="arTitle" placeholder="Artikelns rubrik"></label>
       <label class="f"><span>Ingress <small>första meningen räcker</small></span><textarea id="arLead" rows="2" placeholder="Klistra in ingressen eller dess första mening"></textarea></label>
       <label class="f ar-rep"><span>Byline <small>valfritt</small></span><input type="text" id="arByline" placeholder="T.ex. Text: Förnamn Efternamn"></label>
+      <label class="check ar-rep"><input type="checkbox" id="arFlash"> <span>Nyhetsflash på omslaget</span></label>
       <label class="f ar-rep"><span>Tre saker från reportaget <small>en per rad, max tre – tomt hoppar över bilden</small></span><textarea id="arPoints" rows="4" placeholder="Skriv en punkt per rad, max tre"></textarea></label>
       <label class="f"><span>Citat <small>ordagrant ur texten – tomt hoppar över bilden</small></span><textarea id="arQuote" rows="3" placeholder="Klistra in citatet ordagrant, utan citattecken"></textarea></label>
       <div class="row">
@@ -425,7 +426,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
 
   // ---------- State ----------
   const $ = id => document.getElementById(id);
-  const state = { ar:{ type:'reportage', title:'', lead:'', byline:'', points:'', quote:'', qName:'', qTitle:'', quote2:'', q2Name:'', q2Title:'', url:'' }, arImg:null, arFace:null, arFace2:null, kind:'snabba', rp:{ company:'', report:'', insights:'', name:'', title:'', topics:'', withTS:true }, wk:{ week:'', title:'', items:[] }, cover:null, site:'dm', paste:'', topics:'', shot:null, face:null, name:'', role:'', roleShort:'', title:'', lead:'', url:'', qa:[['',''],['',''],['','']] };
+  const state = { ar:{ type:'reportage', title:'', lead:'', byline:'', points:'', quote:'', qName:'', qTitle:'', quote2:'', q2Name:'', q2Title:'', flash:false, url:'' }, arImg:null, arFace:null, arFace2:null, kind:'snabba', rp:{ company:'', report:'', insights:'', name:'', title:'', topics:'', withTS:true }, wk:{ week:'', title:'', items:[] }, cover:null, site:'dm', paste:'', topics:'', shot:null, face:null, name:'', role:'', roleShort:'', title:'', lead:'', url:'', qa:[['',''],['',''],['','']] };
   const imgs = { shot:null, face:null, cover:null, dmLogo:null, wk:[], arImg:null, arFace:null, arFace2:null };
   const loadImg = src => new Promise(res => { if (!src) return res(null); const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = src; });
 
@@ -480,7 +481,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
   }
   function writeForm(){
     Object.entries(AR_IDS).forEach(([id, k]) => $(id).value = state.ar[k] || '');
-    setThumb('thArImg', state.arImg); setThumb('thArFace', state.arFace); setThumb('thArFace2', state.arFace2);
+    setThumb('thArImg', state.arImg); setThumb('thArFace', state.arFace); setThumb('thArFace2', state.arFace2); $('arFlash').checked = !!state.ar.flash;
     Object.entries(RP_IDS).forEach(([id, k]) => $(id).value = state.rp[k] || '');
     $('rWithTS').checked = state.rp.withTS !== false; $('rType').value = state.rp.rtype || 'kvartal';
     $('wWeek').value = state.wk.week || ''; $('wTitle').value = state.wk.title || ''; renderWkList();
@@ -574,7 +575,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     writeFields(); report(r);
   }
   // ---------- Inklistrat svar från ChatGPT/Claude (taggar) ----------
-  const AI_TAGS = ['FORMAT','SAJT','RUBRIK','INGRESS','BYLINE','NAMN','TITEL','BOLAG','RAPPORTTYP','RAPPORT','VECKA','CITAT','INLAGG','CITAT_2','NAMN_2','TITEL_2',
+  const AI_TAGS = ['FORMAT','SAJT','RUBRIK','INGRESS','BYLINE','NAMN','TITEL','BOLAG','RAPPORTTYP','RAPPORT','VECKA','CITAT','INLAGG','CITAT_2','NAMN_2','TITEL_2','NYHET',
     'PUNKT_1','PUNKT_2','PUNKT_3','INSIKT_1','INSIKT_2','INSIKT_3','INSIKT_4','INSIKT_5',
     'FRAGA_1','FRAGA_2','FRAGA_3','SVAR_1','SVAR_2','SVAR_3',
     'RAPPORT_1','RAPPORT_2','RAPPORT_3','RAPPORT_4','RAPPORT_5','RAPPORT_6','RAPPORT_7','RAPPORT_8'];
@@ -628,7 +629,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     } else if (kind === 'artikel') {
       state.ar.type = arType;
       Object.assign(state.ar, { title: T.RUBRIK || '', lead: T.INGRESS || '', byline: T.BYLINE || '', points: P.join('\n'), quote: unq(T.CITAT),
-        qName: T.NAMN || '', qTitle: [T.TITEL, T.BOLAG].filter(Boolean).join(', '), quote2: unq(T.CITAT_2), q2Name: T.NAMN_2 || '', q2Title: T.TITEL_2 || '', url: '' });
+        qName: T.NAMN || '', qTitle: [T.TITEL, T.BOLAG].filter(Boolean).join(', '), quote2: unq(T.CITAT_2), q2Name: T.NAMN_2 || '', q2Title: T.TITEL_2 || '', flash: !!T.NYHET && !/^\s*nej/i.test(T.NYHET), url: '' });
     }
     state.kind = kind;
     writeForm(); save(); t = 0; slide = 0; buildScenes(); draw(); if (mode === 'film') play();
@@ -1105,6 +1106,21 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
         if (imgs.arImg) { const z = 1.1 - .1*eo(prog(l, 0, 5)); ctx.translate(W/2, 150 + imgH/2); ctx.scale(z, z); ctx.translate(-W/2, -(150 + imgH/2)); cover(imgs.arImg, 0, 150, W, imgH, .78); }
         else { ctx.fillStyle = B === BRANDS.ho ? '#DCDCDC' : '#EADCF0'; ctx.fillRect(0, 150, W, imgH); setFont('600 28px Inter, Arial, sans-serif'); ctx.fillStyle = '#8A8A90'; ctx.textAlign = 'center'; ctx.fillText('Lägg in en bild från reportaget', W/2, 150 + imgH/2 - 14); ctx.textAlign = 'left'; }
         ctx.restore();
+        if (A.flash) {
+          const pf = prog(l, .5, .7); if (pf > 0) {
+            const sc = pf < 1 ? .3 + .7*bounce(pf) : 1, txt = 'NYHET', fh = 84;
+            setFont('800 38px Inter, Arial, sans-serif', .08, 38); const fw = ctx.measureText(txt).width + 124;
+            const fx = PAD, fy = 150 + imgH - fh/2;
+            ctx.save(); ctx.translate(fx, fy + fh/2); ctx.scale(sc, sc); ctx.translate(0, -fh/2); ctx.globalAlpha = eo(Math.min(1, pf*2));
+            ctx.shadowColor = 'rgba(0,0,0,.25)'; ctx.shadowBlur = 18; ctx.shadowOffsetY = 6;
+            ctx.fillStyle = B.acc; rr(0, 0, fw, fh, B.pill ? fh/2 : 6); ctx.fill(); ctx.shadowColor = 'transparent';
+            const pulse = 1 + .12*Math.max(0, Math.sin((l - 1.2) * 5)) * (l > 1.2 && l < 3 ? 1 : 0);
+            ctx.save(); ctx.translate(52, fh/2); ctx.scale(1.3*pulse, 1.3*pulse); ctx.fillStyle = B.accInk;
+            ctx.beginPath(); ctx.moveTo(4,-24); ctx.lineTo(-14,4); ctx.lineTo(-1,4); ctx.lineTo(-6,24); ctx.lineTo(14,-5); ctx.lineTo(1,-5); ctx.closePath(); ctx.fill(); ctx.restore();
+            ctx.fillStyle = B.accInk; ctx.textBaseline = 'middle'; ctx.fillText(txt, 92, fh/2 + 2); ctx.textBaseline = 'top';
+            ctx.restore(); setFont(B.body(22));
+          }
+        }
         let y = 150 + imgH + 56;
         const qstep = .7 / Math.max(1, TL.words.length);
         drawWords(TL, PAD, y, B.ink, k => eo(prog(l, .45 + k*qstep, .4)));
@@ -1432,6 +1448,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
   $$('#kindSeg button').forEach(b => b.addEventListener('click', () => { setKind(b.dataset.kind); save(); t = 0; slide = 0; buildScenes(); draw(); if (mode === 'film') play(); }));
   $('fArImg').addEventListener('change', e => setImage('arImg', e.target.files[0]));
   $('fArFace').addEventListener('change', e => setImage('arFace', e.target.files[0]));
+  $('arFlash').addEventListener('change', e => { state.ar.flash = e.target.checked; save(); buildScenes(); draw(); });
   $('fArFace2').addEventListener('change', e => setImage('arFace2', e.target.files[0]));
   $('rmArFace2').addEventListener('click', () => { state.arFace2 = null; imgs.arFace2 = null; setThumb('thArFace2', null); save(); buildScenes(); draw(); });
   $('rmArImg').addEventListener('click', () => { state.arImg = null; imgs.arImg = null; setThumb('thArImg', null); save(); buildScenes(); draw(); });

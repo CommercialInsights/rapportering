@@ -132,6 +132,17 @@ Bra citat: *Det nya namnet, Wallenius Link, speglar oss som organisation.* (för
 Svagt citat: *Vi är väldigt glada över satsningen.*
 Svagt citat: *För ingen bransch klarar sig på egen hand.* (allmän fras som kunde stått i vilken text som helst)
 
+### Nytt nummer (tidning)
+
+Välj **Nytt nummer** i rutan *Artikeln*. Samma fält som reportage, men texterna i bild blir "Nytt nummer", "I det här numret" och "Läs hela numret på …".
+
+- **Bild:** visa hela tidningsomslaget, gärna med ett par uppslag bakom, i stället för ett beskuret omslag.
+- **Rubrik:** ledarens rubrik eller numrets tema. **Ingress:** vad numret handlar om, högst 140 tecken.
+- **Tre punkter:** tre av numrets starkaste artiklar, en per rad, högst 60 tecken, med bolagsnamnet först.
+- **Citat 1 och 2:** från två olika artiklar i numret.
+- **Länktext i slutet:** till exempel "HallbarOmstallning.se/las-tidning".
+- Bocka i **Nyhetsflash** när numret precis har släppts.
+
 ### Krönika
 
 Filmen har tre bilder: krönikören med rubrik, citat och "Läs hela krönikan på …".
@@ -209,7 +220,7 @@ Svara **bara** med taggarna nedan, en tagg per rad, i den ordning de står. Inge
 - Följ teckengränserna i avsnitt 1–5: punkter och insikter högst 60 tecken, ingress och citat högst 140 tecken.
 - Går något inte att belägga i källtexten: skriv `[SAKNAS]` som värde. Hitta aldrig på.
 - Utelämna valfria taggar som inte behövs hellre än att lämna dem tomma.
-- `[FORMAT]` är alltid ett av: Tre snabba, Rapportfilm, Veckans rapporter, Reportage, Krönika.
+- `[FORMAT]` är alltid ett av: Tre snabba, Rapportfilm, Veckans rapporter, Reportage, Krönika, Nytt nummer.
 - `[SAJT]` är alltid ett av: DM, HO, DR.
 
 ### Tre snabba
@@ -292,6 +303,10 @@ En `[RAPPORT_n]`-rad per rapport, högst 8, i samma ordning som omslagen läggs 
 [TITEL_2] titel med liten bokstav plus bolag, t.ex. styrelseordförande, Wallenius Link
 [INLAGG] Inläggstexten
 ```
+
+### Nytt nummer
+
+Som Reportage, men med `[FORMAT] Nytt nummer`. Punkterna är tre av numrets artiklar, och citaten kommer från två olika artiklar.
 
 ### Krönika
 

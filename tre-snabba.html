@@ -221,6 +221,7 @@ canvas#cv{width:100%;height:100%;display:block}
       <div class="seg" role="group" aria-label="Artikeltyp" id="arTypeSeg">
         <button type="button" data-ar="reportage" aria-pressed="true">Reportage</button>
         <button type="button" data-ar="kronika" aria-pressed="false">Krönika</button>
+        <button type="button" data-ar="nummer" aria-pressed="false">Nytt nummer</button>
       </div>
       <div class="drop ar-rep" id="dropArImg">
         <div class="thumb" id="thArImg" aria-hidden="true">
@@ -601,6 +602,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     if (/vecka/.test(fmt)) kind = 'veckan';
     else if (/snabba/.test(fmt)) kind = 'snabba';
     else if (/kr[öo]nika/.test(fmt)) { kind = 'artikel'; arType = 'kronika'; }
+    else if (/nummer|tidning/.test(fmt)) { kind = 'artikel'; arType = 'nummer'; }
     else if (/reportage/.test(fmt)) { kind = 'artikel'; arType = 'reportage'; }
     else if (/rapport/.test(fmt)) kind = 'rapport';
     const sj = (T.SAJT || '').toLowerCase();
@@ -633,7 +635,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     }
     state.kind = kind;
     writeForm(); save(); t = 0; slide = 0; buildScenes(); draw(); if (mode === 'film') play();
-    const names = { snabba:'Tre snabba', rapport:'Rapportfilm', veckan:'Veckans rapporter', artikel: arType === 'kronika' ? 'Krönika' : 'Reportage' };
+    const names = { snabba:'Tre snabba', rapport:'Rapportfilm', veckan:'Veckans rapporter', artikel: arType === 'kronika' ? 'Krönika' : (arType === 'nummer' ? 'Nytt nummer' : 'Reportage') };
     const siteN = { dm:'Dagens Medarbetare', ho:'Hållbar Omställning', dr:'Dagensrapport' };
     const warn = [];
     const saknas = Object.entries(T).filter(([k, v]) => /\[?SAKNAS\]?/i.test(v)).map(([k]) => k);
@@ -1055,8 +1057,8 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
 
   // ---------- Artikel: reportage och krönika ----------
   function buildArtikel(){
-    const B = BRANDS[state.site], A = state.ar, isK = A.type === 'kronika';
-    const title = (A.title || (isK ? 'Krönikans rubrik' : 'Reportagets rubrik')).trim();
+    const B = BRANDS[state.site], A = state.ar, isK = A.type === 'kronika', isN = A.type === 'nummer';
+    const title = (A.title || (isK ? 'Krönikans rubrik' : (isN ? 'Numrets rubrik' : 'Reportagets rubrik'))).trim();
     const lead = (A.lead || '').trim(), byline = (A.byline || '').trim();
     const pts = linesOf(A.points).slice(0, 3).map(glue);
     const quote = (A.quote || '').trim().replace(/^[”"“„»«']+|[”"“„»«']+$/g, '');
@@ -1064,7 +1066,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     const quote2 = isK ? '' : (A.quote2 || '').trim().replace(/^[”"“„»«']+|[”"“„»«']+$/g, '');
     const q2Name = (A.q2Name || '').trim(), q2Title = (A.q2Title || '').trim();
     const url = (A.url || B.url).trim();
-    const label = isK ? 'Krönika' : 'Reportage';
+    const label = isK ? 'Krönika' : (isN ? 'Nytt nummer' : 'Reportage');
     const host = () => { setFont(B.body(22)); ctx.fillStyle = B.mute; ctx.textBaseline = 'top'; ctx.fillText(B.host, PAD, H - 96); };
     const list = [];
     const scenesPlanned = isK ? (quote ? 3 : 2) : (1 + (pts.length ? 1 : 0) + (quote ? 1 : 0) + (quote2 ? 1 : 0) + 1);
@@ -1131,7 +1133,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
       }});
       // R2: tre saker
       if (pts.length) {
-        const i1 = idx++, head = pts.length === 1 ? 'Det här tar reportaget upp' : (pts.length === 2 ? 'Två saker från reportaget' : 'Tre saker från reportaget');
+        const i1 = idx++, head = isN ? 'I det här numret' : (pts.length === 1 ? 'Det här tar reportaget upp' : (pts.length === 2 ? 'Två saker från reportaget' : 'Tre saker från reportaget'));
         const insW = 300, hasIns = !!imgs.arImg, insH = hasIns ? Math.min(insW * imgs.arImg.height / imgs.arImg.width, insW * 1.25) + 26 : 0;
         const hS = fitFont(head, z => B.head(z), 68, 36, W - 2*PAD - (hasIns ? insW + 30 : 0), B.headLS);
         let ps = 58, PL;
@@ -1231,7 +1233,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
         else { ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.3)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 16; ctx.fillStyle = '#fff'; rr(-mw/2, -mh/2, mw, mh, 8); ctx.fill(); ctx.restore(); rr(-mw/2, -mh/2, mw, mh, 8); ctx.clip(); cover(mi, -mw/2, -mh/2, mw, mh, .3); }
         ctx.restore();
       }
-      const hs = 110, l1 = 'Läs hela', l2 = (isK ? 'krönikan' : 'reportaget') + ' på', top = 560;
+      const hs = 110, l1 = 'Läs hela', l2 = (isK ? 'krönikan' : (isN ? 'numret' : 'reportaget')) + ' på', top = 560;
       const hsz = Math.min(hs, fitFont(l2, z => B.head(z), hs, 60, W - 2*PAD, B.headLS));
       [l1, l2].forEach((txt, k) => { const p = eo(prog(l, .05 + k*.15, .55)); ctx.save(); ctx.beginPath(); ctx.rect(0, top + k*hsz - 6, W, hsz + 20); ctx.clip(); setFont(B.head(hsz), B.headLS, hsz); ctx.fillStyle = B.ctaInk; ctx.textBaseline = 'top'; ctx.fillText(txt, PAD, top + k*hsz + (1-p)*hsz*1.1); ctx.restore(); });
       const pp = prog(l, .55, .6), sc = pp < 1 ? .8 + .2*bounce(pp) : 1;

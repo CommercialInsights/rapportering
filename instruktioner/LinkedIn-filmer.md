@@ -125,6 +125,8 @@ Filmen har fyra till fem bilder:
 | Vem säger det (citat 2) | För- och efternamn. |
 | Titel och bolag (citat 2) | Titel med liten bokstav plus bolag, till exempel "styrelseordförande, Wallenius Link". |
 | Porträtt till citat 2 | Valfritt. Visas stort vid citat 2. |
+| Citat 3 och 4 | Valfria, med namn, titel och porträtt på samma sätt som citat 2. Varje citat blir en egen sida. |
+| Bild till citat 1–4 | Valfritt. En skärmdump av artikeln eller en bild därifrån, som visas på citatsidan i stället för reportagebilden. Använd porträtt bara när det är säkert vem som är på bilden. |
 | Länktext i slutet | Tomt fält ger sajtens adress. Lämna tomt. |
 
 Bra citat: *RFID ses fortfarande som en teknikfråga, men egentligen handlar det om affärsutveckling.*
@@ -139,7 +141,7 @@ Välj **Nytt nummer** i rutan *Artikeln*. Samma fält som reportage, men textern
 - **Bild:** visa hela tidningsomslaget, gärna med ett par uppslag bakom, i stället för ett beskuret omslag.
 - **Rubrik:** ledarens rubrik eller numrets tema. **Ingress:** vad numret handlar om, högst 140 tecken.
 - **Tre punkter:** tre av numrets starkaste artiklar, en per rad, högst 60 tecken, med bolagsnamnet först.
-- **Citat 1 och 2:** från två olika artiklar i numret.
+- **Citat 1–4:** ett citat per artikel, från olika bolag i numret. Lägg en skärmdump av artikeln under *Bild till citat* för varje citat.
 - **Länktext i slutet:** till exempel "HallbarOmstallning.se/las-tidning".
 - Bocka i **Nyhetsflash** när numret precis har släppts.
 
@@ -282,7 +284,7 @@ En `[RAPPORT_n]`-rad per rapport, högst 8, i samma ordning som omslagen läggs 
 
 ### Reportage
 
-`[BYLINE]`, `[NYHET]` och `[CITAT_2]`–`[TITEL_2]` är valfria. Ta med `[NYHET] ja` bara för rena nyheter. Ta med ett andra citat när texten är längre och har ett till starkt citat, helst från en annan person. `[TITEL_2]` skrivs med bolaget.
+`[BYLINE]`, `[NYHET]` och `[CITAT_2]`–`[TITEL_4]` är valfria. Ta med `[NYHET] ja` bara för rena nyheter. Ta med ett andra citat när texten är längre och har ett till starkt citat, helst från en annan person. `[TITEL_2]` skrivs med bolaget.
 
 ```
 [FORMAT] Reportage
@@ -301,6 +303,12 @@ En `[RAPPORT_n]`-rad per rapport, högst 8, i samma ordning som omslagen läggs 
 [CITAT_2] Ett andra ordagrant citat, högst 140 tecken, utan citattecken
 [NAMN_2] Den som säger citat 2, för- och efternamn
 [TITEL_2] titel med liten bokstav plus bolag, t.ex. styrelseordförande, Wallenius Link
+[CITAT_3] Valfritt tredje citat
+[NAMN_3] …
+[TITEL_3] titel plus bolag
+[CITAT_4] Valfritt fjärde citat
+[NAMN_4] …
+[TITEL_4] titel plus bolag
 [INLAGG] Inläggstexten
 ```
 

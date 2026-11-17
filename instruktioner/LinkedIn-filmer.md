@@ -140,7 +140,8 @@ Välj **Nytt nummer** i rutan *Artikeln*. Samma fält som reportage, men textern
 
 - **Bild:** visa hela tidningsomslaget, gärna med ett par uppslag bakom, i stället för ett beskuret omslag.
 - **Rubrik:** ledarens rubrik eller numrets tema. **Ingress:** vad numret handlar om, högst 140 tecken.
-- **Tre punkter:** tre av numrets starkaste artiklar, en per rad, högst 60 tecken, med bolagsnamnet först.
+- **Punkter:** upp till fem av numrets artiklar, en per rad, med bolagsnamnet först. Håll dem korta, helst under 40 tecken, när det är fem.
+- **Bild:** ett rutnät med tidningsomslaget stort och några av bolagens sidor bredvid ger ett bra omslag.
 - **Citat 1–4:** ett citat per artikel, från olika bolag i numret. Lägg en skärmdump av artikeln under *Bild till citat* för varje citat.
 - **Länktext i slutet:** till exempel "HallbarOmstallning.se/las-tidning".
 - Bocka i **Nyhetsflash** när numret precis har släppts.
@@ -314,7 +315,7 @@ En `[RAPPORT_n]`-rad per rapport, högst 8, i samma ordning som omslagen läggs 
 
 ### Nytt nummer
 
-Som Reportage, men med `[FORMAT] Nytt nummer`. Punkterna är tre av numrets artiklar, och citaten kommer från två olika artiklar.
+Som Reportage, men med `[FORMAT] Nytt nummer`. Punkterna (`[PUNKT_1]`–`[PUNKT_5]`) är upp till fem av numrets artiklar, och citaten kommer från två olika artiklar.
 
 ### Krönika
 

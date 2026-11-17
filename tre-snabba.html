@@ -513,7 +513,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
   const TEXT_IDS = ['name','role','roleShort','title','lead','url','topics'];
   const AR_IDS = { arTitle:'title', arLead:'lead', arByline:'byline', arPoints:'points', arQuote:'quote', arQName:'qName', arQTitle:'qTitle', arQuote2:'quote2', arQ2Name:'q2Name', arQ2Title:'q2Title', arQuote3:'quote3', arQ3Name:'q3Name', arQ3Title:'q3Title', arQuote4:'quote4', arQ4Name:'q4Name', arQ4Title:'q4Title', arUrl:'url' };
   const RP_IDS = { rCompany:'company', rReport:'report', rInsights:'insights', rName:'name', rTitle:'title', rTopics:'topics' };
-  const linesOf = s => (s || '').split(/\n+/).map(x => x.replace(/^\s*(?:\d+[.)]|[-–•*])\s*/, '').trim()).filter(Boolean);
+  const linesOf = s => (s || '').split(/\n+/).map(x => x.replace(/^\s*(?:\d+[.)]|[-–•]|\*(?=\s))\s*/, '').trim()).filter(Boolean);
 
   function readForm(){
     Object.entries(RP_IDS).forEach(([id, k]) => state.rp[k] = $(id).value);
@@ -1211,7 +1211,8 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
         let ps = 58, PL;
         const listTop = imgs.arImg ? 150 + Math.min(300 * imgs.arImg.height / imgs.arImg.width, 375) + 26 + 40 : 330;
         const many = pts.length > 3, RMIN = many ? 72 : 96, RPAD = many ? 40 : 64;
-        for (;;) { PL = pts.map(x => layout(x, B.qHead(ps), W - 2*PAD - 130, ps*1.12, B.headLS)); const tot = PL.reduce((a, L) => a + Math.max(RMIN, L.h) + RPAD, 0); if (tot <= H - listTop - 160 || ps <= 32) break; ps -= 2; }
+        const MK = pts.map(x => { let on = false; return x.split(/ +/).filter(Boolean).map(w => { const st = on || w.startsWith('*'); if (w.startsWith('*')) on = true; const r = on || st; if (w.replace(/[.,:;!?]+$/, '').endsWith('*')) on = false; return r; }); });
+        for (;;) { PL = pts.map(x => layout(x.replace(/\*/g, ''), B.qHead(ps), W - 2*PAD - 130, ps*1.12, B.headLS)); const tot = PL.reduce((a, L) => a + Math.max(RMIN, L.h) + RPAD, 0); if (tot <= H - listTop - 160 || ps <= 32) break; ps -= 2; }
         const F0 = .9, FSTEP = 1.0;
         list.push({ dur: F0 + pts.length*FSTEP + 1.6, draw:(l) => {
           ctx.fillStyle = B.q(ctx); ctx.fillRect(0,0,W,H);
@@ -1232,6 +1233,12 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
             else if (B.numStyle === 'serif') { setFont('500 104px "Noto Serif", Georgia, serif'); ctx.fillStyle = B.acc; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(String(i+1), 0, 4); }
             else { setFont('700 100px Inter, Arial, sans-serif'); ctx.fillStyle = B.acc; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(String(i+1), 0, 4); }
             ctx.restore(); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+            const pu = eo(prog(l, a0 + .45, .5));
+            if (pu > 0 && MK[i].some(Boolean)) {
+              const fs = sizeOf(L.font), ox = PAD + 130, oy = cy - L.h/2, segs = [];
+              L.words.forEach((w, k) => { if (!MK[i][k]) return; const sg = segs[segs.length-1]; if (sg && sg.y === w.y && MK[i][k-1]) sg.x2 = w.x + w.w; else segs.push({ y:w.y, x1:w.x, x2:w.x + w.w }); });
+              ctx.fillStyle = B.acc; segs.forEach(sg => ctx.fillRect(ox + sg.x1, oy + sg.y + fs*1.0, (sg.x2 - sg.x1) * pu, Math.max(6, fs*.11)));
+            }
             drawWords(L, PAD + 130, cy - L.h/2, B.ink);
             ctx.restore();
             y += rowH; ctx.fillStyle = 'rgba(17,17,17,.12)'; ctx.fillRect(PAD, y, W - 2*PAD, 2);

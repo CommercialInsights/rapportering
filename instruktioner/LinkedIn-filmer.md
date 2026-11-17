@@ -140,7 +140,7 @@ Välj **Nytt nummer** i rutan *Artikeln*. Samma fält som reportage, men textern
 
 - **Bild:** visa hela tidningsomslaget, gärna med ett par uppslag bakom, i stället för ett beskuret omslag.
 - **Rubrik:** ledarens rubrik eller numrets tema. **Ingress:** vad numret handlar om, högst 140 tecken.
-- **Punkter:** upp till fem av numrets artiklar, en per rad, med bolagsnamnet först. Håll dem korta, helst under 40 tecken, när det är fem.
+- **Punkter:** upp till fem av numrets artiklar, en per rad, med bolagsnamnet först. Håll dem korta, helst under 40 tecken, när det är fem. Sätt bolagsnamnet inom stjärnor, till exempel `*Wallenius Link* går på ren biodiesel`, så får namnet en grön strykning under sig. Det fungerar i alla punktlistor för reportage.
 - **Bild:** ett rutnät med tidningsomslaget stort och några av bolagens sidor bredvid ger ett bra omslag.
 - **Citat 1–4:** ett citat per artikel, från olika bolag i numret. Lägg en skärmdump av artikeln under *Bild till citat* för varje citat.
 - **Länktext i slutet:** till exempel "HallbarOmstallning.se/las-tidning".

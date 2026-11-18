@@ -443,6 +443,15 @@ function normFilename(name) {
     .replace(/é/g,'e').replace(/è/g,'e').replace(/ü/g,'u')
     .replace(/[^a-z0-9.]/g,'-');
 }
+// Bilder matchas på namnet utan filändelse, så att svensk.webp eller svensk.png hittas av [BILD] svensk.jpg
+function bildNyckel(name) {
+  return normFilename(name).replace(/\.(jpe?g|png|webp|gif|avif|heic|heif)$/, '');
+}
+function filandelse(fil) {
+  const m = (fil.name || '').toLowerCase().match(/\.([a-z0-9]+)$/);
+  if (m) return m[1] === 'jpeg' ? 'jpg' : m[1];
+  return ({'image/png':'png','image/webp':'webp','image/gif':'gif'})[fil.type] || 'jpg';
+}
 
 function onSkribent() {
   const val = document.querySelector('input[name=skribent]:checked')?.value;
@@ -463,18 +472,18 @@ function onDrop(e) {
 }
 
 function onFiles(files) {
-  for (const f of files) uploadedFiles[normFilename(f.name)] = f;
+  for (const f of files) uploadedFiles[bildNyckel(f.name)] = f;
   renderFileList();
   onParse();
 }
 
 function renderFileList() {
   const parsedArticles = parseAll();
-  const neededImages = new Set(parsedArticles.map(a => normFilename(a.BILD)).filter(Boolean));
+  const neededImages = new Set(parsedArticles.map(a => bildNyckel(a.BILD)).filter(Boolean));
   const list = document.getElementById('fileList');
   list.innerHTML = Object.keys(uploadedFiles).map(name => {
     const matched = neededImages.has(name);
-    return `<span class="file-chip ${matched?'':'unmatched'}">${matched?'✓':'⚠'} ${name}</span>`;
+    return `<span class="file-chip ${matched?'':'unmatched'}">${matched?'✓':'⚠'} ${uploadedFiles[name].name}</span>`;
   }).join('');
 }
 
@@ -517,7 +526,7 @@ function onParse() {
   if (!articles.length || !sajt) { container.innerHTML=''; return; }
 
   container.innerHTML = articles.map((a, i) => {
-    const bildNavn = normFilename(a.BILD);
+    const bildNavn = bildNyckel(a.BILD);
     const bildOk = bildNavn && uploadedFiles[bildNavn];
     const fields = sajt === 'dr3' ? [
       {l:'Rubrik', v:a.RUBRIK},
@@ -645,10 +654,10 @@ async function publishOne(article, site, index, skribentOverride) {
 
   // Bild
   let bild = null;
-  const bildFil = article.BILD ? uploadedFiles[normFilename(article.BILD)] : null;
+  const bildFil = article.BILD ? uploadedFiles[bildNyckel(article.BILD)] : null;
   if (bildFil) {
     setCard(index, 'running', `<span class="spinner"></span> Artikel ${index+1} — Förbereder bild…`, '');
-    bild = { namn: article.BILD, typ: bildFil.type || 'image/jpeg', data: await filTillBase64(bildFil), titel: article.RUBRIK || '', bildtext: article.BILDTEXT || '' };
+    bild = { namn: bildNyckel(article.BILD) + '.' + filandelse(bildFil), typ: bildFil.type || 'image/jpeg', data: await filTillBase64(bildFil), titel: article.RUBRIK || '', bildtext: article.BILDTEXT || '' };
   }
 
   const kontakter = parseKontakter(article.KONTAKT);

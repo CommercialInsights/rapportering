@@ -1271,7 +1271,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     // Citat (båda) – citat 2 bara i reportage, med ljus bakgrund så att de skiljer sig åt
     function quoteScene(quote, qName, qTitle, face, alt, qimg){
       const iq = idx++;
-      const qi = isK ? null : (qimg || imgs.arImg), qar = qi ? Math.min(qi.height / qi.width, 1.25) : 0;
+      const qi = isK ? null : (qimg || (face ? null : imgs.arImg)), qar = qi ? Math.min(qi.height / qi.width, 1.25) : 0;
       const iw = qi ? (qimg ? (face ? 300 : 340) : 280) : 0, ih = qi ? iw * qar + 26 : 0;
       const FR = face ? 118 : 0, rowH = Math.max(96, face ? 2*FR + 16 : 0, qimg ? ih : 0);
       const qMax = Math.min(600, H - 150 - 140 - 170 - 70 - rowH);

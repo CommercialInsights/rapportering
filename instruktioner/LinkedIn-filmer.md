@@ -223,7 +223,7 @@ Svara **bara** med taggarna nedan, en tagg per rad, i den ordning de står. Inge
 - Följ teckengränserna i avsnitt 1–5: punkter och insikter högst 60 tecken, ingress och citat högst 140 tecken.
 - Går något inte att belägga i källtexten: skriv `[SAKNAS]` som värde. Hitta aldrig på.
 - Utelämna valfria taggar som inte behövs hellre än att lämna dem tomma.
-- `[FORMAT]` är alltid ett av: Tre snabba, Rapportfilm, Veckans rapporter, Reportage, Krönika, Nytt nummer.
+- `[FORMAT]` är alltid ett av: Tre snabba, Rapportfilm, Veckans rapporter, Reportage, Krönika, Nytt nummer, Rapporten i rörelse.
 - `[SAJT]` är alltid ett av: DM, HO, DR.
 
 ### Tre snabba
@@ -329,4 +329,31 @@ Som Reportage, men med `[FORMAT] Nytt nummer`. Punkterna (`[PUNKT_1]`–`[PUNKT_
 [TITEL] titel med liten bokstav
 [BOLAG] Bolagets namn
 [INLAGG] Inläggstexten
+```
+
+## Rapporten i rörelse (Dagensrapport)
+
+En film där kameran åker över rapportens egna sidor och zoomar in på 4–7 nedslag. Välj **Rapporten i rörelse** i studion och ladda upp rapporten som PDF.
+
+**Så väljer du nedslag**
+1. Börja med rapportens egen sammanfattning ("i korthet", vd-ord, nyckeltalssida). Där står det författarna själva tycker är viktigast.
+2. Välj siffror med kontrast: en jämförelse med förra året, med övriga eller med ett mål. En siffra utan jämförelse är svag.
+3. Ta med ett diagram om rapporten har ett tydligt.
+4. Ta med ett nedslag längre bak i rapporten, "Det du kanske missade": en not, en risk, en regional skillnad.
+5. Avsluta gärna med ett citat eller rapportens slutsats.
+6. Varje siffra ska stå på den sida du anger. Sidnumret visas i filmen som källa.
+
+**I studion:** klicka på en sida och dra en ruta runt det som ska lyftas fram. Fyll i rubrik, siffra, kort förklaring och jämförelse i listan. Typ *Citat* visar texten som ett citat, typ *Det du kanske missade* lägger till en etikett.
+
+**Svar från AI med taggar.** Fälten i `[NEDSLAG_n]` skiljs åt med `|`: sida | text att söka efter på sidan (ordagrant, 3–8 ord) | typ (Nyckeltal, Citat eller Det du kanske missade) | rubrik | siffra | kort förklaring | jämförelse. Studion söker upp texten och ritar rutan själv. Det som inte hittas ritar du för hand.
+
+```
+[FORMAT] Rapporten i rörelse
+[BOLAG] Mäklarsamfundet
+[RAPPORT] Det stora renoveringsarvet
+[RAPPORTTYP] Övrig
+[NEDSLAG_1] s. 3 | Av de cirka 343 000 | Nyckeltal | Småhus som ägs av 73+ | 343 000 | En femtedel av Sveriges permanentbebodda småhus | 19,5 % av alla småhus
+[NEDSLAG_2] s. 9 | Andel småhus som bytt elsystem | Nyckeltal | Har inte bytt elsystem sedan 2003 | 93 % | av småhusen som ägs av 73+ | Övriga beståndet: 80 %
+[NEDSLAG_3] s. 17 | 17-24 procentenheter | Det du kanske missade | Nacka | 17–24 | procentenheter skiljer mellan 73+ och övriga ägare |
+[NEDSLAG_4] s. 21 | Mycket talar nämligen för att det inte blir arvtagarna | Citat | Ur rapporten · Mäklarsamfundet | | Mycket talar nämligen för att det inte blir arvtagarna som kommer behöva genomföra nödvändigt underhåll, utan nya ägare. |
 ```

@@ -223,7 +223,8 @@ Svara **bara** med taggarna nedan, en tagg per rad, i den ordning de står. Inge
 - Följ teckengränserna i avsnitt 1–5: punkter och insikter högst 60 tecken, ingress och citat högst 140 tecken.
 - Går något inte att belägga i källtexten: skriv `[SAKNAS]` som värde. Hitta aldrig på.
 - Utelämna valfria taggar som inte behövs hellre än att lämna dem tomma.
-- `[FORMAT]` är alltid ett av: Tre snabba, Rapportfilm, Veckans rapporter, Reportage, Krönika, Nytt nummer, Rapporten i rörelse.
+- `[FORMAT]` är alltid ett av: Tre snabba, Rapportfilm, Veckans rapporter, Reportage, Krönika, Nytt nummer, Nyhet, Debatt, Rapporten i rörelse.
+- `[SAJT]` är DM, HO, DR eller Lokalpolitiker.
 - `[SAJT]` är alltid ett av: DM, HO, DR.
 
 ### Tre snabba
@@ -356,4 +357,29 @@ En film där kameran åker över rapportens egna sidor och zoomar in på 4–7 n
 [NEDSLAG_2] s. 9 | Andel småhus som bytt elsystem | Nyckeltal | Har inte bytt elsystem sedan 2003 | 93 % | av småhusen som ägs av 73+ | Övriga beståndet: 80 %
 [NEDSLAG_3] s. 17 | 17-24 procentenheter | Det du kanske missade | Nacka | 17–24 | procentenheter skiljer mellan 73+ och övriga ägare |
 [NEDSLAG_4] s. 21 | Mycket talar nämligen för att det inte blir arvtagarna | Citat | Ur rapporten · Mäklarsamfundet | | Mycket talar nämligen för att det inte blir arvtagarna som kommer behöva genomföra nödvändigt underhåll, utan nya ägare. |
+```
+
+## Lokalpolitiker.se
+
+Lokalpolitiker finns som fjärde sajt i studion (svart, vitt och gult, rubriker i Newsreader). Tre format används:
+
+- **Tre snabba:** som för övriga sajter. Titeln skrivs med parti, till exempel "kommunstyrelsens ordförande (S)", och bolaget är kommunen eller regionen.
+- **Nyhet:** välj *Nyhet* i rutan *Artikeln*. Samma fält som reportage, men texterna i bild blir "Tre saker från nyheten" och "Läs hela nyheten på …".
+- **Debatt:** välj *Debatt*. Bylinen är debattören med titel och parti. Punkterna är debattörens bärande argument ("Debattörens tre argument"), citatet är debattörens egna ord, och slutet blir "Läs hela debattartikeln på …".
+
+Håll texterna partipolitiskt neutrala: återge vad politikern eller debattören säger, utan egna värderingar.
+
+```
+[FORMAT] Debatt
+[SAJT] Lokalpolitiker
+[RUBRIK] Debattartikelns rubrik
+[INGRESS] Första meningen, högst 140 tecken
+[BYLINE] Förnamn Efternamn, titel (parti)
+[PUNKT_1] Första argumentet, högst 60 tecken
+[PUNKT_2] …
+[PUNKT_3] …
+[CITAT] Ordagrant citat ur debattartikeln
+[NAMN] Förnamn Efternamn
+[TITEL] titel (parti)
+[BOLAG] Kommun eller region
 ```

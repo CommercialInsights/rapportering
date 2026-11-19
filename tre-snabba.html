@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>LinkedIn-studion</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,700&family=Inter:wght@400;500;600;700;800&family=Noto+Serif:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,700&family=Inter:wght@400;500;600;700;800&family=Noto+Serif:ital,wght@0,400;0,500;0,600;1,400&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,700;1,6..72,500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
 /* Layout: form column (left) + sticky preview column (right) on wide screens; stacked on phones. Neutral dark tool shell; the canvas carries each site's brand. */
 :root{
@@ -174,6 +174,7 @@ canvas#cv{width:100%;height:100%;display:block}
       <div class="seg" role="group" aria-label="Sajt" id="siteSeg">
         <button type="button" data-site="dm" aria-pressed="true">Dagens Medarbetare</button>
         <button type="button" data-site="ho" aria-pressed="false">Hållbar Omställning</button>
+        <button type="button" data-site="lp" aria-pressed="false">Lokalpolitiker</button>
         <button type="button" data-site="dr" aria-pressed="false">Dagensrapport</button>
       </div>
     </fieldset>
@@ -245,6 +246,8 @@ canvas#cv{width:100%;height:100%;display:block}
         <button type="button" data-ar="reportage" aria-pressed="true">Reportage</button>
         <button type="button" data-ar="kronika" aria-pressed="false">Krönika</button>
         <button type="button" data-ar="nummer" aria-pressed="false">Nytt nummer</button>
+        <button type="button" data-ar="nyhet" aria-pressed="false">Nyhet</button>
+        <button type="button" data-ar="debatt" aria-pressed="false">Debatt</button>
       </div>
       <div class="drop ar-rep" id="dropArImg">
         <div class="thumb" id="thArImg" aria-hidden="true">
@@ -544,8 +547,15 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
       ink:'#111111', mute:'#555555', acc:'#111111', accInk:'#FFFFFF', ctaInk:'#FFFFFF', ctaMute:'#BDBDBD', pillBg:'#FFFFFF', pillInk:'#111111', pillArrow:'#111111', ctaDark:true, ctaTag:['#FFFFFF','#111111'],
       head:(s)=>`700 ${s}px Inter, Arial, sans-serif`, headLS:-.03, qHead:(s)=>`700 ${s}px Inter, Arial, sans-serif`,
       ans:(s)=>`500 ${s}px Inter, Arial, sans-serif`, body:(s,w=400)=>`${w} ${s}px Inter, Arial, sans-serif`,
-      tagFont:'700 22px Inter, Arial, sans-serif', tagLS:0, numStyle:'big', pill:true }
+      tagFont:'700 22px Inter, Arial, sans-serif', tagLS:0, numStyle:'big', pill:true },
+    lp: { host:'lokalpolitiker.se', url:'Lokalpolitiker.se',
+      cover: () => '#F3F2EE', q: () => '#FFFFFF', cta: () => '#141414', bar: () => '#E9B949',
+      ink:'#141414', mute:'#5B5850', acc:'#E9B949', accInk:'#141414', ctaInk:'#FFFFFF', ctaMute:'#8A877F', pillBg:'#E9B949', pillInk:'#141414', pillArrow:'#141414', ctaDark:true, ctaTag:['#E9B949','#141414'],
+      head:(s)=>`700 ${s}px Newsreader, Georgia, serif`, headLS:-.02, qHead:(s)=>`700 ${s}px Newsreader, Georgia, serif`,
+      ans:(s)=>`italic 500 ${s}px Newsreader, Georgia, serif`, body:(s,w=400)=>`${w} ${s}px "IBM Plex Sans", Arial, sans-serif`,
+      tagFont:'600 22px "IBM Plex Sans", Arial, sans-serif', tagLS:.08, numStyle:'box', numFont:'700 54px Newsreader, Georgia, serif', r:0, markFont:'Newsreader, Georgia, serif' }
   };
+  const LP_LOGO_SRC = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAjAAAADECAYAAACBbRtJAAAo9ElEQVR42u2de7glVXmnf1V7n75DX2joppvuPn3vphtFAyqojxjBcRgUcplEjRkv4w1NxjEaHQ0RHU0m5hEwMWoIyTBRHJWbgIozDmEYJREhMxoNCBpiEAOoQKPQTXefvavmj7VWzqLYl6pVtXfVOft9n6ee05d9qmpXrcu3vu/7fSsSAAAAwPiIMockdSWlfT6/WtJWSXslPUXSUyVtjniOAAAAMCJDRZJi78+JPXqxTNIGSTsk7bYGy05JGyUdk/lsggEDAAAAVXlVYvv3VMar0osFktbLeFX2SDrBGiybJR074BqJPW8kaQYDBgAAAELDP6lnWPRirTVMdnuGynZJx1lDphd+OCnWE0NNjsNt3gUAAADkyFNJBhgryyVNS9ol6Xg9MfxzhPp7VBLves5708pzgxgwAAAAGCu9wj+9DJXFMt6T7dZQcV6VaUlH9zm/H06KMteLyybYAAAAwOSFf/rlqbRk8lG2ZAyVrZLWqb8DpOvlqWQ9OFVCCAkAAGCCZMq9vCpHaTZPZa/9uUNGEbQkR55K5OWqtMb1JTFgAAAA5p9MOe0jU94ok5vi8lR2SdokaaXy5alE4zZUCCEBAABMlkx5m2bVP8fLeFnW9pn704xMeZThnyo4jAEDAAAw92XKx3vhnypkyk2HHBgAAIA5IFNeIRPq2SVT/G2PRixTbjoYMAAAAM2TKe/QE70q0xqzTHmuJAABAADA+GXKWzN5KlvUDJmyCCEBAABMtkx5tWar1DpDZbsaLlMWISQAAICJkym7PJVd1nhZoTkmUyaEBAAAgEx5rsmUmw4yagAAQKZcYDfl463hMt9lyuTAAAAAzDGZ8l5rqEy0TFnkwAAAADRKprxBs7spO5nyZplkWyFTJgcGAACgTpnyOhmZ8i5kyiKEBAAAgEwZRAgJAACQKSNTBkJIAAAwP2TK2zNeFWTKIGTUAADQFJnyFplE2r0yXpWt1oBZKGTKQA4MAADUKFNeKRP+QaYMIgcGAADGZaz4eSp5d1N2eSrIlIEcGAAAaJxMebfnVdkqs8syMmUQISQAAKhbprxZJuRzgoxXZbuMpwWZMogQEgAA1ClTPkKmdspOzXpUkCkDISQAAGicTNkP/2yRtAaZMggZNQAA1CxTPtYaJn74Z6vYTRnIgQEAgAbKlPfIKIGQKYPIgQEAgCbJlF3oB5kykAMDAACNlilvkwkLtZApgwghAQBAjTLlozW7m/JeZMoAIoQEANBgmfIe++dpIVMGIIQEANAgmfLxXjn9rTKbFwqZMoCQUQMANECm7Id/tlkDBpkyADkwAAC1y5Q3aTb8s1fGw4JMGUDkwAAA1C1TXiLjPdnheVR2CZkyADkwAAANkym7PBVkygAihAQA0CSZ8uaM+geZMoAIIQEANEWmvFGz4Z+99s+bZHJYhEwZgBASAEBdMuWFMuGf7TLeFCdT3iJkygBCRg0AUL9Mea1my+nv8cI/64RMGYAcGAAAZMoAIHJgAGCCZcqDDJUlMsmz2z1DZaeQKQMAOTAA0DCZspMoI1MGABFCAoAmy5R3yHhaFiNTBgARQgKABsqUp8VuygBACAkAkCkDAAgZNQAy5aG7KSNTBgByYACgkTLlaT05/LNBxWTKhH8AQOTAAAAyZQAAcmAAJkam3JYJ/7jdlPfKhIG2yYR/YmTKACBCSADQAJnyLs3mqSBTBgARQgKApsiUN+nJ4Z9NQqYMAEAICaABMuX1MuGePdZQ2aXhMuXuAA8OAICQUQNAFTLlSNIazeapuJL6yJQBAMiBAWiUTHmn51XZKZOngkwZAEDkwADULVPeIBP+2euFf6aFTBkAgBwYgAbJlPd4MuWtQqYMACBCSADNkSnv1myuCjJlAAARQgJokkx5R0b9s1HIlAEACCEBIFMGAAAhowZkyn1lymutYeKX099uDZgpIVMGACAHBqABMuVdnrGyU0YRtEzIlAEARA4MwGhlymnGC6IeMuXtemL4Z1rIlAEAAJc5NECmvE4m/INMGQAARAgJmixTduX0d8h4WhYVzFMh/AMAIEJIAKOQKe/08lSQKQMAACEkaKxMebeMlwWZMgAACBk1IFMGAAAgBwaZcg6Z8h57hMiUJcI/AAAgcmBgNDLlHXqiV2WTkCkDAAA5MIBMGQAAQISQkCnnkinvlfGsbBcyZQAAECEkaK5MeZOk5UKmDAAAhJCgZpnycTIy5eM9r8q0BsuUE8I/AAAgZNQwBpnysTLhH99Q2SZkygAAAOTANEym7AwVZMoAAAAiB6bJMuVpSUcJmTIAAAA5MA2QKW/NhH+2yISFWsiUAQAARAipRpnyMTIeFGTKAAAAIoTUZJmyK6ePTBkAAIAQUqNkytv1RK/KtJApAwAACBl1s2TKJ1iDBZkyAAAAOTCNkCmvkgn1IFMGAAAQOTBNlim7PBVkygAAACIHpkky5W2ZPBVkygAAACKEhEwZAAAANEkhpKJ5KkdK2iiTm+IMFWTKAAAAMDIDpp9MOS0gU94saY2KyZTJUwEAAIChOTAhMuUt1lA5wRoqW4VMGQAAADSaHJi4ApnyRklLlV+mTPgHAAAAVCaElGiwTNkZKsiUAQAAoDEGzEY9Uaa8R7My5bigTLnNIwUAAACNIQfmPmuskKcCAAAAmis5MItkwkjdHh4V8lQAAABATQwhdYV3BQAAAOYQMUYLAAAAzEUDBgAAAAADBgAAAAADBgAAAAADBgAAADBgAAAAADBgAAAAADBgAAAAAAMGAAAAAAMGAAAAAAMGAAAAMGAAAAAAMGAAAAAAMGAAAAAAAwYAAAAAAwYAAAAAAwYAAAAwYAAAAAAwYAAAAABGQ5tHkJvU+5lm/i3yfkbe3wEmub/QVwBgXhkwSYnfHfeAl9gjktTKDMCD6NoBO1Z5L1cyBg+bP9GM692UvWaZtpDU7LVMxtB2owLttSqDJcm0+yjn73XtZ+OS91umTVUxtpS9virohxqRp77KPjOXxrS0QZGSZEzXmzMLizZhq74GSNTDAPmxpPslPSjpZ5IOSZqStEzSUZLW2qPdY2APHZzjedpg6+wkdbfBuCYjPB7BM3fnb3tGviQdsH3lR5L22b93JS2RtFzS0bavrMr0F7/vzbWBt4rrRxOQbjCXxrRoQlM+ei1IMGAkfUfS44ENY6cdANMRNayuHYTdQPx9STdKuknSNyTdaw2XfiyWtF7SHknPk3S6pBO883Uzg3ye+7nd/gxp7MdbA2tYWKwj6e8DG3ls72+5pG053o275iP2+UYBA0oiaYOk1QGDTCLpDkmHA9vQLvuey7Sx0Hea59kssH3kSEkregw+7rqtiga4lj3/YUlfk3SDpL+R9F1JD9i21Y+jJG2V9AxJL7B9ZmVmtRnnvJfIXu++gPeaSlpj+24a+PuRHR9+Evj7x9m++v0GTZqpXZxN2zYb8vsL7DjkexFulzQT+D13S1qUw/MSSfpmiX6USFpq739fTe8klXSEpO3273fahUA0guu0JC2011thv3urwoX4yHgwY22N+thd4l5vsefoVHxPSeac10h6sZ0I+hkHLW/V2e+lxpJOlXSJpMe8a3Vz3E9q382ywGe10K6AB73bGfvz3JJtqGWNvDzvxl3zTSWv+SsF24J7Boet8RPK7V7Yo2gbS63htmLEfXqB9WzslPQiSe+QdK2MBzH17r8b2F/8Z/5Pks631+o3GbQyRz+jZK2k10u6rc+1hrWp80s8s7dkzlXkcL/z5hLX/5ikyxq4yH2mNapCOUbSfu9ZPS5pXYnz3Tmk/7l38a4KvvtfSTqr5uf/XO+7/dwYvFZLJB0r6SRJr5D0J5K+NaD/13kcqsOA2esNalHB49YRPEC/I3xJ0rN6TM7tnJZnlDFufLZL+oucjcC9i312leq7/4cd7nNLhxgw7vrXed+z6Ptw3p3Lcr4Xdx+P2U6iAt8r+/2WF2y7iXePOwq2wdj7eVcFBszqgu807zGM1ZJebr2KoYOR+/zDkt5p34Pf/ocZ9VkXf6tH+CmS9FLrrXXPOslhQPyB1y6LtOFI0lsrMGB+u8T1L5H0qYDfH9Xh+sapku7x7iku+PvrMgbMIUmbA/vfAkn/OKD/ubb5f0r0Lzem/ZE91xleux7n83fXO837fqeM8F6GefNPkXSx9y47k2bAuPM/vUQ875uBk8ewwXifpFdnjJZWRa6yODM4n27d64MGS/esfmpd20XCJO5zR3or7qSH0daVyU9YE5hz4Dr6eQUG/hl7L9eVDGO43/uUPd9MQQNme8E26CfEfqcCA+boEcfXox7GdPZZv9iG0vIORr7n8Do7CckLRccV3bdv+C+TdEGfxUYvA+JDAaFx99m3V2DAvL3E9S+27bkp6lD3Pp9lF0ILC7ZZ9/ubJB3MTDrTgf1vStLdfdqCa58/8wyk0DHtzd41XlRRyDV0jPMNmGeN+F6yRmO7R1vcKenKnAuLkRswcU2Jbk2gYxvC31nr8lJv5ei711VBkmPXaxA32IZ4nf17J6d8O6QDxAPuKZb0BmvEFFUZtO2g/cuS3u89y7wd5NMql2TnfvfygPNEJSbbuILJZcobKKMRS5hd2+t4ybGuXXxeJvfkU/bfOjnOF9swzUtsWMGtBDsVKSRS7z5a1lP3Nkn/1v55WDtNSr6XOse2BZqfZPtnXGICHtTX3Rj7Fts2WwXbQ8uOaS+U9BH756Ylr05pfKUPXFpFJ2PQ3GXH/d+y/1aF2otCdiqeSNmWdLO1cO+0f++OUKrmGkTbut/PlgkpDTJiRqGqcPdwiUyuT7tgQqmb7J4u6RNeImeUM1HsYZlQXVoikdUZlzdaL1MrRyeKKjBC4jleO8lfNTkD4RWS/nRAO/CT914r6T97RlBnhINX1/PIXGk9lw8OMWLqfjcLRU2uoh7por+7YMB4fqVdiOZZGGbP25UJLX+mwYZlu8Zxw81fbgy8yI4H8Rjl3bXLslRy9bmgQqXRbZLOlHHptwo2+LIGROxNCJcNmDzaFa/Wndz1H2Ri/q2CRoTr6GskXa1ZNU6R2jjXe888LZk1/2gFxpAm2Ih3k8m5MgmLvdqD6y+vswb3lCedHseY0bHX/Lrtr48N8EwumAeFMpt4X1MlVv/tEc8zzri+T9IbAyZU50U40i7oVnrnpI30X4hP2fHgDwPmkTntgYlrDD/5jf1sOwGGPvyohIsx8bwZr5b012NoBL578FUyyVhFOoWf5HalTGy7W+D7u4S6/15hfQY/jMS2GOUK6v17L0yTZrx1vyfpz+27nwkYSKOCxe2yzNhr3ybp1wZMUimvtJEel1EbMJE1sB/yJNBF2mUqE9beXSAcPum453SeTFipFk9MPKHbAfy6TGJaO8BoiL1Gn2SMkaIdz60wX6bZWgOjdMm3JH3AGkwhoaOuTLLhcwp2dGc4/lCzcuukgu/jFAf3Zybe+UwZFdKgcOo9kv7Mnqfr/ftNdpBqB3opW5m+kgYmyDsj5joZtVELrxuTqG2XH5Xx7IaGwy+U8e515nEor+pxw9XamZH0+3VVLY4nzGXekqm3cGPggBx7A/FamQJNmzIu+ZCQzr0yyYqjsmLdZHSrpPcFDP7uWb3DeoyKdnT3na6RqQPRrqCxp/Y8+yV9cYLCSIOy8qPA1aNbxV5sByRnYOyXCXP6BnfRQbNrDY9tdoW73DM+o8BV33tk6vHE8+ydR57yY9jRmgPX0Yg9L20ZVeBvlxjTXi8TTh+F8dIq8JxH/fwHjRuheUkuT+1zyp+LiAFTInT0Y0m/GzjwOeNip6QvyCT+/r3tQF+XyV4PiZ26QflSmUJ9o1hZRtZweGVGfliko58j6YOBLlb3TD5TsavfneeKCQkjxTIS7DWZ4xgZybG/r1BIKOm7MqUK3LO8UEa22g4wrJ1H7D/IyLXvsEbHXTLFsZYGhIVTzxvzW5pfm0FGMnLjjvdz0NGtILdo0HHY/tzX8EXpK+3YVmRccZ6X59sFbXdEhlo3x3Pudxyq+Pmv8sYKf9xY6qkVo8BK7I/KeGo17gVFe4IMGJc5vS8wSz2VqeB6k/W+yNs+4BmS/oeMUuLGEkbIeyR9ueJB2bns3+6prToFO/pTJH2ygOKol/F4lzX0ogobuZtUvyoTnjquwQl4VWwqt1zS38okGqaZDQD3yxT5+qT1pBSVOLp3fbOkk2XK8l8UaOy79v+7MqolnzUydTa2y7jti8ow3WTzZUn/205CM/NgLDsgUzTud7xE6UFj2bclXVXQa+s+u12moGEyoC/7W3YkDTMUnff1PJm8qKJjWldmC4srvH4SjaC/vsJeJ+T5uXc1XfL+3L1cLVPJ11+Aptb4uFMmIffTAVEAt4i4RaY6uubrVgJu5X9qiWI8IUXEEq9y6KrAVZtfOC21K6TEO/9h++e7ZKSUUWCDjTJl1A/YSTmk6NNKOwmlMjU/ihqs7n5WDygeVaTI1/tHZDS3vVLseQuR7SlRSOv7JQvZ7ddsKfWi118lo+Aadq33BfQx9xxfXfJ9xd6eNV37PjqZ/nLI/vk1gddwnz/TK46WytTvCC0k964KCtmdV+L6FxW85hcC3rH77DkFr/WAzB45IYXsdmT6ipMrh7T/RTJbV/jVdtsF7ym23spvDSni6P79nIDnHGe2vqlq7nx+wL24Z/N/c1znrSXa1L+poULvoXhCcl9kVysPByR7uhXocZJ+0Q7ACzLVWae8jnmG51oLcbn/eUVhlsR6h/bJZOgXzc5393SFpC2BOT7yCkpdUeB7RYFhpEkIi3aGbA/RtQPRyoJuYfccf2J//reCbSY7eL/W+3Mr019cm/iNQA+P+17/S6YkwIJ55GUbFj5y///TEtc6nAlT9DtmGpZjlNoF4uOeoZ0UGFNce75MZpPdUSuOHsn5nEcVKuw1bnQGVEh/lzXuQsJJD9Ux/k6CAePnX0Qlfv8FdgXQz53nGsPZgZJvN1F83q7Sq8jqXiqzaeIDga7mj8sU+uuUTPL6fzIu77zhozTguf2NXZ3VWlipZjWBq7lxhDU6Fbjb9zes1y3EgHGG7gsHGPKuEN5TZMIZRQ3+1KucehVJvJqUJN5EJoz6dplwabvgmNaVqVty9pgUR01K4s0zbqz2PP5FFz4H6qi0H0+AYiOWkdneUlK++8wh8XoXcjkpMM/Dr1FzSwWl0VfI7A3zmYI5Oe6zv2k9N2XyC9yz+qw36ShnwcKoYDz8kGb3WEoE7cABZcoa0VEJL+J6a5gMK/3esv0lZCxybet6XvXEsEImv+tjBYuPujHt12UUS+PKmSqTxFuXurEbWJttqo5aTPGEFOq61Xo1QmRe7hy7hgzI7t+n9eQky6Lv46YSjcH9zv2S3h1gTLl7PliyjTiD5bC3Sk5yXvudnkqFMFKxtupysu4NNOZSmTpBaaBsWtb7s3BI8qI7956Sffsbtq1TyG7+1+96xBogoYuUx8c8PqywhtLCAM/LqMaG7OHy1CIZD/YPAr3/K+rog+0Jafi3lnCnO8/IuiHncP++XEal9HBAQ3Cfva0Cd9zhknvQXGoNiS2Byh6nWLpZJvF1WGjHPaujrPfncuWv8Oju+esyORHb5qkayV/VZQ1kv9rtVTKevBA1XMc+w5BJwt3PhoxXcRDTJb2rj8qUMzgWz9u8ZyYwzOzGhytlygQ8dYTSaf/ePiJTo6po/uBSmTy2hRXe09IBVZFbMh7st9qfRcaNKNOPxzrutiegaqlk6k+UsQ6XeBZmlCMMdFSgAeLu73te8bm0gsTAEIlix3bAD5dI4JVmd54eZog4l/ApMrVOnlawRLXLibhWpijgfJVTrxow8Low2rkB+SupF757sGR/OaZA31xTYkXt2sYdmk2eh/k/pqeB+SgdGbXXX45p4fwphe86/SZrwFTVpr/pJQXH3n0+LOnv7DP5dokyFz+nCdrdcly4gf4HJQfkpdaIydtwV5Rs+D/yZN+pxr/5l1ux/KVMXYrVBQ0Cf7PFzxfMPTrLfv40PXln2Dzf9UprwLTmoSfxMZm9gBb2qAOzT6bMwN0qVyvpaPveyrCywGeXV+B6vlugCQsnhY5pV8jUJto4hkVO0ZpZzjg7usJkWH/7nLwLgpAK98+vI3zfnucNPbKr0gdLWvsLC0o1l5b0wOyXkaUdXXOhqEdkChz9p4JeGNeob7DG2DCXZGRXB4sk/Sv79+cWdGW6Aepvredm5zz0whySSYjOk0ibBrTzLTJbY6QlK0IvLeCBWVyBAXM/8zrkHNMel9k76Q9LepaLlPAo2g87Y4hKZEPPITvMu3IIp8jkiCbIqDWSCpcHSg6SUzmNvdQruFS2gT1Wc2KiS8D8mH1+rYCdqz+ds6ifa4cny8RS3ZYNRSW2zk38uXmsRhokt4wD9yzyC5ytrCD/qkjsfoF3/VCD/2cTnrwNxRY5/1XGw92awLBjrwKbncCx0hlc76xrroonJPHr8Bx6rpG32lYD9o+61676i9RwackURPufOaV5kVfNUfZ9tSQ9u+DzTL2ihek8CyPJS7LtV/CqzCAUySRP76uprk0ZHmduhgJj00OaLdTIjubhC6mOTMj/LE+0gQEzgu8Yz8EYb9ygMNxFBbL2XdnrL9qVcZ5VjnPlnpn57qcVtOz9wnl3BBZim8SBqCtTFfc4mfCl5miuG0Bez/KfyJSKaJH8HWy8bJSpHJ/UXaV2PrNA5eVoacES+DMV3PeiBu3i/W0Zb0qUIz4be+GjIsXPdsvUBEm9cN2pmt2mISoYl72aonbKExqdkYlhf9A++yMrrL+U1+jsVqASpA4MFBnTvi+T8I8XJsx4WS9TRHJNnbbEJBgwS1V8IzL1qKlSxCg5qHJJwy0ZJVPaoF1gP5SjzbjB4R5JX8k5mbnz/Wuv3LczaqatYVPk3bnrXT2Pw0hVeCyc7PwkGen5Qm/zzrIcLJiYnJYMt67CgIGAtnPRiBNP/dpMRQ81NJrRkfQcmfpee8aQCD2xBoxvDKwpmSR4sGAezaMlB9TldiLpVGzAxAHncw30JpmCgINWLM54+Jx9Znnq2CTezsJdrzqk2+H7lIJt1bmIvyVT34AV1uxA2vaMRFda/UYZtZt7Rusr8Fw9WlBxVzZp+Djm44kldExzoeYbAjcUzTt/JAUON/4dGMMeaqE1l863c8H0iIsBijows8Xgtsps9hc6SD5mB+XlQ7wibpLdV9LoWi/jNTpQcQNOSlreF2iwjLflbZyZx4BznWKrnrxVvPv5CzL7n6QBRauulnTiPFuZtwNLiPu1eE6VUQ68JFM1WXZgapUc0B8q8Nl9mc32QtjBPD6xhnlS0nt3gczGo6PwdK+TiQAkOc/vVyOPR1w/p2hBQDdWr/O2iFkw1wbDucpTJX2yxEs/aAfl43IkvHZkFDghHhjXSPZkVgqqIGTQlXH9/bNM/DcKSI69RqbM/NYerlf399tlarHk8Xz4BdrO8Tp66nWyRwNqKvhhpPd6iXqR5ocKSQH5VNtlkqJ/SdLzMt6q2HvmG+0gdW9AYSt3jgdyeFXcZ+8r4YHpZvZTigST5HlJZEovPCpT+6mIQeM8yzdYT8zTKvQouHu7VNILAs/bKll5OMsqzW64OCMjIw/Ja/t9Sf9OTy6miQEzwqI9zyrhFneT/w+sITSsMf3EG8BDG94pFXf0rsz+NF+SKeD0/oK7ubrE2sOS/tgeSZ/8lys8z1enQOXha1W90uAOOzid1AR3ZwXh0MUyaqHFAwYPVzdnqUxoaIM1OKf7FBv0r9G1xs6J1oAJHZzuKRD2+4eSk8Q6zeZJUQdmcowX56n4kkzJ/rd4CfxFPcsXSrpMo8s1i2psm27suFrS0+2f98uU/r+/gIHkvLT3yChMf8k+u1ptiPYENHTZAfnYgi8sawR9W7Nl7ge94O/KhH5CyzLHmg2nRBUZcItlaqMsk/QySX/g5dcU9cJ8QtJ5dnL0vTDO0LsywFgc1sG7JfY+ucoaMMk8SOhdIqMWikp4byJvYO1nUJ4uswVEFLhKu1umivOgRHT3vr9VwluZytQKOgIPjCYpbOSOy60R8wsyW57sDxzTrrKLuumKk3r9YnEhGwlXyRH26MooDc+SdEnBhazjj60BU/uCIZ6Axt6xq9EzvME7JIx085CJ1v9cyLN193WCZl3icQUrgERmO4CTrQdlt0zMNy14fpcQ/VMZ7b/vrnUDwW0yIaSQ0EN3wFFGyvu5JqwUKhwQf2K/z8yAona9CtylXsXeYePBmZqVr4fsEL1PJoG63x5Y7nOPyYQbQ7yjbnI4hzldk6ag68psNPvzMiq2DZLODlAdus8flNleYBR1o6LAQyMIPafez5cGljyIJX21QJoABsyAMsh5Dvd7ryi4qWB2IvyqTKij30uPvM0EQ1aUbuXwcm91GZXs6B27MnmZ/bM777mB9+hWEh+3q51W5jl/tkHtyt3rXV5nS2pqg9n2qBFsJTBsi4GoQFhmm8xeVCFF4mKvH/RbDbtihzdK+nFAMTH3LldbYyupcXyp6r1C/jHtzXYM63hKxzcGGsJu8XWpTJ5jlYXt0oqOKg0pt5B7tqTNAR4nN4d8pAkez3gOFt6KvLhinqNtf54haW+gld62q8UP22c2k5H8HrLnvEZm2/KiigpnyR4hkyClCoyXroxr9QO2o7e8xnuGTFJn0cbrPv9DGaVR5A0iB9W84nGtjFGZ1NQGo0C5Z12Gn+wkkZbYb+YymVwwlzuVePuuuGcSGg5reYuSFRVtFeLez1TAankK22JsnpcXyIQwuplQ6LNl8jqSQC/MwzJ7JFXpVZjKzEFlDlWszl2oWe9lHNC/r5IRhLTqHO/nmlv9bJkkw6LeiVTGzfgmeygwN+UCmQTbl/ToXN+x545LrCxeI2ltyZCHW50uk9mIMVsroSsjf3uNpHcF5upE1ph7lfd9vyKT6Bw3yIBx93GtTPb8VEkJYkfSiwIy8N072SiTQxQ3XKadSHqxTCjzjoKyajchPCJTZ+YaPXF3avfdf0emtEErwNhPZPK6/mNAKLRfftVfyCSEFh1b3GLlY6qmijH0f+dTkv7Me+ZRplzG6yW9oYS39qMySfKLShoxbtx5nW0Tod70yPN2nFqhYeXu5Vc1u01M0QX9fttn3lPHLtQ+D3qhlXSEh3Mbn1rT/iVLZOR2JwdeP/IGrDfKZGLfKuMGP1/hu/i61flKu2JNvDjlAc1Kt+OA6qQP9Xi37j380E4sIRa+u5frvPO+KuOiHEWVyqiEl/Er3vffU5MHcr2d2Kt+p1Ufrv1dW2KhE3sS549K+mvbXz4rU3U59Pm7e3mHd68z3kBf18Lsehk1S9Hru89+2H6HmSHvxv3/ZwLGsZa3aar/nvsdro09oOKJ0rFXo6ebGX92BLb/xTKy+yRzTnefD8sk9YaMw+7ZfMKe62Amx6pOAcAX7b2EhHXdc7g1887dPHN8QF90n91gDZlkDPZDr+NQPEc3ZixyuByAxfb4SOAuuKm3EvhTOwg8QyaR7H0yiYshmn234v0vMhWDq7Jm++X7uNXL+sDEN79TuO0FHpH0hZw7T4dWqUwCQxruWV5RUbn5kDbY9qTNmkPu+pfYAbwTWEDP1QV6s4yL/xl21felQE+dk71Oyyjhqlz5hZZ9n/LeMbkwGnkOZK/aWC7ss1KzyamtwDZwYYWKxbjk0fZ+agRhpJaMmkgBqQQtmVILV9eZzBvPwY24Qo/ITrTPlPTuwEE59bwMrUyJ9lDjZUZG0vaGEdQqGVZIrEziW2y9GndKusV68ookwC2StKXAsVUmLFZ0deW+2+e9XKW0pjaYzMHaMx+3hnUnYLxIMv3Dl3AngQaGZHIVjqi4kFZa8r1ivIy3tlc/XhdY1dkZRt+U9OWKjIakoiMd4dz/yyWqYEfWIZCymaPGFt9PZRJbz7TGw1TAQNfxXJh+yCdkV88dMm7LZIxJnn7i24mBKw53rx+UKSQVFXSZnyujELrd/hx03G4NpfMDVlduEv0nmZwLdqguVihurUy4ohU4ZiSZUEWoNN71lw/J1EnqsFEn9CgZ8VSZUEsZz/IFE1QM8ASZKsRFn5cz+G6VCQ/X4oWJa7CcOzXvHOtWlp+VyceZqUFF4G9J/kXN5s/EfWR4GpELMZZJfCuT/PgJO8HlDR8l3h5HbZmE4mFS4IX25+mBHSUuKXGfdNnqaZ6RPe4dviPPU/k2e3QmaBuUUTATsMN7UqL+SHfMSfvnlhwT/0rS1wPLbmiO7RUYSfqVwLyh2CtsF02KB6ajZsRSl8nE4k+3Hbo1hucRecbLdttRtg3YkrzjDTbpiLwwvyqTHBq671JS4J26Vf0GmWTq1DMo89Ty2S2T/5AGxGwlE0Z6fA7LXssU9itrbL9c0qe9AnftMRlQzuP5but9GRRmPaRmqN6afq2koPqubEHJquuqDGsvL5ZJlO8GjOnOM3HhPNvJPhkw//9iYOFKN2dcJ7O/3tgl1XUYME0IW7mJ9EgZ9cC5Xl2X9gisycgLX3VkVBg3S9pZ4x49robLKmvEjCPT3imJXiiTA5MUqIOQWE/MswOTzmKZpLOb7HnqNJ6TkjF11WTEvFRm87vNXk5Ma0TtxCUSL5Epef57Xl+Jcu64O27KGFCHAz8fKs+t0wifKdH+D+eop7VE0isD5xt/49oHGrLYiTKes6p+1y9ceUqJSsaHJF1cR3g+rskSjGs6elnabZkaDpd7A3Oa2YirjKrBN1yW21Xk9ZKOyZl7Evpduzk8I+67vd57HqN8/pG3Qio64bjP/nygYsQlXl8lE7aqo/21vNVsHPA9WjVOPs6Iea5M3Ps1npw18hQTZQbpljeodu27/pqk1+Y09OMaj6iEkikOrNwdeq1OoHgh9HslFZ0rLjCnvdqr19Qq+B6n7IR/sV3kxg1oWyo5PkdDPDP+Irbo+2jJhJgfq0ONN646MO7YWtMAvFRG6pz9rn6S4T5J75XZ+DHrmmxnXm6vSqutPvvNLJNR/PxjRu0wrP7CQ9ZTEToh3Jfj3bpk5OeM6T0s6/Me8tYR+l4F16+r4NgGmb2MlpV4p/885v7ar0ZMar1ZL+rjbcxuYxD1mORbfQyfE2Uq+aY565W42ijvrXGVfL1MUa9QPlCwDswlJa51cqZPDetz3y1xrZV2YvuX2h0yieGhfC/Hvbv2clbJd7pKszVrVHPbSmUSlEO5qU9fcs/x3gq8qX+Usw1XVgemjkS4E+ykHI/JUnPhh5V94vaRtzJeIaN0+Q27Ur/crgAPFPAQ+EbPiTLxxZdZ744KhoxaMhniPyv4vFLrRp0qcN9vs4ZFe0RxX+cVOs0+5ySweNIWmfokdwe2oaSmBPZE0ib7fJ8mU3Sr6P0v8O47rckb0/IMqOfZ41ZJn5TJKbs7xwq/13c+RkZd9GsyCkF/n61WTk/iGpnCee0x5i7E3g6/q2UKgxXJJ3CJ0kfnDO+4/z8y4Lu6e91d8DsuspNnSMXkYzLvL7X3fVRA+y+yGW8q6a0y6sOQzWX9vdP2qt4KxMvt33d66ruk4DkWDUmnOM56rb4WkMviznGLpN8cZ0pEZD0wR9U4IKphhZKyYZ177AB9m8x2AT+wk88BL/l3kZ2U19tGdpJMvZnj9eTYaiygrWleqRhcmz4oswv11yR9wxozP7IG+CH73qdkaristkb9XttXTrYrXgUY+gBQ/5g87i0FDmPADK742C/u+rgdrGc8KfDSPs+vUyB+OwlGBe1s/pF4CfC9jJz9NvnSGTCL1TuRuttj7y4AxhqeFwZMSRlgmsOFmWRCFHhbYBI9mGmOHbiLfBYA4EkGDMWgFKTUSoeoIAA0oWXeWzn7SkSICABUUhoJc6uOAgB9BQCEdwEAAAAAAwYAAAAAAwYAAAAAAwYAAAAwYAAAAAAwYAAAAAAwYAAAAAADBgAAAAADBgAAAAADBgAAADBgAAAAADBgAAAAADBgAAAAAAMGAAAAAAMGAAAAAAMGAAAAMGAAAAAAMGAAAAAAMGAAAAAAMGAAAAAAAwYAAAAAAwYAAAAAAwYAAADmCf8fSE0a7DBy68EAAAAASUVORK5CYII=';
 
   // ---------- State ----------
   const $ = id => document.getElementById(id);
@@ -726,11 +736,13 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     else if (/snabba/.test(fmt)) kind = 'snabba';
     else if (/kr[öo]nika/.test(fmt)) { kind = 'artikel'; arType = 'kronika'; }
     else if (/nummer|tidning/.test(fmt)) { kind = 'artikel'; arType = 'nummer'; }
+    else if (/debatt/.test(fmt)) { kind = 'artikel'; arType = 'debatt'; }
+    else if (/nyhet/.test(fmt)) { kind = 'artikel'; arType = 'nyhet'; }
     else if (/reportage/.test(fmt)) { kind = 'artikel'; arType = 'reportage'; }
     else if (/r[öo]relse|zoom/.test(fmt)) kind = 'zoom';
     else if (/rapport/.test(fmt)) kind = 'rapport';
     const sj = (T.SAJT || '').toLowerCase();
-    if (/^dm|medarbetare/.test(sj)) state.site = 'dm'; else if (/^ho|hållbar|hallbar/.test(sj)) state.site = 'ho'; else if (/^dr|rapport/.test(sj)) state.site = 'dr';
+    if (/^lp|lokalpolitik/.test(sj)) state.site = 'lp'; else if (/^dm|medarbetare/.test(sj)) state.site = 'dm'; else if (/^ho|hållbar|hallbar/.test(sj)) state.site = 'ho'; else if (/^dr|rapport/.test(sj)) state.site = 'dr';
     const unq = x => (x || '').replace(/^["”“»«']+|["”“»«']+$/g, '').trim();
     const P = [1,2,3,4,5].map(n => T['PUNKT_' + n]).filter(Boolean);
     if (kind === 'snabba') {
@@ -836,6 +848,10 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
       if (imgs.dmLogo) { const w = 300, h = w * imgs.dmLogo.height / imgs.dmLogo.width; ctx.save(); if (dark) ctx.filter = 'invert(1)'; ctx.drawImage(imgs.dmLogo, x, y + (48-h)/2, w, h); ctx.restore(); }
       return;
     }
+    if (B === BRANDS.lp) {
+      if (imgs.lpLogo) { const w = 250, h = w * imgs.lpLogo.height / imgs.lpLogo.width; ctx.save(); if (dark) ctx.filter = 'invert(1)'; ctx.drawImage(imgs.lpLogo, x, y + (52-h)/2, w, h); ctx.restore(); }
+      return;
+    }
     if (B === BRANDS.ho) {
       const u = 16; // 3x3 grid of 16px cells, 6 columns wide
       const cells = [[0,2,ink],[0,0,ink],[2,0,ink],[1,1,ink],[2,1,ink],[2,2,ink],[3,1,'#35D666'],[4,2,'#35D666'],[4,0,'#35D666'],[5,1,'#35D666']];
@@ -851,7 +867,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
   }
   function drawTag(B, text, rightX, y, a=1, colors){
     setFont(B.tagFont, B.tagLS, 22); const t = B.pill ? text : text.toUpperCase(); const w = ctx.measureText(t).width + (B.pill ? 40 : 32);
-    ctx.globalAlpha = a; ctx.fillStyle = colors ? colors[0] : B.acc; rr(rightX - w, y, w, B.pill ? 46 : 44, B.pill ? 23 : (B === BRANDS.ho ? 2 : 4)); ctx.fill();
+    ctx.globalAlpha = a; ctx.fillStyle = colors ? colors[0] : B.acc; rr(rightX - w, y, w, B.pill ? 46 : 44, B.pill ? 23 : (B.r ?? (B === BRANDS.ho ? 2 : 4))); ctx.fill();
     ctx.fillStyle = colors ? colors[1] : B.accInk; ctx.textBaseline = 'middle'; ctx.fillText(t, rightX - w + (B.pill ? 20 : 16), y + 23); ctx.textBaseline = 'top'; ctx.globalAlpha = 1;
   }
   function drawHeader(B, l, tag, dark, cta){
@@ -926,7 +942,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
       ctx.save(); ctx.beginPath(); ctx.rect(0, ty - 10, W, TL.h + 20); ctx.clip();
       if (hiPad) {
         const w0 = TL.words[0], w1 = TL.words[1], oy = ty + (1-pt)*TL.h, bx = PAD + w0.x - hiPad, bw = w1.x + w1.w - w0.x + 2*hiPad;
-        ctx.fillStyle = B.acc; rr(bx, oy - hiSize*.06, bw, hiSize*1.12, B.pill ? hiSize*.56 : (B === BRANDS.ho ? 2 : 6)); ctx.fill();
+        ctx.fillStyle = B.acc; rr(bx, oy - hiSize*.06, bw, hiSize*1.12, B.pill ? hiSize*.56 : (B.r ?? (B === BRANDS.ho ? 2 : 6))); ctx.fill();
         const rest = { ...TL, words: TL.words.slice(2) }, hi = { ...TL, words: TL.words.slice(0, 2) };
         drawWords(hi, PAD, oy, B.accInk); drawWords(rest, PAD, oy, cInk);
       } else drawWords(TL, PAD, ty + (1-pt)*TL.h, cInk);
@@ -974,7 +990,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
           ctx.save(); ctx.globalAlpha = p; ctx.translate(0, (1-p)*40);
           const pn = prog(l, a0, .7), sn = pn < 1 ? .5 + .5*bounce(pn) : 1, cy = y + rowH/2;
           ctx.save(); ctx.translate(PAD + 38, cy); ctx.scale(sn, sn); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-          if (B.numStyle === 'box') { ctx.fillStyle = B.acc; rr(-38, -38, 76, 76, 8); ctx.fill(); setFont('700 50px "DM Sans", Arial, sans-serif'); ctx.fillStyle = B.accInk; ctx.fillText(String(i+1), 0, 3); }
+          if (B.numStyle === 'box') { ctx.fillStyle = B.acc; rr(-38, -38, 76, 76, B.r ?? 8); ctx.fill(); setFont(B.numFont ? B.numFont.replace('54px','50px') : '700 50px "DM Sans", Arial, sans-serif'); ctx.fillStyle = B.accInk; ctx.fillText(String(i+1), 0, 3); }
           else if (B.numStyle === 'serif') { setFont('500 100px "Noto Serif", Georgia, serif'); ctx.fillStyle = B.acc; ctx.fillText(String(i+1), 0, 4); }
           else { ctx.fillStyle = '#111111'; ctx.beginPath(); ctx.arc(0, 0, 36, 0, Math.PI*2); ctx.fill(); setFont('700 38px Inter, Arial, sans-serif'); ctx.fillStyle = '#FFFFFF'; ctx.fillText(String(i+1), 0, 2); }
           ctx.restore(); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
@@ -1185,7 +1201,8 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
   // ---------- Artikel: reportage och krönika ----------
   function buildArtikel(){
     const B = BRANDS[state.site], A = state.ar, isK = A.type === 'kronika', isN = A.type === 'nummer';
-    const title = (A.title || (isK ? 'Krönikans rubrik' : (isN ? 'Numrets rubrik' : 'Reportagets rubrik'))).trim();
+    const AT = ({ reportage:['Reportage','reportaget','Reportagets rubrik'], kronika:['Krönika','krönikan','Krönikans rubrik'], nummer:['Nytt nummer','numret','Numrets rubrik'], nyhet:['Nyhet','nyheten','Nyhetens rubrik'], debatt:['Debatt','debattartikeln','Debattartikelns rubrik'] })[A.type] || ['Reportage','reportaget','Reportagets rubrik'];
+    const title = (A.title || AT[2]).trim();
     const lead = (A.lead || '').trim(), byline = (A.byline || '').trim();
     const pts = linesOf(A.points).slice(0, isN ? 5 : 3).map(glue);
     const quote = (A.quote || '').trim().replace(/^[”"“„»«']+|[”"“„»«']+$/g, '');
@@ -1195,7 +1212,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     const cleanQ = v => isK ? '' : (v || '').trim().replace(/^[”"“„»«']+|[”"“„»«']+$/g, '');
     const quote3 = cleanQ(A.quote3), quote4 = cleanQ(A.quote4);
     const url = (A.url || B.url).trim();
-    const label = isK ? 'Krönika' : (isN ? 'Nytt nummer' : 'Reportage');
+    const label = AT[0];
     const host = () => { setFont(B.body(22)); ctx.fillStyle = B.mute; ctx.textBaseline = 'top'; ctx.fillText(B.host, PAD, H - 96); };
     const list = [];
     const scenesPlanned = isK ? (quote ? 3 : 2) : (1 + (pts.length ? 1 : 0) + (quote ? 1 : 0) + (quote2 ? 1 : 0) + (quote3 ? 1 : 0) + (quote4 ? 1 : 0) + 1);
@@ -1262,7 +1279,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
       }});
       // R2: tre saker
       if (pts.length) {
-        const i1 = idx++, head = isN ? 'I det här numret' : (pts.length === 1 ? 'Det här tar reportaget upp' : (pts.length === 2 ? 'Två saker från reportaget' : 'Tre saker från reportaget'));
+        const i1 = idx++, head = isN ? 'I det här numret' : A.type === 'debatt' ? (pts.length === 1 ? 'Debattören menar' : 'Debattörens ' + (pts.length === 2 ? 'två' : 'tre') + ' argument') : (pts.length === 1 ? 'Det här tar ' + AT[1] + ' upp' : (pts.length === 2 ? 'Två saker från ' : 'Tre saker från ') + AT[1]);
         const insW = 300, hasIns = !!imgs.arImg, insH = hasIns ? Math.min(insW * imgs.arImg.height / imgs.arImg.width, insW * 1.25) + 26 : 0;
         const hS = fitFont(head, z => B.head(z), 68, 36, W - 2*PAD - (hasIns ? insW + 30 : 0), B.headLS);
         let ps = 58, PL;
@@ -1286,7 +1303,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
             ctx.save(); ctx.globalAlpha = p; ctx.translate((1-p)*-60, 0);
             const cy = y + rowH/2, pn = prog(l, a0, .6), sn = (pn < 1 ? .5 + .5*bounce(pn) : 1) * (many ? .78 : 1);
             ctx.save(); ctx.translate(PAD + 40, cy); ctx.scale(sn, sn);
-            if (B.numStyle === 'box') { ctx.fillStyle = B.acc; rr(-40, -40, 80, 80, 8); ctx.fill(); setFont('700 56px "DM Sans", Arial, sans-serif'); ctx.fillStyle = B.accInk; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(String(i+1), 0, 3); }
+            if (B.numStyle === 'box') { ctx.fillStyle = B.acc; rr(-40, -40, 80, 80, B.r ?? 8); ctx.fill(); setFont(B.numFont ? B.numFont.replace('54px','56px') : '700 56px "DM Sans", Arial, sans-serif'); ctx.fillStyle = B.accInk; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(String(i+1), 0, 3); }
             else if (B.numStyle === 'serif') { setFont('500 104px "Noto Serif", Georgia, serif'); ctx.fillStyle = B.acc; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(String(i+1), 0, 4); }
             else { setFont('700 100px Inter, Arial, sans-serif'); ctx.fillStyle = B.acc; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(String(i+1), 0, 4); }
             ctx.restore(); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
@@ -1342,7 +1359,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
         drawHeader(B, 99, label, dark);
         const pm = prog(l, 0, .7), sm = pm < 1 ? .4 + .6*bounce(pm) : 1;
         ctx.save(); ctx.globalAlpha = eo(pm); ctx.translate(PAD, qTop + 190); ctx.scale(sm, sm);
-        setFont(`700 300px ${B === BRANDS.ho ? '"Noto Serif", Georgia, serif' : (B === BRANDS.dm ? '"DM Sans", Arial, sans-serif' : 'Inter, Arial, sans-serif')}`); ctx.fillStyle = B === BRANDS.dm ? '#111111' : B.acc; ctx.textBaseline = 'alphabetic'; ctx.fillText('”', -10, 0); ctx.restore(); ctx.textBaseline = 'top';
+        setFont(`700 300px ${B.markFont ? B.markFont : B === BRANDS.ho ? '"Noto Serif", Georgia, serif' : (B === BRANDS.dm ? '"DM Sans", Arial, sans-serif' : 'Inter, Arial, sans-serif')}`); ctx.fillStyle = B === BRANDS.dm ? '#111111' : B.acc; ctx.textBaseline = 'alphabetic'; ctx.fillText('”', -10, 0); ctx.restore(); ctx.textBaseline = 'top';
         if (B === BRANDS.dm) { ctx.save(); ctx.globalAlpha = eo(pm); ctx.fillStyle = B.acc; ctx.fillRect(PAD, qTop + 140, 120 * eo(prog(l,.2,.5)), 12); ctx.restore(); }
         const y0 = qTop + 170;
         drawWords(QL, PAD, y0, ink, k => eo(prog(l, .7 + k/6, .35)));
@@ -1377,7 +1394,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
         else { ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.3)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 16; ctx.fillStyle = '#fff'; rr(-mw/2, -mh/2, mw, mh, 8); ctx.fill(); ctx.restore(); rr(-mw/2, -mh/2, mw, mh, 8); ctx.clip(); cover(mi, -mw/2, -mh/2, mw, mh, .3); }
         ctx.restore();
       }
-      const hs = 110, l1 = 'Läs hela', l2 = (isK ? 'krönikan' : (isN ? 'numret' : 'reportaget')) + ' på', top = 560;
+      const hs = 110, l1 = 'Läs hela', l2 = AT[1] + ' på', top = 560;
       const hsz = Math.min(hs, fitFont(l2, z => B.head(z), hs, 60, W - 2*PAD, B.headLS));
       [l1, l2].forEach((txt, k) => { const p = eo(prog(l, .05 + k*.15, .55)); ctx.save(); ctx.beginPath(); ctx.rect(0, top + k*hsz - 6, W, hsz + 20); ctx.clip(); setFont(B.head(hsz), B.headLS, hsz); ctx.fillStyle = B.ctaInk; ctx.textBaseline = 'top'; ctx.fillText(txt, PAD, top + k*hsz + (1-p)*hsz*1.1); ctx.restore(); });
       const pp = prog(l, .55, .6), sc = pp < 1 ? .8 + .2*bounce(pp) : 1;
@@ -1943,7 +1960,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
   // ---------- Export ----------
   const statusEl = $('status');
   function status(msg, err){ statusEl.textContent = msg; statusEl.classList.toggle('err', !!err); }
-  const slug = () => (state.kind === 'artikel' ? (state.ar.type === 'kronika' ? 'kronika-' : 'reportage-') + (state.ar.title || 'artikel').split(' ').slice(0, 5).join(' ') : state.kind === 'veckan' ? 'veckans-rapporter-v' + (state.wk.week || isoWeek()) : state.kind === 'rapport' ? 'rapportfilm-' + (state.rp.company || 'rapport') : state.kind === 'zoom' ? 'rapporten-i-rorelse-' + (zmS().company || zmS().report || 'rapport') : 'tre-snabba-' + (state.name || 'intervju')).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  const slug = () => (state.kind === 'artikel' ? (state.ar.type || 'reportage') + '-' + (state.ar.title || 'artikel').split(' ').slice(0, 5).join(' ') : state.kind === 'veckan' ? 'veckans-rapporter-v' + (state.wk.week || isoWeek()) : state.kind === 'rapport' ? 'rapportfilm-' + (state.rp.company || 'rapport') : state.kind === 'zoom' ? 'rapporten-i-rorelse-' + (zmS().company || zmS().report || 'rapport') : 'tre-snabba-' + (state.name || 'intervju')).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
   let downloads = null;
   (async () => { try { downloads = window.claude && window.claude.use ? await window.claude.use('downloads') : null; } catch(e) { downloads = null; } })();
   async function offer(filename, blob){
@@ -2003,8 +2020,8 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
   // ---------- Boot ----------
   window.__studio = { renderAt:(v)=>{ playing=false; mode='film'; buildScenes(); t=v; renderAt(v); }, slide:(i)=>{ playing=false; mode='car'; buildScenes(); renderSlide(i); }, info:()=>({ duration:TOTAL, n:scenes.length }), sample:applySample };
   (async () => {
-    imgs.dmLogo = await loadImg(DM_LOGO_SRC);
-    try { await Promise.all(['700 40px "DM Sans"','400 40px "DM Sans"','400 40px "Noto Serif"','500 40px "Noto Serif"','600 40px "Noto Serif"','italic 400 40px "Noto Serif"','400 40px Inter','600 40px Inter','700 40px Inter','700 40px Inter'].map(f => document.fonts.load(f))); } catch(e) {}
+    imgs.dmLogo = await loadImg(DM_LOGO_SRC); imgs.lpLogo = await loadImg(LP_LOGO_SRC);
+    try { await Promise.all(['700 40px "DM Sans"','400 40px "DM Sans"','400 40px "Noto Serif"','500 40px "Noto Serif"','600 40px "Noto Serif"','italic 400 40px "Noto Serif"','400 40px Inter','600 40px Inter','700 40px Inter','700 40px Inter','700 40px Newsreader','italic 500 40px Newsreader','400 40px "IBM Plex Sans"','600 40px "IBM Plex Sans"'].map(f => document.fonts.load(f))); } catch(e) {}
     if (restore() && (state.name || state.shot || state.paste || state.rp.company || state.cover || state.wk.items.length || state.ar.title || (state.zm && state.zm.items.length))) { imgs.shot = await loadImg(state.shot); imgs.face = await loadImg(state.face); imgs.cover = await loadImg(state.cover); imgs.wk = await Promise.all(state.wk.items.map(it => loadImg(it.cover))); imgs.arImg = await loadImg(state.arImg); imgs.arFace = await loadImg(state.arFace); imgs.arFace2 = await loadImg(state.arFace2); ZM.cache = Object.assign({}, state.zmPages || {}); for (const [pg, u] of Object.entries(state.zmPages || {})) imgs.zm[pg] = await loadImg(u); if (state.zmPages && state.zmPages[1]) { ZM.cur = 0; } imgs.arFace3 = await loadImg(state.arFace3); imgs.arFace4 = await loadImg(state.arFace4); imgs.arQImg1 = await loadImg(state.arQImg1); imgs.arQImg2 = await loadImg(state.arQImg2); imgs.arQImg3 = await loadImg(state.arQImg3); imgs.arQImg4 = await loadImg(state.arQImg4); writeForm(); report(null); buildScenes(); draw(); }
     else { await applySample('dm'); }
     const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;

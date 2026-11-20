@@ -346,9 +346,9 @@ En film där kameran åker över rapportens egna sidor och zoomar in på 4–7 n
 
 **Sammanfattningen.** Direkt efter omslaget kommer sidan "Det här visar rapporten" med 3–4 rader som bockas av. Skriv dem i fältet *Det här visar rapporten*, en rad per bock och cirka 50 tecken per rad. Lämnas fältet tomt skapas raderna från nedslagen. Avslutet upprepar inga siffror, utan visar bara länken och vem som tagit fram rapporten.
 
-**I studion:** klicka på en sida och dra en ruta runt det som ska lyftas fram. Fyll i rubrik, siffra, kort förklaring och jämförelse i listan. Typ *Citat* visar texten som ett citat, typ *Det du kanske missade* lägger till en etikett.
+**I studion:** klicka på en sida och dra en ruta runt det som ska lyftas fram. Fyll i rubrik, siffra, kort förklaring och jämförelse i listan. Typ *Citat* visar texten som ett citat, typ *Utdrag* lyfter ut en mening ur rapporten i stor text på ett mörkt kort (med sidnummer), och typ *Det du kanske missade* lägger till en etikett. Utdrag passar för en mening som förklarar en siffra eller en slutsats; skriv den ordagrant.
 
-**Svar från AI med taggar.** Fälten i `[NEDSLAG_n]` skiljs åt med `|`: sida | text att söka efter på sidan (ordagrant, 3–8 ord) | typ (Nyckeltal, Citat eller Det du kanske missade) | rubrik | siffra | kort förklaring | jämförelse. Studion söker upp texten och ritar rutan själv. Det som inte hittas ritar du för hand.
+**Svar från AI med taggar.** Fälten i `[NEDSLAG_n]` skiljs åt med `|`: sida | text att söka efter på sidan (ordagrant, 3–8 ord) | typ (Nyckeltal, Citat, Utdrag eller Det du kanske missade) | rubrik | siffra | kort förklaring | jämförelse. Studion söker upp texten och ritar rutan själv. Det som inte hittas ritar du för hand.
 
 ```
 [FORMAT] Rapporten i rörelse

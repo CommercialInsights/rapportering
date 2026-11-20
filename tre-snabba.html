@@ -387,6 +387,7 @@ canvas#cv{width:100%;height:100%;display:block}
         <label class="f"><span>Rapporttyp <small>styr färgen</small></span><select id="zType"><option value="kvartal">Kvartalsrapport</option><option value="ar">Årsrapport</option><option value="hallbarhet">Hållbarhetsrapport</option><option value="ovrigt">Övrig rapport</option></select></label>
         <label class="f"><span>Länktext i slutet <small>tomt = Dagensrapport.se</small></span><input type="text" id="zUrl" placeholder="Dagensrapport.se"></label>
       </div>
+      <label class="f"><span>Det här visar rapporten <small>en rad per bock, högst fyra, cirka 50 tecken – tomt = skapas från nedslagen</small></span><textarea id="zSum" rows="4" placeholder="343 000 småhus ägs av personer över 73 år"></textarea></label>
       <div class="zm-pages" id="zmPages"></div>
       <div class="zm-ed" id="zmEd" hidden>
         <div class="zm-edbar"><b id="zmEdT">Sida 1</b><small id="zmEdHint">Dra en ruta runt det du vill lyfta fram</small></div>
@@ -559,7 +560,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
 
   // ---------- State ----------
   const $ = id => document.getElementById(id);
-  const state = { zm:{ rtype:'ovrigt', company:'', report:'', url:'', items:[] }, zmPages:{}, ar:{ type:'reportage', title:'', lead:'', byline:'', points:'', quote:'', qName:'', qTitle:'', quote2:'', q2Name:'', q2Title:'', quote3:'', q3Name:'', q3Title:'', quote4:'', q4Name:'', q4Title:'', flash:false, url:'' }, arImg:null, arFace:null, arFace2:null, arFace3:null, arFace4:null, arQImg1:null, arQImg2:null, arQImg3:null, arQImg4:null, kind:'snabba', rp:{ company:'', report:'', insights:'', name:'', title:'', topics:'', withTS:true }, wk:{ week:'', title:'', items:[] }, cover:null, site:'dm', paste:'', topics:'', shot:null, face:null, name:'', role:'', roleShort:'', title:'', lead:'', url:'', qa:[['',''],['',''],['','']] };
+  const state = { zm:{ rtype:'ovrigt', company:'', report:'', url:'', sum:'', items:[] }, zmPages:{}, ar:{ type:'reportage', title:'', lead:'', byline:'', points:'', quote:'', qName:'', qTitle:'', quote2:'', q2Name:'', q2Title:'', quote3:'', q3Name:'', q3Title:'', quote4:'', q4Name:'', q4Title:'', flash:false, url:'' }, arImg:null, arFace:null, arFace2:null, arFace3:null, arFace4:null, arQImg1:null, arQImg2:null, arQImg3:null, arQImg4:null, kind:'snabba', rp:{ company:'', report:'', insights:'', name:'', title:'', topics:'', withTS:true }, wk:{ week:'', title:'', items:[] }, cover:null, site:'dm', paste:'', topics:'', shot:null, face:null, name:'', role:'', roleShort:'', title:'', lead:'', url:'', qa:[['',''],['',''],['','']] };
   const imgs = { zm:{}, shot:null, face:null, cover:null, dmLogo:null, wk:[], arImg:null, arFace:null, arFace2:null, arFace3:null, arFace4:null, arQImg1:null, arQImg2:null, arQImg3:null, arQImg4:null };
   const loadImg = src => new Promise(res => { if (!src) return res(null); const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = src; });
 
@@ -709,7 +710,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     writeFields(); report(r);
   }
   // ---------- Inklistrat svar från ChatGPT/Claude (taggar) ----------
-  const AI_TAGS = ['FORMAT','SAJT','RUBRIK','INGRESS','BYLINE','NAMN','TITEL','BOLAG','RAPPORTTYP','RAPPORT','VECKA','CITAT','INLAGG','CITAT_2','NAMN_2','TITEL_2','NEDSLAG_1','NEDSLAG_2','NEDSLAG_3','NEDSLAG_4','NEDSLAG_5','NEDSLAG_6','NEDSLAG_7','NEDSLAG_8','CITAT_3','NAMN_3','TITEL_3','CITAT_4','NAMN_4','TITEL_4','NYHET',
+  const AI_TAGS = ['FORMAT','SAJT','RUBRIK','INGRESS','BYLINE','NAMN','TITEL','BOLAG','RAPPORTTYP','RAPPORT','VECKA','CITAT','INLAGG','CITAT_2','NAMN_2','TITEL_2','SAMMANFATTNING_1','SAMMANFATTNING_2','SAMMANFATTNING_3','SAMMANFATTNING_4','NEDSLAG_1','NEDSLAG_2','NEDSLAG_3','NEDSLAG_4','NEDSLAG_5','NEDSLAG_6','NEDSLAG_7','NEDSLAG_8','CITAT_3','NAMN_3','TITEL_3','CITAT_4','NAMN_4','TITEL_4','NYHET',
     'PUNKT_1','PUNKT_2','PUNKT_3','PUNKT_4','PUNKT_5','INSIKT_1','INSIKT_2','INSIKT_3','INSIKT_4','INSIKT_5',
     'FRAGA_1','FRAGA_2','FRAGA_3','SVAR_1','SVAR_2','SVAR_3',
     'RAPPORT_1','RAPPORT_2','RAPPORT_3','RAPPORT_4','RAPPORT_5','RAPPORT_6','RAPPORT_7','RAPPORT_8'];
@@ -1508,7 +1509,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
   // Rapportens PDF läses in, användaren (eller AI-svaret) väljer nedslag som rutor på sidorna,
   // och filmen åker med en kamera från hela sidan in till varje ruta.
   const ZM = { doc:null, n:0, cache:{}, cur:0, sel:-1, redo:-1, drag:null, thumbs:{} };
-  const ZM_IDS = { zCompany:'company', zReport:'report', zUrl:'url' };
+  const ZM_IDS = { zCompany:'company', zReport:'report', zUrl:'url', zSum:'sum' };
   const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
   const zmS = () => state.zm || (state.zm = { rtype:'ovrigt', company:'', report:'', url:'', items:[] });
   async function zmLoadLib(){ if (!window.pdfjsLib) await loadScript(PDFJS + 'pdf.min.js'); window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + 'pdf.worker.min.js'; }
@@ -1586,6 +1587,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
   function zmFromAI(T){
     const Z = zmS();
     Z.company = T.BOLAG || ''; Z.report = T.RAPPORT || Z.report || ''; const rt = rtypeOf(T.RAPPORTTYP); if (rt) Z.rtype = rt;
+    Z.sum = [1,2,3,4].map(n => T['SAMMANFATTNING_' + n]).filter(Boolean).join('\n');
     Z.items = [];
     for (let n = 1; n <= 8; n++) {
       const v = T['NEDSLAG_' + n]; if (!v) continue;
@@ -1659,9 +1661,9 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
     const B = BRANDS.dr, Z = zmS(), TY = drType(Z.rtype), list = [];
     const company = (Z.company || '').trim(), report = (Z.report || 'Rapporten').trim();
     const cover = imgs.zm[1], items = Z.items.filter(it => imgs.zm[it.page]);
-    const N = items.length + 2;
+    
     const pillFg = '#111111';
-    const src = (p, dimmed) => { const txt = 'Källa: ' + report + ', s. ' + p; setFont(IF(500, 22), 0, 22); const w = ctx.measureText(txt).width + 28; ctx.fillStyle = dimmed ? 'rgba(255,255,255,.95)' : 'rgba(255,255,255,.9)'; rr(PAD - 14, H - 106, w, 44, 8); ctx.fill(); textAt(txt, IF(500, 22), PAD, H - 96, '#111111'); };
+    const src = (p, dimmed) => { const txt = 'Källa: ' + report + (p === '1 ff.' ? '' : ', s. ' + p); setFont(IF(500, 22), 0, 22); const w = ctx.measureText(txt).width + 28; ctx.fillStyle = dimmed ? 'rgba(255,255,255,.95)' : 'rgba(255,255,255,.9)'; rr(PAD - 14, H - 106, w, 44, 8); ctx.fill(); textAt(txt, IF(500, 22), PAD, H - 96, '#111111'); };
     // omslag
     list.push({ dur: 4.2, draw: (l) => {
       ctx.fillStyle = '#F4F4F2'; ctx.fillRect(0, 0, W, H);
@@ -1677,6 +1679,36 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
         TL.forEach(t => { textAt(t, IF(800, 60), PAD + 44, yy, '#111111'); yy += 66; }); ctx.restore(); }
       drFoot('#6B6B66');
     }});
+    // sammanfattning: det här visar rapporten, med bockar
+    const lc = t => t ? t[0].toLowerCase() + t.slice(1) : t;
+    const SUM = (linesOf(Z.sum).length ? linesOf(Z.sum) : items.filter(it => it.type !== 'citat').map(it => { const b = (it.big || '').trim(), lab = (it.lab || it.text || '').trim(); return b ? b + ' – ' + lc(lab) : lab; }).filter(Boolean)).slice(0, 4);
+    if (SUM.length) {
+      list.push({ dur: 2.4 + SUM.length * .95, draw: (l) => {
+        ctx.fillStyle = '#F4F4F2'; ctx.fillRect(0, 0, W, H);
+        if (cover) { const tw = 210, th = tw * cover.height / cover.width, p0 = eo(prog(l, .1, .6));
+          ctx.save(); ctx.globalAlpha = p0; ctx.translate(W - PAD - tw/2, 230 + th/2); ctx.rotate(.05); ctx.shadowColor = 'rgba(17,17,17,.22)'; ctx.shadowBlur = 30; ctx.shadowOffsetY = 12;
+          ctx.fillStyle = '#fff'; ctx.fillRect(-tw/2, -th/2, tw, th); ctx.shadowColor = 'transparent'; ctx.drawImage(cover, -tw/2, -th/2, tw, th); ctx.restore(); }
+        zmLogoBack(); drHeader(99, TY.l, TY.c, pillFg, false);
+        const ph = eo(prog(l, .15, .6));
+        ctx.save(); ctx.globalAlpha = ph; ctx.translate(0, (1 - ph) * 24);
+        if (company) textAt(company.toUpperCase(), IF(700, 24), PAD, 250, '#6B6B66', .08); ['Det här visar', 'rapporten'].forEach((t, i) => textAt(t, IF(800, 76), PAD, 300 + i * 82, '#111111', -.03)); ctx.restore();
+        let y = 560; const tx = PAD + 92, maxW = W - PAD - tx;
+        SUM.forEach((t, i) => {
+          const t0 = .9 + i * .95, pr0 = eo(prog(l, t0, .5)), pc = eo(prog(l, t0 + .15, .45)), TL = zmWrap(t, IF(600, 46), maxW), rh = Math.max(76, TL.length * 56) + 40;
+          ctx.save(); ctx.globalAlpha = pr0;
+          ctx.strokeStyle = '#D9D9D4'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(PAD, y + rh); ctx.lineTo(W - PAD, y + rh); ctx.stroke();
+          const cx = PAD + 32, cy = y + 38, sc = pc < 1 ? .4 + .6 * bounce(pc) : 1;
+          ctx.save(); ctx.translate(cx, cy); ctx.scale(sc, sc); ctx.fillStyle = TY.c; ctx.beginPath(); ctx.arc(0, 0, 32, 0, Math.PI * 2); ctx.fill();
+          const ck = prog(l, t0 + .3, .35); if (ck > 0) { ctx.strokeStyle = Z.rtype === 'ar' ? '#111111' : '#FFFFFF'; ctx.lineWidth = 7; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath();
+            const a = [-13, 1], b = [-4, 11], c = [14, -10], d1 = Math.min(1, ck * 2), d2 = Math.max(0, ck * 2 - 1);
+            ctx.moveTo(a[0], a[1]); ctx.lineTo(a[0] + (b[0]-a[0]) * d1, a[1] + (b[1]-a[1]) * d1); if (d2 > 0) ctx.lineTo(b[0] + (c[0]-b[0]) * d2, b[1] + (c[1]-b[1]) * d2); ctx.stroke(); }
+          ctx.restore();
+          ctx.translate((1 - pr0) * 30, 0); let ty = y + 12; TL.forEach(line => { textAt(line, IF(600, 46), tx, ty, '#111111', -.01); ty += 56; });
+          ctx.restore(); y += rh + 22;
+        });
+        src('1 ff.', false);
+      }});
+    }
     // nedslag
     items.forEach(it => {
       const img = imgs.zm[it.page], q = it.type === 'citat', miss = it.type === 'missat';
@@ -1725,10 +1757,7 @@ Jag tror att vi kommer att se större utsläppsminskningar än i dag.`
       ctx.save(); ctx.globalAlpha = p2; ctx.translate(0, (1 - p2) * 30); ['Läs hela', 'rapporten på'].forEach(t => { textAt(t, IF(800, 104), PAD, y, '#FFFFFF', -.03); y += 112; }); ctx.restore(); y += 30;
       const url = ((Z.url || '').trim() || 'Dagensrapport.se') + '  →'; setFont(IF(800, 40), 0, 40); const uw = ctx.measureText(url).width + 64;
       ctx.save(); ctx.globalAlpha = p3; ctx.fillStyle = '#FFFFFF'; rr(PAD, y, uw, 84, 42); ctx.fill(); textAt(url, IF(800, 40), PAD + 32, y + 22, '#111111'); ctx.restore(); y += 150;
-      items.filter(it => it.type !== 'citat' && (it.big || '').trim()).slice(0, 3).forEach((it, i) => {
-        const pp = eo(prog(l, 1.3 + i*.25, .5)); ctx.save(); ctx.globalAlpha = pp;
-        textAt(it.big.trim(), IF(800, 40), PAD, y, '#FFFFFF'); setFont(IF(800, 40), 0, 40); const bw = ctx.measureText(it.big.trim()).width;
-        textAt((it.lab || it.text || '').trim().slice(0, 48), IF(400, 30), PAD + bw + 18, y + 6, '#BDBDBD'); ctx.restore(); y += 62; });
+      if (company) { const pp = eo(prog(l, 1.3, .5)); ctx.save(); ctx.globalAlpha = pp; zmWrap('Rapporten är framtagen av ' + company + '.', IF(400, 32), W - 2*PAD).forEach(t => { textAt(t, IF(400, 32), PAD, y, '#BDBDBD'); y += 44; }); ctx.restore(); }
     }});
     finish(list);
   }

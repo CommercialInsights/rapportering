@@ -344,6 +344,8 @@ En film där kameran åker över rapportens egna sidor och zoomar in på 4–7 n
 5. Avsluta gärna med ett citat eller rapportens slutsats.
 6. Varje siffra ska stå på den sida du anger. Sidnumret visas i filmen som källa.
 
+**Sammanfattningen.** Direkt efter omslaget kommer sidan "Det här visar rapporten" med 3–4 rader som bockas av. Skriv dem i fältet *Det här visar rapporten*, en rad per bock och cirka 50 tecken per rad. Lämnas fältet tomt skapas raderna från nedslagen. Avslutet upprepar inga siffror, utan visar bara länken och vem som tagit fram rapporten.
+
 **I studion:** klicka på en sida och dra en ruta runt det som ska lyftas fram. Fyll i rubrik, siffra, kort förklaring och jämförelse i listan. Typ *Citat* visar texten som ett citat, typ *Det du kanske missade* lägger till en etikett.
 
 **Svar från AI med taggar.** Fälten i `[NEDSLAG_n]` skiljs åt med `|`: sida | text att söka efter på sidan (ordagrant, 3–8 ord) | typ (Nyckeltal, Citat eller Det du kanske missade) | rubrik | siffra | kort förklaring | jämförelse. Studion söker upp texten och ritar rutan själv. Det som inte hittas ritar du för hand.
@@ -353,6 +355,9 @@ En film där kameran åker över rapportens egna sidor och zoomar in på 4–7 n
 [BOLAG] Mäklarsamfundet
 [RAPPORT] Det stora renoveringsarvet
 [RAPPORTTYP] Övrig
+[SAMMANFATTNING_1] 343 000 småhus ägs av personer över 73 år
+[SAMMANFATTNING_2] Bara 13 procent av dem har bytt kök sedan 2009
+[SAMMANFATTNING_3] 93 procent saknar nytt elsystem sedan 2003
 [NEDSLAG_1] s. 3 | Av de cirka 343 000 | Nyckeltal | Småhus som ägs av 73+ | 343 000 | En femtedel av Sveriges permanentbebodda småhus | 19,5 % av alla småhus
 [NEDSLAG_2] s. 9 | Andel småhus som bytt elsystem | Nyckeltal | Har inte bytt elsystem sedan 2003 | 93 % | av småhusen som ägs av 73+ | Övriga beståndet: 80 %
 [NEDSLAG_3] s. 17 | 17-24 procentenheter | Det du kanske missade | Nacka | 17–24 | procentenheter skiljer mellan 73+ och övriga ägare |
